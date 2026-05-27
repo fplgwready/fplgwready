@@ -1,0 +1,28 @@
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET');
+  const { endpoint } = req.query;
+  if (!endpoint) return res.status(400).json({ error: 'Missing endpoint' });
+  const BASE = 'https://fantasy.premierleague.com/api';
+  const allowed = [
+    /^entry\/\d+\/$/,
+    /^entry\/\d+\/history\/$/,
+    /^entry\/\d+\/event\/\d+\/picks\/$/,
+    /^bootstrap-static\/$/,
+    /^leagues-classic\/\d+\/standings\/$/,
+    /^event\/\d+\/live\/$/,
+  ];
+  const isAllowed = allowed.some(r => r.test(endpoint));
+  if (!isAllowed) return res.status(403).json({ error: 'Endpoint not allowed' });
+  try {
+    const response = await fetch(`${BASE}/${endpoint}`, {
+      headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' }
+    });
+    if (!response.ok) return res.status(response.status).json({ error: 'FPL API error' });
+    const data = await response.json();
+    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate');
+    return res.status(200).json(data);
+  } catch(e) {
+    return res.status(500).json({ error: 'Failed to fetch from FPL' });
+  }
+}
