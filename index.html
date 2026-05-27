@@ -124,6 +124,7 @@
 <script>
 const POS_MAP = { 1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD' };
 function fmt(n) { if (!n && n !== 0) return '—'; return n.toLocaleString(); }
+const PROXY = 'https://api.allorigins.win/raw?url=';
 async function fetchTeam() {
   const id = document.getElementById('fpl-id').value.trim();
   const err = document.getElementById('error-msg');
@@ -136,17 +137,19 @@ async function fetchTeam() {
   btn.disabled = true; loading.style.display = 'block'; features.style.display = 'none';
   try {
     const [entryRes, histRes] = await Promise.all([
-      fetch(`https://corsproxy.io/?https://fantasy.premierleague.com/api/entry/${id}/`),
-      fetch(`https://corsproxy.io/?https://fantasy.premierleague.com/api/entry/${id}/history/`)
+      fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/`)),
+      fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/history/`))
     ]);
     if (!entryRes.ok) throw new Error('Team not found. Check your ID and try again.');
     const entry = await entryRes.json();
     const hist = await histRes.json();
     const currentGW = hist.current[hist.current.length - 1];
     const gwNum = currentGW?.event || 1;
-    const picksRes = await fetch(`https://corsproxy.io/?https://fantasy.premierleague.com/api/entry/${id}/event/${gwNum}/picks/`);
+    const [picksRes, bootRes] = await Promise.all([
+      fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/event/${gwNum}/picks/`)),
+      fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/bootstrap-static/`))
+    ]);
     const picksData = await picksRes.json();
-    const bootRes = await fetch(`https://corsproxy.io/?https://fantasy.premierleague.com/api/bootstrap-static/`);
     const boot = await bootRes.json();
     const playerMap = {};
     boot.elements.forEach(p => { playerMap[p.id] = p; });
