@@ -11,6 +11,7 @@ export default async function handler(req, res) {
     /^bootstrap-static\/$/,
     /^leagues-classic\/\d+\/standings\/$/,
     /^event\/\d+\/live\/$/,
+    /^fixtures\/$/,
   ];
   const isAllowed = allowed.some(r => r.test(endpoint));
   if (!isAllowed) return res.status(403).json({ error: 'Endpoint not allowed' });
