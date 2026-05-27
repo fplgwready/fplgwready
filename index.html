@@ -19,11 +19,12 @@
     .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.5px; }
     .logo span { color: var(--accent2); }
     .nav-badge { background: var(--surface2); border: 1px solid var(--border); padding: 6px 14px; border-radius: 100px; font-size: 13px; color: var(--muted); }
-    .hero { max-width: 680px; margin: 80px auto 0; padding: 0 24px; text-align: center; }
+    .hero { max-width: 720px; margin: 80px auto 0; padding: 0 24px; text-align: center; }
     .hero-tag { display: inline-block; background: rgba(26,111,255,0.12); border: 1px solid rgba(26,111,255,0.3); color: #6BA3FF; font-size: 13px; font-weight: 500; padding: 6px 16px; border-radius: 100px; margin-bottom: 28px; letter-spacing: 0.5px; }
-    h1 { font-family: 'Syne', sans-serif; font-size: clamp(42px, 8vw, 72px); font-weight: 800; line-height: 1.05; letter-spacing: -2px; margin-bottom: 20px; }
+    h1 { font-family: 'Syne', sans-serif; font-size: clamp(38px, 7vw, 64px); font-weight: 800; line-height: 1.05; letter-spacing: -2px; margin-bottom: 20px; }
     h1 .hl { color: var(--accent); } h1 .hl2 { color: var(--accent2); }
     .hero-sub { color: var(--muted); font-size: 17px; line-height: 1.7; max-width: 480px; margin: 0 auto 48px; }
+    .offseason-banner { background: rgba(108,92,231,0.1); border: 1px solid rgba(108,92,231,0.3); border-radius: 12px; padding: 12px 20px; margin-bottom: 20px; font-size: 13px; color: var(--accent2); text-align: center; }
     .input-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; margin-bottom: 16px; text-align: left; }
     .input-label { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 12px; display: block; }
     .input-row { display: flex; gap: 12px; }
@@ -40,156 +41,32 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .result { display: none; text-align: left; }
     .manager-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 32px; margin-bottom: 16px; }
-    .manager-name { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; margin-bottom: 4px; }
-    .team-name { color: var(--accent2); font-size: 15px; font-weight: 500; margin-bottom: 20px; }
-    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .manager-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+    .manager-avatar { width: 52px; height: 52px; border-radius: 50%; background: var(--accent2); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: #fff; flex-shrink: 0; }
+    .manager-name { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; margin-bottom: 2px; }
+    .team-name { color: var(--accent2); font-size: 14px; font-weight: 500; }
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
     .stat-box { background: var(--surface2); border-radius: 12px; padding: 16px; text-align: center; }
-    .stat-val { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--accent); }
+    .stat-val { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: var(--accent); }
     .stat-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-top: 4px; }
-    .section-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin: 24px 0 16px; display: flex; align-items: center; gap: 8px; }
+    .section-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin: 20px 0 12px; display: flex; align-items: center; gap: 8px; }
     .section-badge { font-size: 11px; font-family: 'DM Sans', sans-serif; font-weight: 500; background: rgba(26,111,255,0.15); color: #6BA3FF; padding: 3px 10px; border-radius: 100px; }
-    .picks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
-    .pick-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 12px; text-align: center; position: relative; transition: border-color 0.2s; }
-    .pick-card:hover { border-color: var(--accent2); }
-    .pick-card.is-captain::after { content: 'C'; position: absolute; top: 8px; right: 8px; background: var(--accent); color: #fff; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-    .pick-card.is-vice::after { content: 'V'; position: absolute; top: 8px; right: 8px; background: var(--accent2); color: #fff; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-    .pick-pos { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 6px; }
-    .pick-name { font-size: 13px; font-weight: 600; margin-bottom: 4px; line-height: 1.3; }
-    .pick-pts { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--accent); }
-    .pick-price { font-size: 11px; color: var(--muted); margin-top: 2px; }
-    .bench-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin: 20px 0 10px; padding-top: 16px; border-top: 1px solid var(--border); }
-    .features { max-width: 680px; margin: 60px auto 0; padding: 0 24px 80px; }
-    .features-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; text-align: center; margin-bottom: 24px; }
+    .history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+    .history-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 14px; text-align: center; }
+    .history-season { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; }
+    .history-pts { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--accent); }
+    .history-rank { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .countdown-card { background: var(--surface); border: 1px solid rgba(108,92,231,0.4); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 16px; text-align: center; }
+    .countdown-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+    .countdown-nums { display: flex; justify-content: center; gap: 16px; }
+    .countdown-block { background: var(--surface2); border-radius: 10px; padding: 12px 16px; min-width: 60px; }
+    .countdown-num { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--accent2); }
+    .countdown-unit { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+    .features { max-width: 720px; margin: 48px auto 0; padding: 0 24px 80px; }
+    .features-title { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; text-align: center; margin-bottom: 20px; }
     .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
     .feature-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
-    .feature-icon { font-size: 24px; margin-bottom: 10px; }
+    .feature-icon { font-size: 22px; margin-bottom: 8px; }
     .feature-title { font-weight: 600; font-size: 14px; margin-bottom: 6px; }
     .feature-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
-    .coming-soon { font-size: 10px; background: rgba(108,92,231,0.15); color: var(--accent2); padding: 2px 8px; border-radius: 100px; margin-left: 6px; }
-    @media (max-width: 540px) { nav { padding: 16px 20px; } .hero { margin-top: 48px; } .input-row { flex-direction: column; } .features-grid { grid-template-columns: 1fr; } .picks-grid { grid-template-columns: repeat(3, 1fr); } }
-  </style>
-</head>
-<body>
-<nav>
-  <div class="logo"><span>FPL</span>GWReady</div>
-  <div class="nav-badge">Season 2025/26</div>
-</nav>
-<div class="hero">
-  <div class="hero-tag">⚡ Your Gameweek Companion</div>
-  <h1>Win your <span class="hl">mini league</span> every <span class="hl2">gameweek</span></h1>
-  <p class="hero-sub">Analyze your FPL team, track rivals, and get smart next-move suggestions based on real data.</p>
-  <div class="input-card">
-    <label class="input-label" for="fpl-id">Enter your FPL Team ID</label>
-    <div class="input-row">
-      <input type="text" id="fpl-id" placeholder="e.g. 1234567" maxlength="10"/>
-      <button class="btn" id="fetch-btn" onclick="fetchTeam()">Analyze →</button>
-    </div>
-    <p class="input-hint">Find your ID at <a href="https://fantasy.premierleague.com" target="_blank">fantasy.premierleague.com</a> → Points → check the URL</p>
-    <div class="error-msg" id="error-msg"></div>
-  </div>
-  <div class="loading" id="loading"><div class="spinner"></div><p>Fetching your team data...</p></div>
-  <div class="result" id="result">
-    <div class="manager-card">
-      <div class="manager-name" id="manager-name"></div>
-      <div class="team-name" id="team-name"></div>
-      <div class="stats-row">
-        <div class="stat-box"><div class="stat-val" id="total-pts"></div><div class="stat-lbl">Total Points</div></div>
-        <div class="stat-box"><div class="stat-val" id="overall-rank"></div><div class="stat-lbl">Overall Rank</div></div>
-        <div class="stat-box"><div class="stat-val" id="gw-pts"></div><div class="stat-lbl">GW Points</div></div>
-      </div>
-    </div>
-    <div class="section-title">Starting XI <span class="section-badge">GW Picks</span></div>
-    <div class="picks-grid" id="picks-grid"></div>
-    <div class="bench-label">Bench</div>
-    <div class="picks-grid" id="bench-grid"></div>
-  </div>
-</div>
-<div class="features" id="features-section">
-  <div class="features-title">What's coming</div>
-  <div class="features-grid">
-    <div class="feature-card"><div class="feature-icon">⚡</div><div class="feature-title">Live Points</div><div class="feature-desc">Real-time GW points with bonus & auto-subs applied.</div></div>
-    <div class="feature-card"><div class="feature-icon">🏆</div><div class="feature-title">Mini League Tracker</div><div class="feature-desc">See rival captains & transfers live. <span class="coming-soon">Soon</span></div></div>
-    <div class="feature-card"><div class="feature-icon">🎯</div><div class="feature-title">Next Move AI</div><div class="feature-desc">Smart suggestions based on your mode: Chase, Hold, or Speculate. <span class="coming-soon">Soon</span></div></div>
-  </div>
-</div>
-<script>
-const POS_MAP = { 1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD' };
-function fmt(n) { if (!n && n !== 0) return '—'; return n.toLocaleString(); }
-
-const PROXIES = [
-  url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-  url => `https://thingproxy.freeboard.io/fetch/${url}`,
-];
-
-async function fetchWithFallback(url) {
-  for (const proxy of PROXIES) {
-    try {
-      const res = await fetch(proxy(url));
-      if (res.ok) return res;
-    } catch(e) {}
-  }
-  throw new Error('Unable to connect. Please try again in a moment.');
-}
-
-async function fetchTeam() {
-  const id = document.getElementById('fpl-id').value.trim();
-  const err = document.getElementById('error-msg');
-  const loading = document.getElementById('loading');
-  const result = document.getElementById('result');
-  const btn = document.getElementById('fetch-btn');
-  const features = document.getElementById('features-section');
-  err.style.display = 'none'; result.style.display = 'none';
-  if (!id || isNaN(id)) { err.textContent = 'Please enter a valid FPL Team ID (numbers only).'; err.style.display = 'block'; return; }
-  btn.disabled = true; loading.style.display = 'block'; features.style.display = 'none';
-  try {
-    const [entryRes, histRes] = await Promise.all([
-      fetchWithFallback(`https://fantasy.premierleague.com/api/entry/${id}/`),
-      fetchWithFallback(`https://fantasy.premierleague.com/api/entry/${id}/history/`)
-    ]);
-    if (!entryRes.ok) throw new Error('Team not found. Check your ID and try again.');
-    const entry = await entryRes.json();
-    const hist = await histRes.json();
-    const currentGW = hist.current[hist.current.length - 1];
-    const gwNum = currentGW?.event || 1;
-    const [picksRes, bootRes] = await Promise.all([
-      fetchWithFallback(`https://fantasy.premierleague.com/api/entry/${id}/event/${gwNum}/picks/`),
-      fetchWithFallback(`https://fantasy.premierleague.com/api/bootstrap-static/`)
-    ]);
-    const picksData = await picksRes.json();
-    const boot = await bootRes.json();
-    const playerMap = {};
-    boot.elements.forEach(p => { playerMap[p.id] = p; });
-    document.getElementById('manager-name').textContent = `${entry.player_first_name} ${entry.player_last_name}`;
-    document.getElementById('team-name').textContent = entry.name;
-    document.getElementById('total-pts').textContent = fmt(entry.summary_overall_points);
-    document.getElementById('overall-rank').textContent = entry.summary_overall_rank ? fmt(entry.summary_overall_rank) : '—';
-    document.getElementById('gw-pts').textContent = fmt(currentGW?.points);
-    const starters = picksData.picks.filter(p => p.position <= 11);
-    const bench = picksData.picks.filter(p => p.position > 11);
-    function renderPicks(picks, containerId) {
-      const grid = document.getElementById(containerId);
-      grid.innerHTML = '';
-      picks.forEach(pick => {
-        const player = playerMap[pick.element];
-        if (!player) return;
-        const card = document.createElement('div');
-        card.className = 'pick-card' + (pick.is_captain ? ' is-captain' : pick.is_vice_captain ? ' is-vice' : '');
-        card.innerHTML = `<div class="pick-pos">${POS_MAP[player.element_type] || '—'}</div><div class="pick-name">${player.web_name}</div><div class="pick-pts">${player.event_points ?? 0}</div><div class="pick-price">£${(player.now_cost / 10).toFixed(1)}m</div>`;
-        grid.appendChild(card);
-      });
-    }
-    renderPicks(starters, 'picks-grid');
-    renderPicks(bench, 'bench-grid');
-    loading.style.display = 'none'; result.style.display = 'block';
-  } catch(e) {
-    loading.style.display = 'none'; features.style.display = 'block';
-    err.textContent = e.message || 'Something went wrong. Please try again.';
-    err.style.display = 'block';
-  }
-  btn.disabled = false;
-}
-document.getElementById('fpl-id').addEventListener('keydown', e => { if (e.key === 'Enter') fetchTeam(); });
-</script>
-</body>
-</html>
+    .coming-soon { font-size: 10
