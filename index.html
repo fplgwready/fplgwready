@@ -127,20 +127,15 @@
 <script>
 function fmt(n) { if (!n && n !== 0) return '—'; return n.toLocaleString(); }
 
-const PROXIES = [
-  url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-  url => `https://thingproxy.freeboard.io/fetch/${url}`,
-];
-
 async function fetchWithFallback(url) {
-  for (const proxy of PROXIES) {
-    try {
-      const res = await fetch(proxy(url));
-      if (res.ok) { const text = await res.text(); return JSON.parse(text); }
-    } catch(e) {}
+  const endpoint = url.replace('https://fantasy.premierleague.com/api/', '');
+  try {
+    const res = await fetch(`/api/fpl?endpoint=${encodeURIComponent(endpoint)}`);
+    if (res.ok) return await res.json();
+    throw new Error('FPL API error');
+  } catch(e) {
+    throw new Error('Unable to connect. Please try again.');
   }
-  throw new Error('Unable to connect. Please try again.');
 }
 
 function startCountdown() {
