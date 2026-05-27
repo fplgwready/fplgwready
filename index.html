@@ -56,7 +56,7 @@
     .history-season { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; }
     .history-pts { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--accent); }
     .history-rank { font-size: 12px; color: var(--muted); margin-top: 4px; }
-    .countdown-card { background: var(--surface); border: 1px solid rgba(108,92,231,0.4); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 16px; text-align: center; }
+    .countdown-card { background: var(--surface); border: 1px solid rgba(108,92,231,0.4); border-radius: var(--radius); padding: 24px 28px; margin-top: 20px; text-align: center; }
     .countdown-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
     .countdown-nums { display: flex; justify-content: center; gap: 16px; }
     .countdown-block { background: var(--surface2); border-radius: 10px; padding: 12px 16px; min-width: 60px; }
@@ -69,4 +69,138 @@
     .feature-icon { font-size: 22px; margin-bottom: 8px; }
     .feature-title { font-weight: 600; font-size: 14px; margin-bottom: 6px; }
     .feature-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
-    .coming-soon { font-size: 10
+    .coming-soon { font-size: 10px; background: rgba(108,92,231,0.15); color: var(--accent2); padding: 2px 8px; border-radius: 100px; margin-left: 6px; }
+    @media (max-width: 540px) { nav { padding: 16px 20px; } .hero { margin-top: 48px; } .input-row { flex-direction: column; } .features-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="logo"><span>FPL</span>GWReady</div>
+  <div class="nav-badge">Off-Season 2026</div>
+</nav>
+<div class="hero">
+  <div class="hero-tag">⚡ Season 2026/27 starts August 2026</div>
+  <h1>Get ready for your best <span class="hl2">FPL season</span> yet</h1>
+  <p class="hero-sub">Look up any manager's history, track their all-time stats, and prepare your strategy for the new season.</p>
+  <div class="offseason-banner">🏖️ Off-season mode — live GW data available when Season 2026/27 kicks off</div>
+  <div class="input-card">
+    <label class="input-label" for="fpl-id">Enter FPL Team ID</label>
+    <div class="input-row">
+      <input type="text" id="fpl-id" placeholder="e.g. 222758" maxlength="10"/>
+      <button class="btn" id="fetch-btn" onclick="fetchTeam()">Look up →</button>
+    </div>
+    <p class="input-hint">Find your ID at <a href="https://fantasy.premierleague.com" target="_blank">fantasy.premierleague.com</a> → Points → check the URL</p>
+    <div class="error-msg" id="error-msg"></div>
+  </div>
+  <div class="loading" id="loading"><div class="spinner"></div><p>Loading manager data...</p></div>
+  <div class="result" id="result">
+    <div class="manager-card">
+      <div class="manager-header">
+        <div class="manager-avatar" id="manager-avatar"></div>
+        <div>
+          <div class="manager-name" id="manager-name"></div>
+          <div class="team-name" id="team-name"></div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-val" id="best-rank"></div><div class="stat-lbl">Best Ever Rank</div></div>
+        <div class="stat-box"><div class="stat-val" id="seasons-played"></div><div class="stat-lbl">Seasons Played</div></div>
+        <div class="stat-box"><div class="stat-val" id="last-rank"></div><div class="stat-lbl">Last Season Rank</div></div>
+      </div>
+    </div>
+    <div class="section-title">Season History <span class="section-badge">All Time</span></div>
+    <div class="history-grid" id="history-grid"></div>
+    <div class="countdown-card">
+      <div class="countdown-label">Season 2026/27 countdown</div>
+      <div class="countdown-nums" id="countdown-nums"></div>
+    </div>
+  </div>
+</div>
+<div class="features" id="features-section">
+  <div class="features-title">Coming this season</div>
+  <div class="features-grid">
+    <div class="feature-card"><div class="feature-icon">⚡</div><div class="feature-title">Live Points</div><div class="feature-desc">Real-time GW points with bonus & auto-subs applied.</div></div>
+    <div class="feature-card"><div class="feature-icon">🏆</div><div class="feature-title">Mini League Tracker</div><div class="feature-desc">See rival captains & transfers live. <span class="coming-soon">Soon</span></div></div>
+    <div class="feature-card"><div class="feature-icon">🎯</div><div class="feature-title">Next Move AI</div><div class="feature-desc">Chase, Hold, or Speculate — smart suggestions every GW. <span class="coming-soon">Soon</span></div></div>
+  </div>
+</div>
+<script>
+function fmt(n) { if (!n && n !== 0) return '—'; return n.toLocaleString(); }
+
+const PROXIES = [
+  url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://thingproxy.freeboard.io/fetch/${url}`,
+];
+
+async function fetchWithFallback(url) {
+  for (const proxy of PROXIES) {
+    try {
+      const res = await fetch(proxy(url));
+      if (res.ok) { const text = await res.text(); return JSON.parse(text); }
+    } catch(e) {}
+  }
+  throw new Error('Unable to connect. Please try again.');
+}
+
+function startCountdown() {
+  const target = new Date('2026-08-15T11:00:00Z');
+  function update() {
+    const diff = target - new Date();
+    if (diff <= 0) { document.getElementById('countdown-nums').innerHTML = '<span style="color:var(--accent2);font-size:18px;font-weight:700;">Season is live! 🎉</span>'; return; }
+    const d = Math.floor(diff/86400000);
+    const h = Math.floor((diff%86400000)/3600000);
+    const m = Math.floor((diff%3600000)/60000);
+    const s = Math.floor((diff%60000)/1000);
+    document.getElementById('countdown-nums').innerHTML = [
+      [d,'Days'],[h,'Hours'],[m,'Mins'],[s,'Secs']
+    ].map(([n,u]) => `<div class="countdown-block"><div class="countdown-num">${String(n).padStart(2,'0')}</div><div class="countdown-unit">${u}</div></div>`).join('');
+  }
+  update(); setInterval(update, 1000);
+}
+
+async function fetchTeam() {
+  const id = document.getElementById('fpl-id').value.trim();
+  const err = document.getElementById('error-msg');
+  const loading = document.getElementById('loading');
+  const result = document.getElementById('result');
+  const btn = document.getElementById('fetch-btn');
+  const features = document.getElementById('features-section');
+  err.style.display = 'none'; result.style.display = 'none';
+  if (!id || isNaN(id)) { err.textContent = 'Please enter a valid FPL Team ID.'; err.style.display = 'block'; return; }
+  btn.disabled = true; loading.style.display = 'block'; features.style.display = 'none';
+  try {
+    const [entry, hist] = await Promise.all([
+      fetchWithFallback(`https://fantasy.premierleague.com/api/entry/${id}/`),
+      fetchWithFallback(`https://fantasy.premierleague.com/api/entry/${id}/history/`)
+    ]);
+    const initials = `${entry.player_first_name[0]}${entry.player_last_name[0]}`.toUpperCase();
+    document.getElementById('manager-avatar').textContent = initials;
+    document.getElementById('manager-name').textContent = `${entry.player_first_name} ${entry.player_last_name}`;
+    document.getElementById('team-name').textContent = entry.name;
+    const past = hist.past || [];
+    const bestRank = past.length ? Math.min(...past.map(s => s.rank)) : null;
+    document.getElementById('best-rank').textContent = bestRank ? fmt(bestRank) : '—';
+    document.getElementById('seasons-played').textContent = past.length || '—';
+    document.getElementById('last-rank').textContent = past.length ? fmt(past[past.length-1].rank) : '—';
+    const grid = document.getElementById('history-grid');
+    grid.innerHTML = '';
+    past.slice().reverse().forEach(s => {
+      const card = document.createElement('div');
+      card.className = 'history-card';
+      card.innerHTML = `<div class="history-season">${s.season_name}</div><div class="history-pts">${fmt(s.total_points)}</div><div class="history-rank">Rank ${fmt(s.rank)}</div>`;
+      grid.appendChild(card);
+    });
+    loading.style.display = 'none'; result.style.display = 'block';
+    startCountdown();
+  } catch(e) {
+    loading.style.display = 'none'; features.style.display = 'block';
+    err.textContent = e.message || 'Something went wrong. Please try again.';
+    err.style.display = 'block';
+  }
+  btn.disabled = false;
+}
+document.getElementById('fpl-id').addEventListener('keydown', e => { if (e.key === 'Enter') fetchTeam(); });
+</script>
+</body>
+</html>
