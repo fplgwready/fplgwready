@@ -25,8 +25,17 @@
     .page-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 24px; }
     .page-title { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; }
     .player-count { font-size: 13px; color: var(--muted); }
-
-    /* Filters */
+    .gw-picker-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; flex-wrap: wrap; }
+    .gw-picker-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; white-space: nowrap; }
+    .gw-btn-group { display: flex; gap: 4px; flex-wrap: wrap; }
+    .gw-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+    .gw-btn:hover { color: var(--text); border-color: var(--accent2); }
+    .gw-btn.active { background: var(--accent2); border-color: var(--accent2); color: #fff; }
+    .gw-btn.live { background: rgba(26,111,255,0.15); border-color: var(--accent); color: #6BA3FF; }
+    .gw-btn.live.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .gw-source-badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-left: auto; white-space: nowrap; }
+    .badge-live { background: rgba(26,111,255,0.15); color: #6BA3FF; }
+    .badge-hist { background: rgba(108,92,231,0.15); color: #A29BFE; }
     .filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
     .filter-group { display: flex; gap: 6px; }
     .filter-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
@@ -40,13 +49,9 @@
     .search-input:focus { border-color: var(--accent); }
     .search-input::placeholder { color: var(--muted); }
     .divider { width: 1px; height: 28px; background: var(--border); }
-
-    /* Loading */
     .loading { text-align: center; padding: 80px 0; color: var(--muted); }
     .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Table */
     .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
     table { width: 100%; border-collapse: collapse; min-width: 800px; }
     thead { background: var(--surface); }
@@ -59,62 +64,41 @@
     tbody tr:last-child { border-bottom: none; }
     tbody tr:hover { background: var(--surface); }
     td { padding: 11px 14px; font-size: 13px; vertical-align: middle; }
-
-    /* Jersey */
     .jersey { width: 28px; height: 28px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: #fff; flex-shrink: 0; }
-
-    /* Player cell */
     .player-cell { display: flex; align-items: center; gap: 10px; }
     .player-name { font-weight: 600; font-size: 13px; }
     .player-team { font-size: 11px; color: var(--muted); }
-
-    /* Pos badge */
     .pos-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
     .pos-gk { background: rgba(249,202,36,0.15); color: #F9CA24; }
     .pos-def { background: rgba(26,111,255,0.15); color: #6BA3FF; }
     .pos-mid { background: rgba(0,184,148,0.15); color: #00B894; }
     .pos-fwd { background: rgba(255,118,117,0.15); color: #FF7675; }
-
-    /* xP cell */
     .xp-val { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; color: var(--accent); }
     .xp-next { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; color: var(--accent2); }
-
-    /* EO bar */
+    .pts-val { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; color: #00B894; }
     .eo-cell { display: flex; align-items: center; gap: 8px; }
     .eo-bar-bg { flex: 1; max-width: 60px; height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
     .eo-bar-fill { height: 100%; border-radius: 2px; background: var(--accent2); }
     .eo-val { font-size: 12px; color: var(--muted); min-width: 36px; }
     .eo-diff { font-size: 10px; background: rgba(255,118,117,0.15); color: #FF7675; padding: 1px 6px; border-radius: 4px; }
-
-    /* FDR */
     .fdr-row { display: flex; gap: 4px; }
     .fdr-box { width: 28px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; }
     .fdr-1, .fdr-2 { background: rgba(0,184,148,0.25); color: #00B894; }
     .fdr-3 { background: rgba(253,203,110,0.25); color: #FDCB6E; }
     .fdr-4, .fdr-5 { background: rgba(255,118,117,0.25); color: #FF7675; }
-
-    /* Status dot */
-    .status-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 4px; }
-    .status-a { background: #00B894; }
-    .status-d { background: #FDCB6E; }
-    .status-i, .status-s, .status-u { background: #FF7675; }
-
-    /* Price */
     .price-val { font-size: 13px; font-weight: 500; }
-
-    /* Form */
     .form-val { font-size: 13px; color: var(--muted); }
     .form-high { color: #00B894; font-weight: 600; }
     .form-mid { color: #FDCB6E; }
-
-    /* Empty state */
     .empty { text-align: center; padding: 60px 0; color: var(--muted); }
-
+    .gw-info { font-size: 12px; color: var(--muted); padding: 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 14px; }
+    .gw-info span { color: var(--text); font-weight: 600; }
     @media (max-width: 768px) {
       nav { padding: 14px 16px; }
       .nav-links { gap: 4px; }
       .nav-link { padding: 5px 10px; font-size: 11px; }
       .filters { gap: 8px; }
+      .gw-btn { padding: 3px 7px; font-size: 11px; }
     }
   </style>
 </head>
@@ -136,19 +120,27 @@
     <div class="player-count" id="player-count">Memuat...</div>
   </div>
 
-  <!-- Filters -->
+  <div class="gw-picker-wrap" id="gw-picker-wrap">
+    <span class="gw-picker-label">Gameweek</span>
+    <div class="gw-btn-group" id="gw-btn-group"></div>
+    <span class="gw-source-badge badge-live" id="gw-source-badge">Live FPL</span>
+  </div>
+
+  <div class="gw-info" id="gw-info" style="display:none;"></div>
+
   <div class="filters">
     <div class="filter-group">
-      <button class="filter-btn active" onclick="filterPos('ALL')">Semua</button>
-      <button class="filter-btn pos-gk" onclick="filterPos('GK')">GK</button>
-      <button class="filter-btn pos-def" onclick="filterPos('DEF')">DEF</button>
-      <button class="filter-btn pos-mid" onclick="filterPos('MID')">MID</button>
-      <button class="filter-btn pos-fwd" onclick="filterPos('FWD')">FWD</button>
+      <button class="filter-btn active" onclick="filterPos('ALL', this)">Semua</button>
+      <button class="filter-btn pos-gk" onclick="filterPos('GK', this)">GK</button>
+      <button class="filter-btn pos-def" onclick="filterPos('DEF', this)">DEF</button>
+      <button class="filter-btn pos-mid" onclick="filterPos('MID', this)">MID</button>
+      <button class="filter-btn pos-fwd" onclick="filterPos('FWD', this)">FWD</button>
     </div>
     <div class="divider"></div>
-    <div class="filter-group">
+    <div class="filter-group" id="sort-btns">
       <button class="filter-btn active-sort" id="sort-xp" onclick="sortBy('ep_this')">xP GW ↓</button>
       <button class="filter-btn" id="sort-xpnext" onclick="sortBy('ep_next')">xP Next</button>
+      <button class="filter-btn" id="sort-pts" onclick="sortBy('pts')" style="display:none;">Pts GW</button>
       <button class="filter-btn" id="sort-eo" onclick="sortBy('eo')">EO</button>
       <button class="filter-btn" id="sort-form" onclick="sortBy('form')">Form</button>
       <button class="filter-btn" id="sort-price" onclick="sortBy('price')">Harga</button>
@@ -157,17 +149,15 @@
     <input type="text" class="search-input" id="search-input" placeholder="Cari pemain..." oninput="filterSearch()"/>
   </div>
 
-  <!-- Loading -->
   <div class="loading" id="loading">
     <div class="spinner"></div>
-    <p>Memuat data pemain...</p>
+    <p id="loading-text">Memuat data pemain...</p>
   </div>
 
-  <!-- Table -->
   <div class="table-wrap" id="table-wrap" style="display:none;">
     <table>
       <thead>
-        <tr>
+        <tr id="table-head">
           <th style="width:200px">Pemain</th>
           <th>Pos</th>
           <th onclick="sortBy('price')" id="th-price">Harga <span class="sort-arrow">↕</span></th>
@@ -175,6 +165,7 @@
           <th onclick="sortBy('form')" id="th-form">Form <span class="sort-arrow">↕</span></th>
           <th onclick="sortBy('ep_this')" id="th-ep_this">xP GW <span class="sort-arrow">↓</span></th>
           <th onclick="sortBy('ep_next')" id="th-ep_next">xP Next <span class="sort-arrow">↕</span></th>
+          <th onclick="sortBy('pts')" id="th-pts" style="display:none;">Pts GW <span class="sort-arrow">↕</span></th>
           <th>FDR 3 GW</th>
           <th>Status</th>
         </tr>
@@ -188,14 +179,11 @@
 <script>
 const POS_MAP = { 1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD' };
 const POS_CLASS = { 1: 'pos-gk', 2: 'pos-def', 3: 'pos-mid', 4: 'pos-fwd' };
+const VAASTAV_BASE = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2024-25/gws/gw';
 
-let allPlayers = [];
-let teamMap = {};
-let fixtureMap = {};
-let currentPos = 'ALL';
-let currentSort = 'ep_this';
-let sortAsc = false;
-let searchQuery = '';
+let allPlayers = [], teamMap = {}, currentPos = 'ALL';
+let currentSort = 'ep_this', sortAsc = false, searchQuery = '';
+let currentGW = 'live', currentGWMax = 38, gwDataCache = {};
 
 async function fetchAPI(endpoint) {
   const res = await fetch(`/api/fpl?endpoint=${encodeURIComponent(endpoint)}`);
@@ -203,100 +191,125 @@ async function fetchAPI(endpoint) {
   throw new Error('Gagal fetch data.');
 }
 
-// Team jersey colors (primary, secondary)
 const TEAM_COLORS = {
-  1:  ['#EF0107','#FFFFFF'], // Arsenal
-  2:  ['#95BFE5','#FFFFFF'], // Aston Villa
-  3:  ['#E30613','#000000'], // Bournemouth
-  4:  ['#FFCC00','#000000'], // Brentford
-  5:  ['#0057B8','#FFFFFF'], // Brighton
-  6:  ['#034694','#FFFFFF'], // Chelsea
-  7:  ['#1B458F','#FFFFFF'], // Crystal Palace
-  8:  ['#003399','#FFFFFF'], // Everton
-  9:  ['#003090','#FFFFFF'], // Fulham
-  10: ['#0F5DA7','#FFFFFF'], // Ipswich
-  11: ['#FDBE11','#000000'], // Leeds
-  12: ['#003090','#FFFFFF'], // Leicester
-  13: ['#C8102E','#FFFFFF'], // Liverpool
-  14: ['#6CABDD','#FFFFFF'], // Man City
-  15: ['#DA020E','#FFE500'], // Man Utd
-  16: ['#000000','#FFFFFF'], // Newcastle
-  17: ['#D71920','#FFFFFF'], // Nott'm Forest
-  18: ['#D71920','#FFFFFF'], // Southampton
-  19: ['#132257','#FFFFFF'], // Spurs
-  20: ['#7A263A','#FFFFFF'], // West Ham
-  21: ['#FDB913','#000000'], // Wolves
+  1:['#EF0107','#FFF'],2:['#95BFE5','#FFF'],3:['#E30613','#000'],4:['#FFCC00','#000'],
+  5:['#0057B8','#FFF'],6:['#034694','#FFF'],7:['#1B458F','#FFF'],8:['#003399','#FFF'],
+  9:['#003090','#FFF'],10:['#0F5DA7','#FFF'],11:['#FFCD00','#000'],12:['#003090','#FFF'],
+  13:['#C8102E','#FFF'],14:['#6CABDD','#FFF'],15:['#DA020E','#FFE500'],16:['#000','#FFF'],
+  17:['#D71920','#FFF'],18:['#D71920','#FFF'],19:['#132257','#FFF'],20:['#7A263A','#FFF'],21:['#FDB913','#000'],
 };
 
-function getJerseyColor(teamId) {
-  return TEAM_COLORS[teamId] || ['#444','#fff'];
-}
-
-function jerseyHTML(teamId, teamShort) {
-  const [bg, fg] = getJerseyColor(teamId);
-  return `<div class="jersey" style="background:${bg};color:${fg};">${teamShort || '?'}</div>`;
+function jerseyHTML(teamId, s) {
+  const [bg, fg] = TEAM_COLORS[teamId] || ['#444','#fff'];
+  return `<div class="jersey" style="background:${bg};color:${fg};">${s||'?'}</div>`;
 }
 
 function fdrHTML(fdrs) {
-  if (!fdrs || fdrs.length === 0) return '<span style="color:var(--muted);font-size:12px;">—</span>';
-  return `<div class="fdr-row">${fdrs.slice(0, 3).map(f => `<div class="fdr-box fdr-${f}">${f}</div>`).join('')}</div>`;
+  if (!fdrs?.length) return '<span style="color:var(--muted);font-size:12px;">—</span>';
+  return `<div class="fdr-row">${fdrs.slice(0,3).map(f=>`<div class="fdr-box fdr-${f}">${f}</div>`).join('')}</div>`;
 }
 
-async function loadPlayers() {
-  try {
-    const [boot, fixtures] = await Promise.all([
-      fetchAPI('bootstrap-static/'),
-      fetchAPI('fixtures/')
-    ]);
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',');
+  return lines.slice(1).map(line => {
+    const vals = line.split(','), obj = {};
+    headers.forEach((h,i) => obj[h.trim()] = vals[i]?.trim()||'');
+    return obj;
+  });
+}
 
-    teamMap = {};
-    boot.teams.forEach(t => { teamMap[t.id] = t; });
+function buildVaastavMap(rows) {
+  const map = {};
+  rows.forEach(r => { if (r.element) map[r.element] = r; });
+  return map;
+}
 
-    // Build FDR map per team — next 3 fixtures
-    const now = new Date();
-    const upcomingFixtures = fixtures.filter(f => !f.finished).slice(0, 200);
+async function fetchVaastavGW(gw) {
+  if (gwDataCache[gw]) return gwDataCache[gw];
+  const res = await fetch(`${VAASTAV_BASE}${gw}.csv`);
+  if (!res.ok) throw new Error(`Data GW ${gw} tidak tersedia`);
+  const map = buildVaastavMap(parseCSV(await res.text()));
+  gwDataCache[gw] = map;
+  return map;
+}
 
-    const teamFDR = {};
-    boot.teams.forEach(t => {
-      const teamFixtures = upcomingFixtures.filter(f => f.team_h === t.id || f.team_a === t.id).slice(0, 3);
-      teamFDR[t.id] = teamFixtures.map(f => f.team_h === t.id ? f.team_h_difficulty : f.team_a_difficulty);
-    });
-
-    allPlayers = boot.elements.map(p => ({
-      ...p,
-      ep_this_f: parseFloat(p.ep_this) || 0,
-      ep_next_f: parseFloat(p.ep_next) || 0,
-      eo_f: parseFloat(p.selected_by_percent) || 0,
-      form_f: parseFloat(p.form) || 0,
-      price_f: p.now_cost / 10,
-      fdrs: teamFDR[p.team] || [],
-      teamData: teamMap[p.team],
-    }));
-
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('table-wrap').style.display = 'block';
-    renderTable();
-
-  } catch(e) {
-    document.getElementById('loading').innerHTML = `<p style="color:#FF7675;">Gagal memuat data: ${e.message}</p>`;
+function buildGWPicker(maxGW) {
+  const group = document.getElementById('gw-btn-group');
+  group.innerHTML = '';
+  const liveBtn = document.createElement('button');
+  liveBtn.className = 'gw-btn live active';
+  liveBtn.textContent = 'Live';
+  liveBtn.dataset.gw = 'live';
+  liveBtn.onclick = () => selectGW('live', liveBtn);
+  group.appendChild(liveBtn);
+  for (let i = 1; i <= maxGW; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'gw-btn';
+    btn.textContent = i;
+    btn.dataset.gw = i;
+    btn.onclick = () => selectGW(i, btn);
+    group.appendChild(btn);
   }
 }
 
-function filterPos(pos) {
+async function selectGW(gw, btnEl) {
+  document.querySelectorAll('.gw-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  currentGW = gw;
+  const badge = document.getElementById('gw-source-badge');
+  const infoBar = document.getElementById('gw-info');
+  const thPts = document.getElementById('th-pts');
+  const sortPts = document.getElementById('sort-pts');
+
+  if (gw === 'live') {
+    badge.textContent = 'Live FPL'; badge.className = 'gw-source-badge badge-live';
+    infoBar.style.display = 'none';
+    thPts.style.display = 'none'; sortPts.style.display = 'none';
+    if (currentSort === 'pts') currentSort = 'ep_this';
+    renderTable(); return;
+  }
+
+  badge.textContent = `GW ${gw} · vaastav`; badge.className = 'gw-source-badge badge-hist';
+  thPts.style.display = ''; sortPts.style.display = '';
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('table-wrap').style.display = 'none';
+  document.getElementById('loading-text').textContent = `Memuat data GW ${gw}...`;
+
+  try {
+    const gwMap = await fetchVaastavGW(gw);
+    let matched = 0;
+    allPlayers.forEach(p => {
+      const row = gwMap[String(p.id)];
+      if (row) { p.gw_pts = parseInt(row.total_points)||0; p.gw_xp = parseFloat(row.xP)||0; matched++; }
+      else { p.gw_pts = null; p.gw_xp = null; }
+    });
+    infoBar.innerHTML = `GW <span>${gw}</span> — data dari vaastav · <span>${matched}</span> pemain tercocokkan`;
+    infoBar.style.display = 'block';
+    currentSort = 'pts'; sortAsc = false;
+  } catch(e) {
+    infoBar.innerHTML = `⚠️ Gagal memuat data GW ${gw}: ${e.message}`;
+    infoBar.style.display = 'block';
+  }
+
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('table-wrap').style.display = 'block';
+  renderTable();
+}
+
+function filterPos(pos, btn) {
   currentPos = pos;
   document.querySelectorAll('.filter-group:first-child .filter-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  btn.classList.add('active');
   renderTable();
 }
 
 function sortBy(key) {
-  if (currentSort === key) { sortAsc = !sortAsc; }
+  if (currentSort === key) sortAsc = !sortAsc;
   else { currentSort = key; sortAsc = false; }
-
   document.querySelectorAll('th').forEach(t => t.classList.remove('sorted'));
   const thEl = document.getElementById(`th-${key}`);
   if (thEl) { thEl.classList.add('sorted'); thEl.querySelector('.sort-arrow').textContent = sortAsc ? '↑' : '↓'; }
-
   renderTable();
 }
 
@@ -306,25 +319,22 @@ function filterSearch() {
 }
 
 function renderTable() {
+  const isHistorical = currentGW !== 'live';
   let filtered = allPlayers.filter(p => {
     if (currentPos !== 'ALL' && POS_MAP[p.element_type] !== currentPos) return false;
     if (searchQuery && !p.web_name.toLowerCase().includes(searchQuery) && !p.teamData?.name.toLowerCase().includes(searchQuery)) return false;
     return true;
   });
 
-  const sortKey = {
-    ep_this: 'ep_this_f', ep_next: 'ep_next_f',
-    eo: 'eo_f', form: 'form_f', price: 'price_f'
-  }[currentSort] || 'ep_this_f';
-
-  filtered.sort((a, b) => sortAsc ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey]);
+  const sortKeyMap = { ep_this:'ep_this_f', ep_next:'ep_next_f', eo:'eo_f', form:'form_f', price:'price_f', pts: isHistorical ? 'gw_pts' : 'ep_this_f' };
+  const sortKey = sortKeyMap[currentSort] || 'ep_this_f';
+  filtered.sort((a,b) => { const av=a[sortKey]??-1, bv=b[sortKey]??-1; return sortAsc ? av-bv : bv-av; });
 
   document.getElementById('player-count').textContent = `${filtered.length} pemain`;
-
   const tbody = document.getElementById('players-tbody');
   tbody.innerHTML = '';
 
-  if (filtered.length === 0) {
+  if (!filtered.length) {
     document.getElementById('empty-state').style.display = 'block';
     document.getElementById('table-wrap').style.display = 'none';
     return;
@@ -332,41 +342,62 @@ function renderTable() {
   document.getElementById('empty-state').style.display = 'none';
   document.getElementById('table-wrap').style.display = 'block';
 
-  filtered.slice(0, 200).forEach(p => {
-    const team = p.teamData;
-    const teamShort = team?.short_name || '?';
+  const statusMap = { a:'✅', d:'⚠️', i:'❌', s:'❌', u:'❌' };
+  const thPts = document.getElementById('th-pts');
+  const thNext = document.getElementById('th-ep_next');
+  if (thPts) thPts.style.display = isHistorical ? '' : 'none';
+  if (thNext) thNext.style.display = isHistorical ? 'none' : '';
+
+  filtered.slice(0,200).forEach(p => {
+    const team = p.teamData, teamShort = team?.short_name || '?';
     const isDiff = p.eo_f < 10;
     const formClass = p.form_f >= 7 ? 'form-high' : p.form_f >= 4 ? 'form-mid' : 'form-val';
-    const statusMap = { a: '✅', d: '⚠️', i: '❌', s: '❌', u: '❌' };
+    const ptsCell = isHistorical
+      ? `<td>${p.gw_pts !== null ? `<span class="pts-val">${p.gw_pts}</span><span style="font-size:11px;color:var(--muted);margin-left:4px;">(${p.gw_xp?.toFixed(1)||'—'}xP)</span>` : '<span style="color:var(--muted);">—</span>'}</td>` : '';
+    const xpNextCell = isHistorical ? '' : `<td><span class="xp-next">${p.ep_next_f.toFixed(1)}</span></td>`;
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>
-        <div class="player-cell">
-          ${jerseyHTML(p.team, teamShort)}
-          <div>
-            <div class="player-name">${p.web_name}</div>
-            <div class="player-team">${team?.name || '—'}</div>
-          </div>
-        </div>
-      </td>
+      <td><div class="player-cell">${jerseyHTML(p.team,teamShort)}<div><div class="player-name">${p.web_name}</div><div class="player-team">${team?.name||'—'}</div></div></div></td>
       <td><span class="pos-badge ${POS_CLASS[p.element_type]}">${POS_MAP[p.element_type]}</span></td>
       <td><span class="price-val">£${p.price_f.toFixed(1)}m</span></td>
-      <td>
-        <div class="eo-cell">
-          <div class="eo-bar-bg"><div class="eo-bar-fill" style="width:${Math.min(100, p.eo_f)}%"></div></div>
-          <span class="eo-val">${p.eo_f.toFixed(1)}%</span>
-          ${isDiff ? '<span class="eo-diff">Diff</span>' : ''}
-        </div>
-      </td>
+      <td><div class="eo-cell"><div class="eo-bar-bg"><div class="eo-bar-fill" style="width:${Math.min(100,p.eo_f)}%"></div></div><span class="eo-val">${p.eo_f.toFixed(1)}%</span>${isDiff?'<span class="eo-diff">Diff</span>':''}</div></td>
       <td><span class="${formClass}">${p.form_f.toFixed(1)}</span></td>
       <td><span class="xp-val">${p.ep_this_f.toFixed(1)}</span></td>
-      <td><span class="xp-next">${p.ep_next_f.toFixed(1)}</span></td>
+      ${xpNextCell}${ptsCell}
       <td>${fdrHTML(p.fdrs)}</td>
-      <td>${statusMap[p.status] || '—'}</td>
+      <td>${statusMap[p.status]||'—'}</td>
     `;
     tbody.appendChild(tr);
   });
+}
+
+async function loadPlayers() {
+  try {
+    const [boot, fixtures] = await Promise.all([fetchAPI('bootstrap-static/'), fetchAPI('fixtures/')]);
+    const currentEvent = boot.events?.find(e => e.is_current) || boot.events?.find(e => e.is_next);
+    currentGWMax = Math.min(currentEvent?.id || 1, 38);
+    boot.teams.forEach(t => { teamMap[t.id] = t; });
+    const upcomingFixtures = fixtures.filter(f => !f.finished).slice(0,200);
+    const teamFDR = {};
+    boot.teams.forEach(t => {
+      const tf = upcomingFixtures.filter(f => f.team_h===t.id||f.team_a===t.id).slice(0,3);
+      teamFDR[t.id] = tf.map(f => f.team_h===t.id ? f.team_h_difficulty : f.team_a_difficulty);
+    });
+    allPlayers = boot.elements.map(p => ({
+      ...p,
+      ep_this_f: parseFloat(p.ep_this)||0, ep_next_f: parseFloat(p.ep_next)||0,
+      eo_f: parseFloat(p.selected_by_percent)||0, form_f: parseFloat(p.form)||0,
+      price_f: p.now_cost/10, fdrs: teamFDR[p.team]||[], teamData: teamMap[p.team],
+      gw_pts: null, gw_xp: null,
+    }));
+    buildGWPicker(currentGWMax);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('table-wrap').style.display = 'block';
+    renderTable();
+  } catch(e) {
+    document.getElementById('loading').innerHTML = `<p style="color:#FF7675;">Gagal memuat data: ${e.message}</p>`;
+  }
 }
 
 loadPlayers();
