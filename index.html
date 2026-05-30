@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>FPLGWReady — Your Gameweek Companion</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -12,26 +12,26 @@
       --accent: #1A6FFF; --accent2: #6C5CE7; --text: #1A1535;
       --muted: #6B63A8; --border: rgba(108,92,231,0.15); --radius: 16px;
     }
-    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; overflow-x: hidden; }
     body::before { content: ''; position: fixed; top: -200px; left: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(108,92,231,0.07) 0%, transparent 70%); pointer-events: none; }
     body::after { content: ''; position: fixed; bottom: -200px; right: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(26,111,255,0.06) 0%, transparent 70%); pointer-events: none; }
     nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(248,249,255,0.92); backdrop-filter: blur(12px); z-index: 100; }
-    .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.5px; color: var(--text); text-decoration: none; }
+    .logo { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.5px; color: var(--text); text-decoration: none; }
     .logo span { color: var(--accent2); }
     .nav-badge { background: var(--surface2); border: 1px solid var(--border); padding: 6px 14px; border-radius: 100px; font-size: 13px; color: var(--muted); }
     .hero { max-width: 680px; margin: 80px auto 0; padding: 0 24px; text-align: center; }
     .hero-tag { display: inline-block; background: rgba(26,111,255,0.08); border: 1px solid rgba(26,111,255,0.2); color: var(--accent); font-size: 13px; font-weight: 500; padding: 6px 16px; border-radius: 100px; margin-bottom: 24px; letter-spacing: 0.5px; }
-    h1 { font-family: 'Syne', sans-serif; font-size: clamp(38px, 7vw, 64px); font-weight: 800; line-height: 1.05; letter-spacing: -2px; margin-bottom: 16px; }
+    h1 { font-family: 'Inter', sans-serif; font-size: clamp(38px, 7vw, 64px); font-weight: 800; line-height: 1.05; letter-spacing: -2px; margin-bottom: 16px; }
     h1 .hl { color: var(--accent); }
     h1 .hl2 { color: var(--accent2); }
     .hero-sub { color: var(--muted); font-size: 16px; line-height: 1.7; max-width: 460px; margin: 0 auto 48px; }
     .quick-input { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 48px; text-align: left; max-width: 680px; margin-left: auto; margin-right: auto; box-shadow: 0 2px 16px rgba(108,92,231,0.06); }
     .input-label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 10px; display: block; }
     .input-row { display: flex; gap: 10px; }
-    input[type="text"] { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 13px 16px; font-size: 15px; color: var(--text); font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s; }
+    input[type="text"] { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 13px 16px; font-size: 15px; color: var(--text); font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; }
     input[type="text"]:focus { border-color: var(--accent); }
     input[type="text"]::placeholder { color: var(--muted); opacity: 0.7; }
-    .btn { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 13px 24px; font-size: 15px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }
+    .btn { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 13px 24px; font-size: 15px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }
     .btn:hover { opacity: 0.88; }
     .input-hint { font-size: 12px; color: var(--muted); margin-top: 8px; }
     .input-hint a { color: var(--accent); text-decoration: none; }
@@ -41,7 +41,7 @@
     .feature-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; text-decoration: none; color: var(--text); transition: border-color 0.2s, transform 0.15s, box-shadow 0.15s; display: block; box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
     .feature-card:hover { border-color: var(--accent2); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(108,92,231,0.1); }
     .feature-icon { font-size: 28px; margin-bottom: 12px; }
-    .feature-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+    .feature-title { font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
     .feature-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
     .feature-cta { font-size: 13px; font-weight: 600; color: var(--accent); display: flex; align-items: center; gap: 4px; }
     .coming-tag { font-size: 10px; background: rgba(108,92,231,0.1); color: var(--accent2); padding: 2px 8px; border-radius: 100px; }
@@ -49,7 +49,7 @@
     .countdown-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
     .countdown-strip { display: flex; justify-content: center; gap: 12px; }
     .countdown-block { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; min-width: 70px; box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
-    .countdown-num { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--accent2); }
+    .countdown-num { font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 800; color: var(--accent2); }
     .countdown-unit { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
     @media (max-width: 540px) {
       nav { padding: 14px 16px; }
