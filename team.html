@@ -69,28 +69,38 @@
     .hs-pts { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; color: var(--accent); }
     .chip-badge { font-size: 9px; background: rgba(108,92,231,0.12); color: var(--accent2); padding: 1px 5px; border-radius: 4px; margin-top: 2px; display: inline-block; }
 
-    /* ======= PITCH ======= */
-    .pitch-wrap { border-radius: var(--radius); overflow: hidden; margin-bottom: 8px; }
-    .pitch { background: linear-gradient(180deg, #2d8a4e 0%, #3a9e5f 12.5%, #2d8a4e 12.5%, #2d8a4e 25%, #3a9e5f 25%, #3a9e5f 37.5%, #2d8a4e 37.5%, #2d8a4e 50%, #3a9e5f 50%, #3a9e5f 62.5%, #2d8a4e 62.5%, #2d8a4e 75%, #3a9e5f 75%, #3a9e5f 87.5%, #2d8a4e 87.5%); padding: 20px 12px; position: relative; }
-    .pitch::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 1px; height: 100%; background: rgba(255,255,255,0.15); }
-    .pitch-row { display: flex; justify-content: center; gap: 6px; margin-bottom: 16px; }
+    /* PITCH */
+    .pitch-wrap { border-radius: var(--radius); overflow: hidden; margin-bottom: 8px; box-shadow: 0 2px 16px rgba(0,0,0,0.1); }
+    .pitch { background: linear-gradient(180deg,
+      #2d8a4e 0%, #2d8a4e 12.5%,
+      #338f55 12.5%, #338f55 25%,
+      #2d8a4e 25%, #2d8a4e 37.5%,
+      #338f55 37.5%, #338f55 50%,
+      #2d8a4e 50%, #2d8a4e 62.5%,
+      #338f55 62.5%, #338f55 75%,
+      #2d8a4e 75%, #2d8a4e 87.5%,
+      #338f55 87.5%, #338f55 100%
+    ); padding: 24px 16px 20px; position: relative; }
+    .pitch::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 1px; height: 100%; background: rgba(255,255,255,0.12); pointer-events: none; }
+    .pitch-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
     .pitch-row:last-child { margin-bottom: 0; }
 
-    /* Player card on pitch */
-    .pitch-player { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: default; width: 72px; }
-    .jersey-wrap { position: relative; width: 44px; height: 44px; }
-    .jersey-wrap svg { width: 44px; height: 44px; }
-    .captain-ring { position: absolute; top: -3px; right: -3px; width: 16px; height: 16px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 800; color: #fff; z-index: 2; }
-    .vice-ring { position: absolute; top: -3px; right: -3px; width: 16px; height: 16px; border-radius: 50%; background: var(--accent2); display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 800; color: #fff; z-index: 2; }
-    .pitch-name { font-size: 10px; font-weight: 700; color: #fff; text-align: center; line-height: 1.2; text-shadow: 0 1px 3px rgba(0,0,0,0.5); max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .pitch-pts-badge { background: rgba(0,0,0,0.55); color: #fff; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 800; padding: 1px 7px; border-radius: 10px; }
-    .pitch-pts-badge.zero { background: rgba(0,0,0,0.35); color: rgba(255,255,255,0.6); }
+    /* Player on pitch */
+    .pitch-player { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 76px; }
+    .jersey-wrap { position: relative; width: 48px; height: 48px; flex-shrink: 0; }
+    .jersey-wrap svg { width: 48px; height: 48px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+    .captain-ring { position: absolute; top: -4px; right: -4px; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 800; color: #fff; z-index: 2; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+    .vice-ring { position: absolute; top: -4px; right: -4px; width: 18px; height: 18px; border-radius: 50%; background: var(--accent2); display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 800; color: #fff; z-index: 2; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+    .pitch-name { font-size: 10px; font-weight: 700; color: #fff; text-align: center; line-height: 1.2; text-shadow: 0 1px 3px rgba(0,0,0,0.6); max-width: 76px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pitch-pts-badge { background: rgba(0,0,0,0.6); color: #fff; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 10px; backdrop-filter: blur(4px); }
+    .pitch-pts-badge.zero { background: rgba(0,0,0,0.3); color: rgba(255,255,255,0.55); }
 
     /* Bench */
-    .bench-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 0 0 var(--radius) var(--radius); padding: 14px 12px; display: flex; justify-content: center; gap: 10px; box-shadow: 0 2px 8px rgba(108,92,231,0.05); }
-    .bench-player { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 72px; opacity: 0.75; }
+    .bench-wrap { background: var(--surface); border: 1px solid var(--border); border-top: 2px dashed rgba(108,92,231,0.2); padding: 16px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+    .bench-player { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 76px; opacity: 0.7; }
+    .bench-player .jersey-wrap svg { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15)) grayscale(0.2); }
     .bench-player .pitch-name { color: var(--muted); text-shadow: none; }
-    .bench-player .pitch-pts-badge { background: var(--surface2); color: var(--muted); }
+    .bench-player .pitch-pts-badge { background: var(--surface2); color: var(--muted); box-shadow: none; }
     .bench-num { font-size: 9px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
 
     @media (max-width: 540px) {
@@ -99,11 +109,10 @@
       .input-row { flex-direction: column; }
       .nav-links { gap: 4px; }
       .nav-link { padding: 5px 10px; font-size: 12px; }
-      .pitch-player { width: 56px; }
-      .bench-player { width: 56px; }
-      .jersey-wrap { width: 36px; height: 36px; }
-      .jersey-wrap svg { width: 36px; height: 36px; }
-      .pitch-name { font-size: 9px; max-width: 56px; }
+      .pitch-player, .bench-player { width: 58px; }
+      .jersey-wrap { width: 38px; height: 38px; }
+      .jersey-wrap svg { width: 38px; height: 38px; }
+      .pitch-name { font-size: 9px; max-width: 58px; }
     }
   </style>
 </head>
@@ -174,34 +183,39 @@
 <script>
 const POS_MAP = { 1:'GK', 2:'DEF', 3:'MID', 4:'FWD' };
 const CHIP_MAP = { wildcard:'Wildcard', freehit:'Free Hit', bboost:'Bench Boost', '3xc':'Triple Captain' };
-
 const TEAM_COLORS = {
-  1:['#EF0107','#FFFFFF'],2:['#95BFE5','#670E36'],3:['#E30613','#000000'],
-  4:['#FFCC00','#000000'],5:['#0057B8','#FFFFFF'],6:['#034694','#FFFFFF'],
-  7:['#1B458F','#C4122E'],8:['#003399','#FFFFFF'],9:['#FFFFFF','#000000'],
-  10:['#0F5DA7','#FFFFFF'],11:['#FFCD00','#1D428A'],12:['#003090','#FFFFFF'],
-  13:['#C8102E','#FFFFFF'],14:['#6CABDD','#FFFFFF'],15:['#DA020E','#FFE500'],
-  16:['#000000','#FFFFFF'],17:['#E53233','#FFFFFF'],18:['#D71920','#FFC0CB'],
-  19:['#132257','#FFFFFF'],20:['#7A263A','#1BB1E7'],21:['#FDB913','#231F20'],
+  1:['#EF0107','#FFFFFF'], 2:['#95BFE5','#670E36'], 3:['#E30613','#000000'],
+  4:['#FFCC00','#000000'], 5:['#0057B8','#FFFFFF'], 6:['#034694','#FFFFFF'],
+  7:['#1B458F','#C4122E'], 8:['#003399','#FFFFFF'], 9:['#FFFFFF','#000000'],
+  10:['#0F5DA7','#FFFFFF'], 11:['#FFCD00','#1D428A'], 12:['#003090','#FFFFFF'],
+  13:['#C8102E','#FFFFFF'], 14:['#6CABDD','#FFFFFF'], 15:['#DA020E','#FFE500'],
+  16:['#000000','#FFFFFF'], 17:['#E53233','#FFFFFF'], 18:['#D71920','#FFC0CB'],
+  19:['#132257','#FFFFFF'], 20:['#7A263A','#1BB1E7'], 21:['#FDB913','#231F20'],
 };
 
-function jerseySVG(teamId) {
-  const [bg, stripe] = TEAM_COLORS[teamId] || ['#888','#fff'];
-  return `<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
-    <path d="M8 10 L4 18 L10 20 L10 38 L34 38 L34 20 L40 18 L36 10 L28 14 C26 8 18 8 16 14 Z" fill="${bg}" stroke="rgba(0,0,0,0.2)" stroke-width="0.5"/>
-    <path d="M19 13 L19 38 L25 38 L25 13 C24 12 23 11.5 22 11.5 C21 11.5 20 12 19 13 Z" fill="${stripe}" opacity="0.35"/>
+function makeJerseyEl(teamId) {
+  const [bg, stripe] = TEAM_COLORS[teamId] || ['#777','#fff'];
+  const wrap = document.createElement('div');
+  wrap.className = 'jersey-wrap';
+  wrap.innerHTML = `<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
+    <path d="M8 10 L4 18 L10 20 L10 38 L34 38 L34 20 L40 18 L36 10 L28 14 C26 8 18 8 16 14 Z"
+      fill="${bg}" stroke="rgba(0,0,0,0.18)" stroke-width="0.7"/>
+    <path d="M19 13 L19 38 L25 38 L25 13 C24 12 23 11.5 22 11.5 C21 11.5 20 12 19 13 Z"
+      fill="${stripe}" opacity="0.45"/>
   </svg>`;
+  return wrap;
 }
 
 function fmt(n) { if (!n && n !== 0) return '—'; return n.toLocaleString(); }
 
 async function fetchWithFallback(url) {
-  const endpoint = url.replace('https://fantasy.premierleague.com/api/','');
+  const endpoint = url.replace('https://fantasy.premierleague.com/api/', '');
   const res = await fetch(`/api/fpl?endpoint=${encodeURIComponent(endpoint)}`);
   if (res.ok) return await res.json();
   throw new Error('Unable to connect. Please try again.');
 }
 
+// Populate GW select
 const gwSelect = document.getElementById('gw-select');
 for (let i = 1; i <= 38; i++) {
   const opt = document.createElement('option');
@@ -219,9 +233,11 @@ async function fetchTeam() {
   const loading = document.getElementById('loading');
   const result = document.getElementById('result');
   const btn = document.getElementById('fetch-btn');
+
   err.style.display = 'none'; result.style.display = 'none';
   if (!id || isNaN(id)) { err.textContent = 'Please enter a valid FPL Team ID.'; err.style.display = 'block'; return; }
   if (!gw) { err.textContent = 'Please select a gameweek.'; err.style.display = 'block'; return; }
+
   btn.disabled = true; loading.style.display = 'block';
   try {
     if (!Object.keys(playerMap).length) {
@@ -253,6 +269,7 @@ async function renderGW(id, gw) {
   const liveMap = {};
   liveData.elements.forEach(e => { liveMap[e.id] = e.stats.total_points; });
 
+  // Manager info
   const initials = `${currentEntry.player_first_name[0]}${currentEntry.player_last_name[0]}`.toUpperCase();
   document.getElementById('manager-avatar').textContent = initials;
   document.getElementById('manager-name').textContent = `${currentEntry.player_first_name} ${currentEntry.player_last_name}`;
@@ -267,7 +284,7 @@ async function renderGW(id, gw) {
   document.getElementById('btn-next').disabled = gw >= 38;
 
   const chip = picks.active_chip;
-  document.getElementById('chip-label').textContent = chip ? CHIP_MAP[chip] || chip : 'GW Picks';
+  document.getElementById('chip-label').textContent = chip ? (CHIP_MAP[chip] || chip) : 'GW Picks';
 
   // History strip
   const strip = document.getElementById('history-strip');
@@ -276,22 +293,22 @@ async function renderGW(id, gw) {
     const card = document.createElement('div');
     card.className = 'hs-card' + (g.event === gw ? ' active' : '');
     const chipUsed = currentHistory.chips?.find(c => c.event === g.event);
-    card.innerHTML = `<div class="hs-gw">GW${g.event}</div><div class="hs-pts">${g.points}</div>${chipUsed?`<div class="chip-badge">${CHIP_MAP[chipUsed.name]||chipUsed.name}</div>`:''}`;
+    card.innerHTML = `<div class="hs-gw">GW${g.event}</div><div class="hs-pts">${g.points}</div>${chipUsed ? `<div class="chip-badge">${CHIP_MAP[chipUsed.name] || chipUsed.name}</div>` : ''}`;
     card.onclick = () => jumpToGW(id, g.event);
     strip.appendChild(card);
   });
-  strip.querySelector('.active')?.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' });
+  strip.querySelector('.active')?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 
-  // Build pitch
-  renderPitch(picks.picks, liveMap, chip);
+  // Render pitch
+  renderPitch(picks.picks, liveMap, picks.active_chip);
 }
 
 function renderPitch(allPicks, liveMap, chip) {
   const starters = allPicks.filter(p => p.position <= 11);
-  const bench = allPicks.filter(p => p.position > 11).sort((a,b) => a.position - b.position);
+  const bench = allPicks.filter(p => p.position > 11).sort((a, b) => a.position - b.position);
 
-  // Group by position
-  const byPos = { 1:[], 2:[], 3:[], 4:[] };
+  // Group starters by position
+  const byPos = { 1: [], 2: [], 3: [], 4: [] };
   starters.forEach(pick => {
     const player = playerMap[pick.element];
     if (player) byPos[player.element_type].push({ pick, player });
@@ -300,12 +317,13 @@ function renderPitch(allPicks, liveMap, chip) {
   const pitchEl = document.getElementById('pitch');
   pitchEl.innerHTML = '';
 
-  // Rows: GK, DEF, MID, FWD
-  [[1],[2],[3],[4]].forEach(([posType]) => {
+  // GK → DEF → MID → FWD
+  [1, 2, 3, 4].forEach(posType => {
+    if (!byPos[posType].length) return;
     const row = document.createElement('div');
     row.className = 'pitch-row';
     byPos[posType].forEach(({ pick, player }) => {
-      row.appendChild(makePlayerCard(pick, player, liveMap, chip, false));
+      row.appendChild(makePlayerCard(pick, player, liveMap, false));
     });
     pitchEl.appendChild(row);
   });
@@ -316,12 +334,11 @@ function renderPitch(allPicks, liveMap, chip) {
   bench.forEach((pick, idx) => {
     const player = playerMap[pick.element];
     if (!player) return;
-    const card = makePlayerCard(pick, player, liveMap, chip, true, idx + 1);
-    benchEl.appendChild(card);
+    benchEl.appendChild(makePlayerCard(pick, player, liveMap, true, idx + 1));
   });
 }
 
-function makePlayerCard(pick, player, liveMap, chip, isBench, benchNum) {
+function makePlayerCard(pick, player, liveMap, isBench, benchNum) {
   const pts = liveMap[pick.element] ?? 0;
   const mult = pick.multiplier > 1 ? pick.multiplier : null;
   const displayPts = mult ? pts * mult : pts;
@@ -329,59 +346,44 @@ function makePlayerCard(pick, player, liveMap, chip, isBench, benchNum) {
   const wrap = document.createElement('div');
   wrap.className = isBench ? 'bench-player' : 'pitch-player';
 
-  const jerseyWrap = document.createElement('div');
-  jerseyWrap.className = 'jersey-wrap';
-  jerseyWrap.innerHTML = jerseyHTML(player.team);
+  // Jersey
+  const jerseyEl = makeJerseyEl(player.team);
 
+  // Captain / vice badge
   if (pick.is_captain) {
     const ring = document.createElement('div');
     ring.className = 'captain-ring';
     ring.textContent = mult === 3 ? '3C' : 'C';
-    jerseyWrap.appendChild(ring);
+    jerseyEl.appendChild(ring);
   } else if (pick.is_vice_captain) {
     const ring = document.createElement('div');
     ring.className = 'vice-ring';
     ring.textContent = 'V';
-    jerseyWrap.appendChild(ring);
+    jerseyEl.appendChild(ring);
   }
 
+  // Name
   const nameEl = document.createElement('div');
   nameEl.className = 'pitch-name';
   nameEl.textContent = player.web_name;
 
+  // Points badge
   const ptsEl = document.createElement('div');
   ptsEl.className = 'pitch-pts-badge' + (displayPts === 0 ? ' zero' : '');
-  ptsEl.textContent = displayPts + (mult ? ` (×${mult})` : '');
+  ptsEl.textContent = mult ? `${displayPts} (×${mult})` : `${displayPts}`;
+
+  wrap.appendChild(jerseyEl);
+  wrap.appendChild(nameEl);
+  wrap.appendChild(ptsEl);
 
   if (isBench) {
     const numEl = document.createElement('div');
     numEl.className = 'bench-num';
     numEl.textContent = `Sub ${benchNum}`;
-    wrap.appendChild(jerseyWrap);
-    wrap.appendChild(nameEl);
-    wrap.appendChild(ptsEl);
     wrap.appendChild(numEl);
-  } else {
-    wrap.appendChild(jerseyWrap);
-    wrap.appendChild(nameEl);
-    wrap.appendChild(ptsEl);
   }
 
   return wrap;
-}
-
-function jerseyHTML(teamId) {
-  const [bg, stripe] = TEAM_COLORS[teamId] || ['#888','#fff'];
-  const div = document.createElement('div');
-  div.innerHTML = jerseysvg(bg, stripe);
-  return div.firstChild;
-}
-
-function jerseysvg(bg, stripe) {
-  return `<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
-    <path d="M8 10 L4 18 L10 20 L10 38 L34 38 L34 20 L40 18 L36 10 L28 14 C26 8 18 8 16 14 Z" fill="${bg}" stroke="rgba(0,0,0,0.15)" stroke-width="0.5"/>
-    <path d="M19 13 L19 38 L25 38 L25 13 C24 12 23 11.5 22 11.5 C21 11.5 20 12 19 13 Z" fill="${stripe}" opacity="0.4"/>
-  </svg>`;
 }
 
 async function jumpToGW(id, gw) {
@@ -404,7 +406,7 @@ function navigateGW(dir) {
   if (newGW !== currentGW) jumpToGW(currentId, newGW);
 }
 
-document.getElementById('fpl-id').addEventListener('keydown', e => { if (e.key==='Enter') fetchTeam(); });
+document.getElementById('fpl-id').addEventListener('keydown', e => { if (e.key === 'Enter') fetchTeam(); });
 
 const params = new URLSearchParams(window.location.search);
 if (params.get('id')) {
