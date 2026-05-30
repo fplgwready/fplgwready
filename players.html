@@ -119,16 +119,9 @@
     <div class="page-title">Players 📋</div>
     <div class="player-count" id="player-count">Loading...</div>
   </div>
-
-  <div class="gw-picker-wrap" id="gw-picker-wrap">
-    <span class="gw-picker-label">Gameweek</span>
-    <div class="gw-btn-group" id="gw-btn-group"></div>
-    <span class="gw-source-badge badge-live" id="gw-source-badge">Live FPL</span>
+<span class="gw-source-badge badge-live" id="gw-source-badge">Live FPL</span>
   </div>
-
-  <div class="gw-info" id="gw-info" style="display:none;"></div>
-
-  <div class="filters">
+<div class="filters">
     <div class="filter-group">
       <button class="filter-btn active" onclick="filterPos('ALL', this)">All</button>
       <button class="filter-btn pos-gk" onclick="filterPos('GK', this)">GK</button>
@@ -139,9 +132,7 @@
     <div class="divider"></div>
     <div class="filter-group">
       <button class="filter-btn active-sort" id="sort-xp" onclick="sortBy('ep_this')">xP GW ↓</button>
-      <button class="filter-btn" id="sort-xpnext" onclick="sortBy('ep_next')">xP Next</button>
-      <button class="filter-btn" id="sort-pts" onclick="sortBy('pts')" style="display:none;">GW Pts</button>
-      <button class="filter-btn" id="sort-eo" onclick="sortBy('eo')">EO</button>
+      <button class="filter-btn" id="sort-xpnext" onclick="sortBy('ep_next')">xP Next</button><button class="filter-btn" id="sort-eo" onclick="sortBy('eo')">EO</button>
       <button class="filter-btn" id="sort-form" onclick="sortBy('form')">Form</button>
       <button class="filter-btn" id="sort-price" onclick="sortBy('price')">Price</button>
     </div>
@@ -164,10 +155,7 @@
           <th onclick="sortBy('eo')" id="th-eo">EO% <span class="sort-arrow">↕</span></th>
           <th onclick="sortBy('form')" id="th-form">Form <span class="sort-arrow">↕</span></th>
           <th onclick="sortBy('ep_this')" id="th-ep_this">xP GW <span class="sort-arrow">↓</span></th>
-          <th onclick="sortBy('ep_next')" id="th-ep_next">xP Next <span class="sort-arrow">↕</span></th>
-          <th onclick="sortBy('pts')" id="th-pts" style="display:none;">GW Pts <span class="sort-arrow">↕</span></th>
-          <th>FDR 3 GW</th>
-          <th>Status</th>
+          <th onclick="sortBy('ep_next')" id="th-ep_next">xP Next <span class="sort-arrow">↕</span></th><th>Status</th>
         </tr>
       </thead>
       <tbody id="players-tbody"></tbody>
