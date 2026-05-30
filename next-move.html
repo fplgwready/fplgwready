@@ -207,6 +207,7 @@ async function analyze() {
   const btn = document.getElementById('fetch-btn');
   err.style.display = 'none'; result.style.display = 'none';
   if (!id || isNaN(id)) { err.textContent = 'Please enter a valid FPL Team ID.'; err.style.display = 'block'; return; }
+  localStorage.setItem('fpl_id', id);
   btn.disabled = true; loading.style.display = 'block';
   try {
     const [boot, entry, hist] = await Promise.all([fetchAPI('bootstrap-static/'), fetchAPI(`entry/${id}/`), fetchAPI(`entry/${id}/history/`)]);
@@ -385,6 +386,8 @@ function renderChipSuggestion(hist, currentGW) {
 
 document.getElementById('fpl-id').addEventListener('keydown', e => { if (e.key==='Enter') analyze(); });
 const params = new URLSearchParams(window.location.search);
+const _savedId = localStorage.getItem('fpl_id');
+if (_savedId && !params.get('id')) document.getElementById('fpl-id').value = _savedId;
 if (params.get('id')) { document.getElementById('fpl-id').value = params.get('id'); analyze(); }
 </script>
 </body>

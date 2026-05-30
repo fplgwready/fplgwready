@@ -252,6 +252,7 @@ async function fetchTeam() {
   if (!id || isNaN(id)) { err.textContent = 'Please enter a valid FPL Team ID.'; err.style.display = 'block'; return; }
   if (!gw) { err.textContent = 'Please select a gameweek.'; err.style.display = 'block'; return; }
 
+  localStorage.setItem('fpl_id', id);
   btn.disabled = true; loading.style.display = 'block';
   try {
     if (!Object.keys(playerMap).length) {
@@ -423,6 +424,8 @@ function navigateGW(dir) {
 document.getElementById('fpl-id').addEventListener('keydown', e => { if (e.key === 'Enter') fetchTeam(); });
 
 const params = new URLSearchParams(window.location.search);
+const _savedId = localStorage.getItem('fpl_id');
+if (_savedId && !params.get('id')) document.getElementById('fpl-id').value = _savedId;
 if (params.get('id')) {
   document.getElementById('fpl-id').value = params.get('id');
   if (params.get('gw')) gwSelect.value = params.get('gw');
