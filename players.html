@@ -25,17 +25,6 @@
     .page-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 24px; }
     .page-title { font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 800; }
     .player-count { font-size: 13px; color: var(--muted); }
-    .gw-picker-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; flex-wrap: wrap; box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
-    .gw-picker-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; white-space: nowrap; }
-    .gw-btn-group { display: flex; gap: 4px; flex-wrap: wrap; }
-    .gw-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: 'Inter', sans-serif; }
-    .gw-btn:hover { color: var(--text); border-color: var(--accent2); }
-    .gw-btn.active { background: var(--accent2); border-color: var(--accent2); color: #fff; }
-    .gw-btn.live { background: rgba(26,111,255,0.08); border-color: var(--accent); color: var(--accent); }
-    .gw-btn.live.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-    .gw-source-badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-left: auto; white-space: nowrap; }
-    .badge-live { background: rgba(26,111,255,0.1); color: var(--accent); }
-    .badge-hist { background: rgba(108,92,231,0.1); color: var(--accent2); }
     .filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
     .filter-group { display: flex; gap: 6px; }
     .filter-btn { background: var(--surface); border: 1px solid var(--border); color: var(--muted); border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: 'Inter', sans-serif; }
@@ -53,7 +42,7 @@
     .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
-    table { width: 100%; border-collapse: collapse; min-width: 800px; }
+    table { width: 100%; border-collapse: collapse; min-width: 700px; }
     thead { background: var(--surface2); }
     th { padding: 12px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); font-weight: 600; text-align: left; cursor: pointer; white-space: nowrap; user-select: none; border-bottom: 1px solid var(--border); transition: color 0.15s; }
     th:hover { color: var(--text); }
@@ -64,7 +53,7 @@
     tbody tr:last-child { border-bottom: none; }
     tbody tr:hover { background: var(--surface2); }
     td { padding: 11px 14px; font-size: 13px; vertical-align: middle; }
-    .jersey { width: 28px; height: 28px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: #fff; flex-shrink: 0; }
+    .jersey { width: 28px; height: 28px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; flex-shrink: 0; }
     .player-cell { display: flex; align-items: center; gap: 10px; }
     .player-name { font-weight: 600; font-size: 13px; color: var(--text); }
     .player-team { font-size: 11px; color: var(--muted); }
@@ -73,32 +62,23 @@
     .pos-def { background: rgba(26,111,255,0.12); color: var(--accent); }
     .pos-mid { background: rgba(0,151,107,0.12); color: #00976B; }
     .pos-fwd { background: rgba(232,64,64,0.12); color: #E84040; }
-    .xp-val { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 800; color: var(--accent); }
-    .xp-next { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 800; color: var(--accent2); }
-    .pts-val { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 800; color: #00976B; }
+    .xp-val { font-size: 15px; font-weight: 800; color: var(--accent); }
+    .xp-next { font-size: 15px; font-weight: 800; color: var(--accent2); }
     .eo-cell { display: flex; align-items: center; gap: 8px; }
     .eo-bar-bg { flex: 1; max-width: 60px; height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
     .eo-bar-fill { height: 100%; border-radius: 2px; background: var(--accent2); }
     .eo-val { font-size: 12px; color: var(--muted); min-width: 36px; }
     .eo-diff { font-size: 10px; background: rgba(232,64,64,0.1); color: #E84040; padding: 1px 6px; border-radius: 4px; }
-    .fdr-row { display: flex; gap: 4px; }
-    .fdr-box { width: 28px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; }
-    .fdr-1, .fdr-2 { background: rgba(0,151,107,0.15); color: #00976B; }
-    .fdr-3 { background: rgba(196,127,0,0.15); color: #C47F00; }
-    .fdr-4, .fdr-5 { background: rgba(232,64,64,0.15); color: #E84040; }
     .price-val { font-size: 13px; font-weight: 600; color: var(--text); }
     .form-val { font-size: 13px; color: var(--muted); }
     .form-high { color: #00976B; font-weight: 600; }
     .form-mid { color: #C47F00; font-weight: 500; }
     .empty { text-align: center; padding: 60px 0; color: var(--muted); }
-    .gw-info { font-size: 12px; color: var(--muted); padding: 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 14px; }
-    .gw-info span { color: var(--text); font-weight: 600; }
     @media (max-width: 768px) {
       nav { padding: 14px 16px; }
       .nav-links { gap: 4px; }
       .nav-link { padding: 5px 10px; font-size: 11px; }
       .filters { gap: 8px; }
-      .gw-btn { padding: 3px 7px; font-size: 11px; }
     }
   </style>
 </head>
@@ -119,9 +99,8 @@
     <div class="page-title">Players 📋</div>
     <div class="player-count" id="player-count">Loading...</div>
   </div>
-<span class="gw-source-badge badge-live" id="gw-source-badge">Live FPL</span>
-  </div>
-<div class="filters">
+
+  <div class="filters">
     <div class="filter-group">
       <button class="filter-btn active" onclick="filterPos('ALL', this)">All</button>
       <button class="filter-btn pos-gk" onclick="filterPos('GK', this)">GK</button>
@@ -132,7 +111,8 @@
     <div class="divider"></div>
     <div class="filter-group">
       <button class="filter-btn active-sort" id="sort-xp" onclick="sortBy('ep_this')">xP GW ↓</button>
-      <button class="filter-btn" id="sort-xpnext" onclick="sortBy('ep_next')">xP Next</button><button class="filter-btn" id="sort-eo" onclick="sortBy('eo')">EO</button>
+      <button class="filter-btn" id="sort-xpnext" onclick="sortBy('ep_next')">xP Next</button>
+      <button class="filter-btn" id="sort-eo" onclick="sortBy('eo')">EO</button>
       <button class="filter-btn" id="sort-form" onclick="sortBy('form')">Form</button>
       <button class="filter-btn" id="sort-price" onclick="sortBy('price')">Price</button>
     </div>
@@ -142,20 +122,21 @@
 
   <div class="loading" id="loading">
     <div class="spinner"></div>
-    <p id="loading-text">Loading players...</p>
+    <p>Loading players...</p>
   </div>
 
   <div class="table-wrap" id="table-wrap" style="display:none;">
     <table>
       <thead>
-        <tr id="table-head">
+        <tr>
           <th style="width:200px">Player</th>
           <th>Pos</th>
           <th onclick="sortBy('price')" id="th-price">Price <span class="sort-arrow">↕</span></th>
           <th onclick="sortBy('eo')" id="th-eo">EO% <span class="sort-arrow">↕</span></th>
           <th onclick="sortBy('form')" id="th-form">Form <span class="sort-arrow">↕</span></th>
           <th onclick="sortBy('ep_this')" id="th-ep_this">xP GW <span class="sort-arrow">↓</span></th>
-          <th onclick="sortBy('ep_next')" id="th-ep_next">xP Next <span class="sort-arrow">↕</span></th><th>Status</th>
+          <th onclick="sortBy('ep_next')" id="th-ep_next">xP Next <span class="sort-arrow">↕</span></th>
+          <th>Status</th>
         </tr>
       </thead>
       <tbody id="players-tbody"></tbody>
@@ -165,13 +146,11 @@
 </div>
 
 <script>
-const POS_MAP = { 1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD' };
-const POS_CLASS = { 1: 'pos-gk', 2: 'pos-def', 3: 'pos-mid', 4: 'pos-fwd' };
-const VAASTAV_BASE = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2025-26/gws/gw';
+const POS_MAP = { 1:'GK', 2:'DEF', 3:'MID', 4:'FWD' };
+const POS_CLASS = { 1:'pos-gk', 2:'pos-def', 3:'pos-mid', 4:'pos-fwd' };
 
 let allPlayers = [], teamMap = {}, currentPos = 'ALL';
 let currentSort = 'ep_this', sortAsc = false, searchQuery = '';
-let currentGW = 'live', currentGWMax = 38, gwDataCache = {};
 
 async function fetchAPI(endpoint) {
   const res = await fetch(`/api/fpl?endpoint=${encodeURIComponent(endpoint)}`);
@@ -180,124 +159,18 @@ async function fetchAPI(endpoint) {
 }
 
 const TEAM_COLORS = {
-  1:['#EF0107','#FFFFFF'],  // Arsenal
-  2:['#95BFE5','#670E36'],  // Aston Villa
-  3:['#E30613','#FFE000'],  // Burnley
-  4:['#E41B17','#000000'],  // Bournemouth
-  5:['#FFCC00','#000000'],  // Brentford
-  6:['#0057B8','#FFFFFF'],  // Brighton
-  7:['#034694','#FFFFFF'],  // Chelsea
-  8:['#1B458F','#C4122E'],  // Crystal Palace
-  9:['#003399','#FFFFFF'],  // Everton
-  10:['#FFFFFF','#000000'], // Fulham
-  11:['#FFCD00','#1D428A'], // Leeds
-  12:['#C8102E','#FFFFFF'], // Liverpool
-  13:['#6CABDD','#FFFFFF'], // Man City
-  14:['#DA020E','#FFE500'], // Man Utd
-  15:['#000000','#FFFFFF'], // Newcastle
-  16:['#E53233','#FFFFFF'], // Nott'm Forest
-  17:['#EB172B','#FFFFFF'], // Sunderland
-  18:['#132257','#FFFFFF'], // Spurs
-  19:['#7A263A','#1BB1E7'], // West Ham
-  20:['#FDB913','#231F20'], // Wolves
+  1:['#EF0107','#FFFFFF'], 2:['#95BFE5','#670E36'], 3:['#E30613','#FFE000'],
+  4:['#E41B17','#000000'], 5:['#FFCC00','#000000'], 6:['#0057B8','#FFFFFF'],
+  7:['#034694','#FFFFFF'], 8:['#1B458F','#C4122E'], 9:['#003399','#FFFFFF'],
+  10:['#FFFFFF','#000000'], 11:['#FFCD00','#1D428A'], 12:['#C8102E','#FFFFFF'],
+  13:['#6CABDD','#FFFFFF'], 14:['#DA020E','#FFE500'], 15:['#000000','#FFFFFF'],
+  16:['#E53233','#FFFFFF'], 17:['#EB172B','#FFFFFF'], 18:['#132257','#FFFFFF'],
+  19:['#7A263A','#1BB1E7'], 20:['#FDB913','#231F20'],
 };
 
 function jerseyHTML(teamId, s) {
   const [bg, fg] = TEAM_COLORS[teamId] || ['#888','#fff'];
   return `<div class="jersey" style="background:${bg};color:${fg};border:1px solid rgba(0,0,0,0.1);">${s||'?'}</div>`;
-}
-
-function fdrHTML(fdrs) {
-  if (!fdrs?.length) return '<span style="color:var(--muted);font-size:12px;">—</span>';
-  return `<div class="fdr-row">${fdrs.slice(0,3).map(f=>`<div class="fdr-box fdr-${f}">${f}</div>`).join('')}</div>`;
-}
-
-function parseCSV(text) {
-  const lines = text.trim().split('\n');
-  const headers = lines[0].split(',');
-  return lines.slice(1).map(line => {
-    const vals = line.split(','), obj = {};
-    headers.forEach((h,i) => obj[h.trim()] = vals[i]?.trim()||'');
-    return obj;
-  });
-}
-
-function buildVaastavMap(rows) {
-  const map = {};
-  rows.forEach(r => { if (r.element) map[r.element] = r; });
-  return map;
-}
-
-async function fetchVaastavGW(gw) {
-  if (gwDataCache[gw]) return gwDataCache[gw];
-  const res = await fetch(`${VAASTAV_BASE}${gw}.csv`);
-  if (!res.ok) throw new Error(`GW ${gw} data not available`);
-  const map = buildVaastavMap(parseCSV(await res.text()));
-  gwDataCache[gw] = map;
-  return map;
-}
-
-function buildGWPicker(maxGW) {
-  const group = document.getElementById('gw-btn-group');
-  group.innerHTML = '';
-  const liveBtn = document.createElement('button');
-  liveBtn.className = 'gw-btn live active';
-  liveBtn.textContent = 'Live';
-  liveBtn.dataset.gw = 'live';
-  liveBtn.onclick = () => selectGW('live', liveBtn);
-  group.appendChild(liveBtn);
-  for (let i = 1; i <= maxGW; i++) {
-    const btn = document.createElement('button');
-    btn.className = 'gw-btn';
-    btn.textContent = i;
-    btn.dataset.gw = i;
-    btn.onclick = () => selectGW(i, btn);
-    group.appendChild(btn);
-  }
-}
-
-async function selectGW(gw, btnEl) {
-  document.querySelectorAll('.gw-btn').forEach(b => b.classList.remove('active'));
-  btnEl.classList.add('active');
-  currentGW = gw;
-  const badge = document.getElementById('gw-source-badge');
-  const infoBar = document.getElementById('gw-info');
-  const thPts = document.getElementById('th-pts');
-  const sortPts = document.getElementById('sort-pts');
-
-  if (gw === 'live') {
-    badge.textContent = 'Live FPL'; badge.className = 'gw-source-badge badge-live';
-    infoBar.style.display = 'none';
-    thPts.style.display = 'none'; sortPts.style.display = 'none';
-    if (currentSort === 'pts') currentSort = 'ep_this';
-    renderTable(); return;
-  }
-
-  badge.textContent = `GW ${gw} · vaastav`; badge.className = 'gw-source-badge badge-hist';
-  thPts.style.display = ''; sortPts.style.display = '';
-  document.getElementById('loading').style.display = 'block';
-  document.getElementById('table-wrap').style.display = 'none';
-  document.getElementById('loading-text').textContent = `Loading GW ${gw} data...`;
-
-  try {
-    const gwMap = await fetchVaastavGW(gw);
-    let matched = 0;
-    allPlayers.forEach(p => {
-      const row = gwMap[String(p.id)];
-      if (row) { p.gw_pts = parseInt(row.total_points)||0; p.gw_xp = parseFloat(row.xP)||0; matched++; }
-      else { p.gw_pts = null; p.gw_xp = null; }
-    });
-    infoBar.innerHTML = `GW <span>${gw}</span> — vaastav data · <span>${matched}</span> players matched`;
-    infoBar.style.display = 'block';
-    currentSort = 'pts'; sortAsc = false;
-  } catch(e) {
-    infoBar.innerHTML = `⚠️ Failed to load GW ${gw}: ${e.message}`;
-    infoBar.style.display = 'block';
-  }
-
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('table-wrap').style.display = 'block';
-  renderTable();
 }
 
 function filterPos(pos, btn) {
@@ -322,16 +195,15 @@ function filterSearch() {
 }
 
 function renderTable() {
-  const isHistorical = currentGW !== 'live';
   let filtered = allPlayers.filter(p => {
     if (currentPos !== 'ALL' && POS_MAP[p.element_type] !== currentPos) return false;
     if (searchQuery && !p.web_name.toLowerCase().includes(searchQuery) && !p.teamData?.name.toLowerCase().includes(searchQuery)) return false;
     return true;
   });
 
-  const sortKeyMap = { ep_this:'ep_this_f', ep_next:'ep_next_f', eo:'eo_f', form:'form_f', price:'price_f', pts: isHistorical ? 'gw_pts' : 'ep_this_f' };
+  const sortKeyMap = { ep_this:'ep_this_f', ep_next:'ep_next_f', eo:'eo_f', form:'form_f', price:'price_f' };
   const sortKey = sortKeyMap[currentSort] || 'ep_this_f';
-  filtered.sort((a,b) => { const av=a[sortKey]??-1, bv=b[sortKey]??-1; return sortAsc ? av-bv : bv-av; });
+  filtered.sort((a,b) => sortAsc ? a[sortKey]-b[sortKey] : b[sortKey]-a[sortKey]);
 
   document.getElementById('player-count').textContent = `${filtered.length} players`;
   const tbody = document.getElementById('players-tbody');
@@ -346,19 +218,11 @@ function renderTable() {
   document.getElementById('table-wrap').style.display = 'block';
 
   const statusMap = { a:'✅', d:'⚠️', i:'❌', s:'❌', u:'❌' };
-  const thPts = document.getElementById('th-pts');
-  const thNext = document.getElementById('th-ep_next');
-  if (thPts) thPts.style.display = isHistorical ? '' : 'none';
-  if (thNext) thNext.style.display = isHistorical ? 'none' : '';
 
   filtered.slice(0,200).forEach(p => {
     const team = p.teamData, teamShort = team?.short_name || '?';
     const isDiff = p.eo_f < 10;
     const formClass = p.form_f >= 7 ? 'form-high' : p.form_f >= 4 ? 'form-mid' : 'form-val';
-    const ptsCell = isHistorical
-      ? `<td>${p.gw_pts !== null ? `<span class="pts-val">${p.gw_pts}</span><span style="font-size:11px;color:var(--muted);margin-left:4px;">(${p.gw_xp?.toFixed(1)||'—'}xP)</span>` : '<span style="color:var(--muted);">—</span>'}</td>` : '';
-    const xpNextCell = isHistorical ? '' : `<td><span class="xp-next">${p.ep_next_f.toFixed(1)}</span></td>`;
-
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td><div class="player-cell">${jerseyHTML(p.team,teamShort)}<div><div class="player-name">${p.web_name}</div><div class="player-team">${team?.name||'—'}</div></div></div></td>
@@ -367,8 +231,7 @@ function renderTable() {
       <td><div class="eo-cell"><div class="eo-bar-bg"><div class="eo-bar-fill" style="width:${Math.min(100,p.eo_f)}%"></div></div><span class="eo-val">${p.eo_f.toFixed(1)}%</span>${isDiff?'<span class="eo-diff">Diff</span>':''}</div></td>
       <td><span class="${formClass}">${p.form_f.toFixed(1)}</span></td>
       <td><span class="xp-val">${p.ep_this_f.toFixed(1)}</span></td>
-      ${xpNextCell}${ptsCell}
-      <td>${fdrHTML(p.fdrs)}</td>
+      <td><span class="xp-next">${p.ep_next_f.toFixed(1)}</span></td>
       <td>${statusMap[p.status]||'—'}</td>
     `;
     tbody.appendChild(tr);
@@ -377,24 +240,17 @@ function renderTable() {
 
 async function loadPlayers() {
   try {
-    const [boot, fixtures] = await Promise.all([fetchAPI('bootstrap-static/'), fetchAPI('fixtures/')]);
-    const currentEvent = boot.events?.find(e => e.is_current) || boot.events?.find(e => e.is_next);
-    currentGWMax = Math.min(currentEvent?.id || 1, 38);
+    const boot = await fetchAPI('bootstrap-static/');
     boot.teams.forEach(t => { teamMap[t.id] = t; });
-    const upcomingFixtures = fixtures.filter(f => !f.finished).slice(0,200);
-    const teamFDR = {};
-    boot.teams.forEach(t => {
-      const tf = upcomingFixtures.filter(f => f.team_h===t.id||f.team_a===t.id).slice(0,3);
-      teamFDR[t.id] = tf.map(f => f.team_h===t.id ? f.team_h_difficulty : f.team_a_difficulty);
-    });
     allPlayers = boot.elements.map(p => ({
       ...p,
-      ep_this_f: parseFloat(p.ep_this)||0, ep_next_f: parseFloat(p.ep_next)||0,
-      eo_f: parseFloat(p.selected_by_percent)||0, form_f: parseFloat(p.form)||0,
-      price_f: p.now_cost/10, fdrs: teamFDR[p.team]||[], teamData: teamMap[p.team],
-      gw_pts: null, gw_xp: null,
+      ep_this_f: parseFloat(p.ep_this)||0,
+      ep_next_f: parseFloat(p.ep_next)||0,
+      eo_f: parseFloat(p.selected_by_percent)||0,
+      form_f: parseFloat(p.form)||0,
+      price_f: p.now_cost/10,
+      teamData: teamMap[p.team],
     }));
-    buildGWPicker(currentGWMax);
     document.getElementById('loading').style.display = 'none';
     document.getElementById('table-wrap').style.display = 'block';
     renderTable();
