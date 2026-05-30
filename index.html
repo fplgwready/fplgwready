@@ -8,57 +8,49 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0D0B1F; --surface: #161330; --surface2: #1E1A40;
-      --accent: #1A6FFF; --accent2: #6C5CE7; --text: #F0EEFF;
-      --muted: #8B82C4; --border: rgba(108,92,231,0.2); --radius: 16px;
+      --bg: #F8F9FF; --surface: #FFFFFF; --surface2: #F0F2FF;
+      --accent: #1A6FFF; --accent2: #6C5CE7; --text: #1A1535;
+      --muted: #6B63A8; --border: rgba(108,92,231,0.15); --radius: 16px;
     }
     body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; }
-    body::before { content: ''; position: fixed; top: -200px; left: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(108,92,231,0.15) 0%, transparent 70%); pointer-events: none; }
-    body::after { content: ''; position: fixed; bottom: -200px; right: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(26,111,255,0.12) 0%, transparent 70%); pointer-events: none; }
-    nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(13,11,31,0.85); backdrop-filter: blur(12px); z-index: 100; }
+    body::before { content: ''; position: fixed; top: -200px; left: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(108,92,231,0.07) 0%, transparent 70%); pointer-events: none; }
+    body::after { content: ''; position: fixed; bottom: -200px; right: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(26,111,255,0.06) 0%, transparent 70%); pointer-events: none; }
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(248,249,255,0.92); backdrop-filter: blur(12px); z-index: 100; }
     .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.5px; color: var(--text); text-decoration: none; }
     .logo span { color: var(--accent2); }
     .nav-badge { background: var(--surface2); border: 1px solid var(--border); padding: 6px 14px; border-radius: 100px; font-size: 13px; color: var(--muted); }
     .hero { max-width: 680px; margin: 80px auto 0; padding: 0 24px; text-align: center; }
-    .hero-tag { display: inline-block; background: rgba(26,111,255,0.12); border: 1px solid rgba(26,111,255,0.3); color: #6BA3FF; font-size: 13px; font-weight: 500; padding: 6px 16px; border-radius: 100px; margin-bottom: 24px; letter-spacing: 0.5px; }
+    .hero-tag { display: inline-block; background: rgba(26,111,255,0.08); border: 1px solid rgba(26,111,255,0.2); color: var(--accent); font-size: 13px; font-weight: 500; padding: 6px 16px; border-radius: 100px; margin-bottom: 24px; letter-spacing: 0.5px; }
     h1 { font-family: 'Syne', sans-serif; font-size: clamp(38px, 7vw, 64px); font-weight: 800; line-height: 1.05; letter-spacing: -2px; margin-bottom: 16px; }
     h1 .hl { color: var(--accent); }
     h1 .hl2 { color: var(--accent2); }
     .hero-sub { color: var(--muted); font-size: 16px; line-height: 1.7; max-width: 460px; margin: 0 auto 48px; }
-
-    /* Quick input */
-    .quick-input { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 48px; text-align: left; max-width: 680px; margin-left: auto; margin-right: auto; }
+    .quick-input { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 48px; text-align: left; max-width: 680px; margin-left: auto; margin-right: auto; box-shadow: 0 2px 16px rgba(108,92,231,0.06); }
     .input-label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 10px; display: block; }
     .input-row { display: flex; gap: 10px; }
     input[type="text"] { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 13px 16px; font-size: 15px; color: var(--text); font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s; }
     input[type="text"]:focus { border-color: var(--accent); }
-    input[type="text"]::placeholder { color: var(--muted); }
+    input[type="text"]::placeholder { color: var(--muted); opacity: 0.7; }
     .btn { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 13px 24px; font-size: 15px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }
     .btn:hover { opacity: 0.88; }
     .input-hint { font-size: 12px; color: var(--muted); margin-top: 8px; }
     .input-hint a { color: var(--accent); text-decoration: none; }
-    .error-msg { color: #FF8080; font-size: 13px; margin-top: 6px; display: none; }
-
-    /* Feature cards */
+    .error-msg { color: #CC3333; font-size: 13px; margin-top: 6px; display: none; }
     .features-label { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; text-align: center; margin-bottom: 16px; }
     .features-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; max-width: 680px; margin: 0 auto; padding: 0 24px; }
-    .feature-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; text-decoration: none; color: var(--text); transition: border-color 0.2s, transform 0.15s; display: block; }
-    .feature-card:hover { border-color: var(--accent2); transform: translateY(-2px); }
-    .feature-card.needs-id { cursor: default; }
+    .feature-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; text-decoration: none; color: var(--text); transition: border-color 0.2s, transform 0.15s, box-shadow 0.15s; display: block; box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
+    .feature-card:hover { border-color: var(--accent2); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(108,92,231,0.1); }
     .feature-icon { font-size: 28px; margin-bottom: 12px; }
     .feature-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
     .feature-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
     .feature-cta { font-size: 13px; font-weight: 600; color: var(--accent); display: flex; align-items: center; gap: 4px; }
-    .coming-tag { font-size: 10px; background: rgba(108,92,231,0.15); color: var(--accent2); padding: 2px 8px; border-radius: 100px; }
-
-    /* Countdown */
+    .coming-tag { font-size: 10px; background: rgba(108,92,231,0.1); color: var(--accent2); padding: 2px 8px; border-radius: 100px; }
     .countdown-section { max-width: 680px; margin: 48px auto 0; padding: 0 24px 80px; text-align: center; }
     .countdown-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
     .countdown-strip { display: flex; justify-content: center; gap: 12px; }
-    .countdown-block { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; min-width: 70px; }
+    .countdown-block { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; min-width: 70px; box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
     .countdown-num { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--accent2); }
     .countdown-unit { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
-
     @media (max-width: 540px) {
       nav { padding: 14px 16px; }
       .hero { margin-top: 48px; }
@@ -78,57 +70,49 @@
 <div class="hero">
   <div class="hero-tag">⚡ Your Gameweek Companion</div>
   <h1>Win your <span class="hl">mini league</span> every <span class="hl2">gameweek</span></h1>
-  <p class="hero-sub">Analisis tim FPL kamu, pantau rival, dan dapatkan saran transfer yang personal setiap GW.</p>
+  <p class="hero-sub">Analyze your FPL team, track rivals, and get personalized transfer advice every GW.</p>
 </div>
 
-<!-- Quick input -->
 <div class="quick-input" style="margin-top:32px;">
-  <label class="input-label" for="fpl-id">FPL Team ID kamu</label>
+  <label class="input-label" for="fpl-id">Your FPL Team ID</label>
   <div class="input-row">
     <input type="text" id="fpl-id" placeholder="e.g. 222758" maxlength="10"/>
-    <button class="btn" onclick="goToTeam()">Analisis Tim →</button>
+    <button class="btn" onclick="goToTeam()">Analyze Team →</button>
   </div>
-  <p class="input-hint">Temukan ID kamu di <a href="https://fantasy.premierleague.com" target="_blank">fantasy.premierleague.com</a> → Points → cek URL</p>
-  <div class="error-msg" id="error-msg">Masukkan FPL Team ID yang valid.</div>
+  <p class="input-hint">Find your ID at <a href="https://fantasy.premierleague.com" target="_blank">fantasy.premierleague.com</a> → Points → check the URL</p>
+  <div class="error-msg" id="error-msg">Please enter a valid FPL Team ID.</div>
 </div>
 
-<!-- Feature cards -->
 <div style="padding: 0 24px; max-width: 680px; margin: 0 auto;">
-  <div class="features-label">Jelajahi fitur</div>
+  <div class="features-label">Explore features</div>
 </div>
 <div class="features-grid">
-
   <a class="feature-card" href="/team.html">
     <div class="feature-icon">📊</div>
     <div class="feature-title">My Team</div>
-    <div class="feature-desc">Review tim kamu GW per GW — picks, poin, captain, dan histori musim 2025/26.</div>
-    <div class="feature-cta">Buka My Team →</div>
+    <div class="feature-desc">Review your team GW by GW — picks, points, captain, and full season history.</div>
+    <div class="feature-cta">Open My Team →</div>
   </a>
-
   <a class="feature-card" href="/players.html">
     <div class="feature-icon">⚽</div>
     <div class="feature-title">Players</div>
-    <div class="feature-desc">Lihat semua pemain — xP, EO, form, FDR 3 GW ke depan. Filter & sort sesukamu.</div>
-    <div class="feature-cta">Lihat Pemain →</div>
+    <div class="feature-desc">Browse all players — xP, EO, form, FDR for next 3 GWs. Filter & sort freely.</div>
+    <div class="feature-cta">Browse Players →</div>
   </a>
-
   <a class="feature-card" href="/mini-league.html">
     <div class="feature-icon">🏆</div>
     <div class="feature-title">Mini League <span class="coming-tag">Soon</span></div>
-    <div class="feature-desc">Pantau semua rival di mini league kamu secara real time — captain, poin, dan transfer mereka.</div>
+    <div class="feature-desc">Track all rivals in your mini league in real time — their captain, points, and transfers.</div>
     <div class="feature-cta" style="color:var(--muted);">Coming soon</div>
   </a>
-
   <a class="feature-card" href="/next-move.html">
     <div class="feature-icon">🎯</div>
     <div class="feature-title">Next Move</div>
-    <div class="feature-desc">Pilih mode Mengejar atau Bertahan — dapat saran captain dan transfer yang personal.</div>
-    <div class="feature-cta">Cari Next Move →</div>
+    <div class="feature-desc">Choose Chase or Hold mode — get personalized captain and transfer suggestions.</div>
+    <div class="feature-cta">Find Next Move →</div>
   </a>
-
 </div>
 
-<!-- Countdown -->
 <div class="countdown-section">
   <div class="countdown-label">Season 2026/27 countdown</div>
   <div class="countdown-strip" id="countdown-strip"></div>
@@ -142,26 +126,14 @@ function goToTeam() {
   err.style.display = 'none';
   window.location.href = `/team.html?id=${id}&gw=38`;
 }
-
-document.getElementById('fpl-id').addEventListener('keydown', e => {
-  if (e.key === 'Enter') goToTeam();
-});
-
+document.getElementById('fpl-id').addEventListener('keydown', e => { if (e.key === 'Enter') goToTeam(); });
 function startCountdown() {
   const target = new Date('2026-08-15T11:00:00Z');
   function update() {
     const diff = target - new Date();
-    if (diff <= 0) {
-      document.getElementById('countdown-strip').innerHTML = '<span style="color:var(--accent2);font-size:18px;font-weight:700;">Season is live! 🎉</span>';
-      return;
-    }
-    const d = Math.floor(diff/86400000);
-    const h = Math.floor((diff%86400000)/3600000);
-    const m = Math.floor((diff%3600000)/60000);
-    const s = Math.floor((diff%60000)/1000);
-    document.getElementById('countdown-strip').innerHTML = [
-      [d,'Days'],[h,'Hours'],[m,'Mins'],[s,'Secs']
-    ].map(([n,u]) => `<div class="countdown-block"><div class="countdown-num">${String(n).padStart(2,'0')}</div><div class="countdown-unit">${u}</div></div>`).join('');
+    if (diff <= 0) { document.getElementById('countdown-strip').innerHTML = '<span style="color:var(--accent2);font-size:18px;font-weight:700;">Season is live! 🎉</span>'; return; }
+    const d = Math.floor(diff/86400000), h = Math.floor((diff%86400000)/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
+    document.getElementById('countdown-strip').innerHTML = [[d,'Days'],[h,'Hours'],[m,'Mins'],[s,'Secs']].map(([n,u]) => `<div class="countdown-block"><div class="countdown-num">${String(n).padStart(2,'0')}</div><div class="countdown-unit">${u}</div></div>`).join('');
   }
   update(); setInterval(update, 1000);
 }
