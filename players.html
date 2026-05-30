@@ -8,14 +8,14 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0D0B1F; --surface: #161330; --surface2: #1E1A40;
-      --accent: #1A6FFF; --accent2: #6C5CE7; --text: #F0EEFF;
-      --muted: #8B82C4; --border: rgba(108,92,231,0.2); --radius: 16px;
+      --bg: #F8F9FF; --surface: #FFFFFF; --surface2: #F0F2FF;
+      --accent: #1A6FFF; --accent2: #6C5CE7; --text: #1A1535;
+      --muted: #6B63A8; --border: rgba(108,92,231,0.15); --radius: 16px;
     }
     body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; }
-    body::before { content: ''; position: fixed; top: -200px; left: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(108,92,231,0.15) 0%, transparent 70%); pointer-events: none; }
-    body::after { content: ''; position: fixed; bottom: -200px; right: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(26,111,255,0.12) 0%, transparent 70%); pointer-events: none; }
-    nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(13,11,31,0.85); backdrop-filter: blur(12px); z-index: 100; }
+    body::before { content: ''; position: fixed; top: -200px; left: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(108,92,231,0.07) 0%, transparent 70%); pointer-events: none; }
+    body::after { content: ''; position: fixed; bottom: -200px; right: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(26,111,255,0.06) 0%, transparent 70%); pointer-events: none; }
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(248,249,255,0.92); backdrop-filter: blur(12px); z-index: 100; }
     .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.5px; text-decoration: none; color: var(--text); }
     .logo span { color: var(--accent2); }
     .nav-links { display: flex; gap: 8px; }
@@ -25,71 +25,71 @@
     .page-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 24px; }
     .page-title { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; }
     .player-count { font-size: 13px; color: var(--muted); }
-    .gw-picker-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; flex-wrap: wrap; }
+    .gw-picker-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; flex-wrap: wrap; box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
     .gw-picker-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; white-space: nowrap; }
     .gw-btn-group { display: flex; gap: 4px; flex-wrap: wrap; }
     .gw-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
     .gw-btn:hover { color: var(--text); border-color: var(--accent2); }
     .gw-btn.active { background: var(--accent2); border-color: var(--accent2); color: #fff; }
-    .gw-btn.live { background: rgba(26,111,255,0.15); border-color: var(--accent); color: #6BA3FF; }
+    .gw-btn.live { background: rgba(26,111,255,0.08); border-color: var(--accent); color: var(--accent); }
     .gw-btn.live.active { background: var(--accent); border-color: var(--accent); color: #fff; }
     .gw-source-badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-left: auto; white-space: nowrap; }
-    .badge-live { background: rgba(26,111,255,0.15); color: #6BA3FF; }
-    .badge-hist { background: rgba(108,92,231,0.15); color: #A29BFE; }
+    .badge-live { background: rgba(26,111,255,0.1); color: var(--accent); }
+    .badge-hist { background: rgba(108,92,231,0.1); color: var(--accent2); }
     .filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
     .filter-group { display: flex; gap: 6px; }
-    .filter-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
-    .filter-btn:hover { color: var(--text); }
+    .filter-btn { background: var(--surface); border: 1px solid var(--border); color: var(--muted); border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+    .filter-btn:hover { color: var(--text); border-color: var(--accent2); }
     .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-    .filter-btn.pos-gk.active { background: #F9CA24; border-color: #F9CA24; color: #000; }
+    .filter-btn.pos-gk.active { background: #B8860B; border-color: #B8860B; color: #fff; }
     .filter-btn.pos-def.active { background: #1A6FFF; border-color: #1A6FFF; color: #fff; }
-    .filter-btn.pos-mid.active { background: #00B894; border-color: #00B894; color: #fff; }
-    .filter-btn.pos-fwd.active { background: #FF7675; border-color: #FF7675; color: #fff; }
-    .search-input { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 7px 14px; font-size: 13px; color: var(--text); font-family: 'DM Sans', sans-serif; outline: none; width: 200px; transition: border-color 0.2s; }
+    .filter-btn.pos-mid.active { background: #00976B; border-color: #00976B; color: #fff; }
+    .filter-btn.pos-fwd.active { background: #E84040; border-color: #E84040; color: #fff; }
+    .search-input { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 7px 14px; font-size: 13px; color: var(--text); font-family: 'DM Sans', sans-serif; outline: none; width: 200px; transition: border-color 0.2s; }
     .search-input:focus { border-color: var(--accent); }
-    .search-input::placeholder { color: var(--muted); }
+    .search-input::placeholder { color: var(--muted); opacity: 0.7; }
     .divider { width: 1px; height: 28px; background: var(--border); }
     .loading { text-align: center; padding: 80px 0; color: var(--muted); }
     .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+    .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
     table { width: 100%; border-collapse: collapse; min-width: 800px; }
-    thead { background: var(--surface); }
+    thead { background: var(--surface2); }
     th { padding: 12px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); font-weight: 600; text-align: left; cursor: pointer; white-space: nowrap; user-select: none; border-bottom: 1px solid var(--border); transition: color 0.15s; }
     th:hover { color: var(--text); }
     th.sorted { color: var(--accent); }
     th .sort-arrow { margin-left: 4px; opacity: 0.5; }
     th.sorted .sort-arrow { opacity: 1; }
-    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; background: var(--surface); }
     tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: var(--surface); }
+    tbody tr:hover { background: var(--surface2); }
     td { padding: 11px 14px; font-size: 13px; vertical-align: middle; }
     .jersey { width: 28px; height: 28px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: #fff; flex-shrink: 0; }
     .player-cell { display: flex; align-items: center; gap: 10px; }
-    .player-name { font-weight: 600; font-size: 13px; }
+    .player-name { font-weight: 600; font-size: 13px; color: var(--text); }
     .player-team { font-size: 11px; color: var(--muted); }
     .pos-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
-    .pos-gk { background: rgba(249,202,36,0.15); color: #F9CA24; }
-    .pos-def { background: rgba(26,111,255,0.15); color: #6BA3FF; }
-    .pos-mid { background: rgba(0,184,148,0.15); color: #00B894; }
-    .pos-fwd { background: rgba(255,118,117,0.15); color: #FF7675; }
+    .pos-gk { background: rgba(184,134,11,0.12); color: #B8860B; }
+    .pos-def { background: rgba(26,111,255,0.12); color: var(--accent); }
+    .pos-mid { background: rgba(0,151,107,0.12); color: #00976B; }
+    .pos-fwd { background: rgba(232,64,64,0.12); color: #E84040; }
     .xp-val { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; color: var(--accent); }
     .xp-next { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; color: var(--accent2); }
-    .pts-val { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; color: #00B894; }
+    .pts-val { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; color: #00976B; }
     .eo-cell { display: flex; align-items: center; gap: 8px; }
     .eo-bar-bg { flex: 1; max-width: 60px; height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
     .eo-bar-fill { height: 100%; border-radius: 2px; background: var(--accent2); }
     .eo-val { font-size: 12px; color: var(--muted); min-width: 36px; }
-    .eo-diff { font-size: 10px; background: rgba(255,118,117,0.15); color: #FF7675; padding: 1px 6px; border-radius: 4px; }
+    .eo-diff { font-size: 10px; background: rgba(232,64,64,0.1); color: #E84040; padding: 1px 6px; border-radius: 4px; }
     .fdr-row { display: flex; gap: 4px; }
     .fdr-box { width: 28px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; }
-    .fdr-1, .fdr-2 { background: rgba(0,184,148,0.25); color: #00B894; }
-    .fdr-3 { background: rgba(253,203,110,0.25); color: #FDCB6E; }
-    .fdr-4, .fdr-5 { background: rgba(255,118,117,0.25); color: #FF7675; }
-    .price-val { font-size: 13px; font-weight: 500; }
+    .fdr-1, .fdr-2 { background: rgba(0,151,107,0.15); color: #00976B; }
+    .fdr-3 { background: rgba(196,127,0,0.15); color: #C47F00; }
+    .fdr-4, .fdr-5 { background: rgba(232,64,64,0.15); color: #E84040; }
+    .price-val { font-size: 13px; font-weight: 600; color: var(--text); }
     .form-val { font-size: 13px; color: var(--muted); }
-    .form-high { color: #00B894; font-weight: 600; }
-    .form-mid { color: #FDCB6E; }
+    .form-high { color: #00976B; font-weight: 600; }
+    .form-mid { color: #C47F00; font-weight: 500; }
     .empty { text-align: center; padding: 60px 0; color: var(--muted); }
     .gw-info { font-size: 12px; color: var(--muted); padding: 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 14px; }
     .gw-info span { color: var(--text); font-weight: 600; }
@@ -117,7 +117,7 @@
 <div class="container">
   <div class="page-header">
     <div class="page-title">Players 📋</div>
-    <div class="player-count" id="player-count">Memuat...</div>
+    <div class="player-count" id="player-count">Loading...</div>
   </div>
 
   <div class="gw-picker-wrap" id="gw-picker-wrap">
@@ -130,42 +130,42 @@
 
   <div class="filters">
     <div class="filter-group">
-      <button class="filter-btn active" onclick="filterPos('ALL', this)">Semua</button>
+      <button class="filter-btn active" onclick="filterPos('ALL', this)">All</button>
       <button class="filter-btn pos-gk" onclick="filterPos('GK', this)">GK</button>
       <button class="filter-btn pos-def" onclick="filterPos('DEF', this)">DEF</button>
       <button class="filter-btn pos-mid" onclick="filterPos('MID', this)">MID</button>
       <button class="filter-btn pos-fwd" onclick="filterPos('FWD', this)">FWD</button>
     </div>
     <div class="divider"></div>
-    <div class="filter-group" id="sort-btns">
+    <div class="filter-group">
       <button class="filter-btn active-sort" id="sort-xp" onclick="sortBy('ep_this')">xP GW ↓</button>
       <button class="filter-btn" id="sort-xpnext" onclick="sortBy('ep_next')">xP Next</button>
-      <button class="filter-btn" id="sort-pts" onclick="sortBy('pts')" style="display:none;">Pts GW</button>
+      <button class="filter-btn" id="sort-pts" onclick="sortBy('pts')" style="display:none;">GW Pts</button>
       <button class="filter-btn" id="sort-eo" onclick="sortBy('eo')">EO</button>
       <button class="filter-btn" id="sort-form" onclick="sortBy('form')">Form</button>
-      <button class="filter-btn" id="sort-price" onclick="sortBy('price')">Harga</button>
+      <button class="filter-btn" id="sort-price" onclick="sortBy('price')">Price</button>
     </div>
     <div class="divider"></div>
-    <input type="text" class="search-input" id="search-input" placeholder="Cari pemain..." oninput="filterSearch()"/>
+    <input type="text" class="search-input" id="search-input" placeholder="Search players..." oninput="filterSearch()"/>
   </div>
 
   <div class="loading" id="loading">
     <div class="spinner"></div>
-    <p id="loading-text">Memuat data pemain...</p>
+    <p id="loading-text">Loading players...</p>
   </div>
 
   <div class="table-wrap" id="table-wrap" style="display:none;">
     <table>
       <thead>
         <tr id="table-head">
-          <th style="width:200px">Pemain</th>
+          <th style="width:200px">Player</th>
           <th>Pos</th>
-          <th onclick="sortBy('price')" id="th-price">Harga <span class="sort-arrow">↕</span></th>
+          <th onclick="sortBy('price')" id="th-price">Price <span class="sort-arrow">↕</span></th>
           <th onclick="sortBy('eo')" id="th-eo">EO% <span class="sort-arrow">↕</span></th>
           <th onclick="sortBy('form')" id="th-form">Form <span class="sort-arrow">↕</span></th>
           <th onclick="sortBy('ep_this')" id="th-ep_this">xP GW <span class="sort-arrow">↓</span></th>
           <th onclick="sortBy('ep_next')" id="th-ep_next">xP Next <span class="sort-arrow">↕</span></th>
-          <th onclick="sortBy('pts')" id="th-pts" style="display:none;">Pts GW <span class="sort-arrow">↕</span></th>
+          <th onclick="sortBy('pts')" id="th-pts" style="display:none;">GW Pts <span class="sort-arrow">↕</span></th>
           <th>FDR 3 GW</th>
           <th>Status</th>
         </tr>
@@ -173,7 +173,7 @@
       <tbody id="players-tbody"></tbody>
     </table>
   </div>
-  <div class="empty" id="empty-state" style="display:none;">Tidak ada pemain yang cocok.</div>
+  <div class="empty" id="empty-state" style="display:none;">No players found.</div>
 </div>
 
 <script>
@@ -188,20 +188,20 @@ let currentGW = 'live', currentGWMax = 38, gwDataCache = {};
 async function fetchAPI(endpoint) {
   const res = await fetch(`/api/fpl?endpoint=${encodeURIComponent(endpoint)}`);
   if (res.ok) return await res.json();
-  throw new Error('Gagal fetch data.');
+  throw new Error('Failed to fetch data.');
 }
 
 const TEAM_COLORS = {
-  1:['#EF0107','#FFF'],2:['#95BFE5','#FFF'],3:['#E30613','#000'],4:['#FFCC00','#000'],
+  1:['#EF0107','#FFF'],2:['#95BFE5','#670E36'],3:['#E30613','#000'],4:['#FFCC00','#000'],
   5:['#0057B8','#FFF'],6:['#034694','#FFF'],7:['#1B458F','#FFF'],8:['#003399','#FFF'],
-  9:['#003090','#FFF'],10:['#0F5DA7','#FFF'],11:['#FFCD00','#000'],12:['#003090','#FFF'],
+  9:['#FFFFFF','#000'],10:['#0F5DA7','#FFF'],11:['#FFCD00','#1D428A'],12:['#003090','#FFF'],
   13:['#C8102E','#FFF'],14:['#6CABDD','#FFF'],15:['#DA020E','#FFE500'],16:['#000','#FFF'],
-  17:['#D71920','#FFF'],18:['#D71920','#FFF'],19:['#132257','#FFF'],20:['#7A263A','#FFF'],21:['#FDB913','#000'],
+  17:['#E53233','#FFF'],18:['#D71920','#FFF'],19:['#132257','#FFF'],20:['#7A263A','#1BB1E7'],21:['#FDB913','#000'],
 };
 
 function jerseyHTML(teamId, s) {
-  const [bg, fg] = TEAM_COLORS[teamId] || ['#444','#fff'];
-  return `<div class="jersey" style="background:${bg};color:${fg};">${s||'?'}</div>`;
+  const [bg, fg] = TEAM_COLORS[teamId] || ['#888','#fff'];
+  return `<div class="jersey" style="background:${bg};color:${fg};border:1px solid rgba(0,0,0,0.1);">${s||'?'}</div>`;
 }
 
 function fdrHTML(fdrs) {
@@ -228,7 +228,7 @@ function buildVaastavMap(rows) {
 async function fetchVaastavGW(gw) {
   if (gwDataCache[gw]) return gwDataCache[gw];
   const res = await fetch(`${VAASTAV_BASE}${gw}.csv`);
-  if (!res.ok) throw new Error(`Data GW ${gw} tidak tersedia`);
+  if (!res.ok) throw new Error(`GW ${gw} data not available`);
   const map = buildVaastavMap(parseCSV(await res.text()));
   gwDataCache[gw] = map;
   return map;
@@ -274,7 +274,7 @@ async function selectGW(gw, btnEl) {
   thPts.style.display = ''; sortPts.style.display = '';
   document.getElementById('loading').style.display = 'block';
   document.getElementById('table-wrap').style.display = 'none';
-  document.getElementById('loading-text').textContent = `Memuat data GW ${gw}...`;
+  document.getElementById('loading-text').textContent = `Loading GW ${gw} data...`;
 
   try {
     const gwMap = await fetchVaastavGW(gw);
@@ -284,11 +284,11 @@ async function selectGW(gw, btnEl) {
       if (row) { p.gw_pts = parseInt(row.total_points)||0; p.gw_xp = parseFloat(row.xP)||0; matched++; }
       else { p.gw_pts = null; p.gw_xp = null; }
     });
-    infoBar.innerHTML = `GW <span>${gw}</span> — data dari vaastav · <span>${matched}</span> pemain tercocokkan`;
+    infoBar.innerHTML = `GW <span>${gw}</span> — vaastav data · <span>${matched}</span> players matched`;
     infoBar.style.display = 'block';
     currentSort = 'pts'; sortAsc = false;
   } catch(e) {
-    infoBar.innerHTML = `⚠️ Gagal memuat data GW ${gw}: ${e.message}`;
+    infoBar.innerHTML = `⚠️ Failed to load GW ${gw}: ${e.message}`;
     infoBar.style.display = 'block';
   }
 
@@ -330,7 +330,7 @@ function renderTable() {
   const sortKey = sortKeyMap[currentSort] || 'ep_this_f';
   filtered.sort((a,b) => { const av=a[sortKey]??-1, bv=b[sortKey]??-1; return sortAsc ? av-bv : bv-av; });
 
-  document.getElementById('player-count').textContent = `${filtered.length} pemain`;
+  document.getElementById('player-count').textContent = `${filtered.length} players`;
   const tbody = document.getElementById('players-tbody');
   tbody.innerHTML = '';
 
@@ -396,7 +396,7 @@ async function loadPlayers() {
     document.getElementById('table-wrap').style.display = 'block';
     renderTable();
   } catch(e) {
-    document.getElementById('loading').innerHTML = `<p style="color:#FF7675;">Gagal memuat data: ${e.message}</p>`;
+    document.getElementById('loading').innerHTML = `<p style="color:#E84040;">Failed to load data: ${e.message}</p>`;
   }
 }
 
