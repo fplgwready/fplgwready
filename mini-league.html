@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FPLGWReady — Mini League</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #F8F9FF; --surface: #FFFFFF; --surface2: #F0F2FF;
+      --accent: #1A6FFF; --accent2: #6C5CE7; --text: #1A1535;
+      --muted: #6B63A8; --border: rgba(108,92,231,0.15); --radius: 16px;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; top: -200px; left: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(108,92,231,0.07) 0%, transparent 70%); pointer-events: none; }
+    body::after { content: ''; position: fixed; bottom: -200px; right: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(26,111,255,0.06) 0%, transparent 70%); pointer-events: none; }
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(248,249,255,0.92); backdrop-filter: blur(12px); z-index: 100; }
+    .logo { font-weight: 800; font-size: 22px; letter-spacing: -0.5px; text-decoration: none; color: var(--text); }
+    .logo span { color: var(--accent2); }
+    .nav-links { display: flex; gap: 8px; }
+    .nav-link { background: var(--surface2); border: 1px solid var(--border); padding: 6px 14px; border-radius: 100px; font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.15s; }
+    .nav-link:hover, .nav-link.active { color: var(--text); border-color: var(--accent2); }
+    .container { max-width: 1000px; margin: 40px auto; padding: 0 24px 80px; }
+    .page-title { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+    .page-sub { color: var(--muted); font-size: 15px; margin-bottom: 28px; }
+    .input-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 14px; box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
+    .input-label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 10px; display: block; }
+    .input-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    input[type="text"] { flex: 1; min-width: 140px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 15px; color: var(--text); font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; }
+    input[type="text"]:focus { border-color: var(--accent); }
+    input[type="text"]::placeholder { color: var(--muted); opacity: 0.7; }
+    select { flex: 1; min-width: 200px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 14px; color: var(--text); font-family: 'Inter', sans-serif; outline: none; cursor: pointer; }
+    select:focus { border-color: var(--accent2); }
+    .btn { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 12px 22px; font-size: 15px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }
+    .btn:hover { opacity: 0.88; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-sm { font-size: 12px; padding: 6px 14px; border-radius: 8px; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--muted); font-weight: 600; }
+    .btn-outline:hover { border-color: var(--accent2); color: var(--text); opacity: 1; }
+    .error-msg { background: rgba(220,50,50,0.08); border: 1px solid rgba(220,50,50,0.2); color: #CC3333; border-radius: 10px; padding: 12px 16px; font-size: 14px; margin-top: 10px; display: none; }
+    .loading { display: none; text-align: center; padding: 48px 0; color: var(--muted); }
+    .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 14px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .result { display: none; }
+
+    /* League header */
+    .league-header { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 1px 8px rgba(108,92,231,0.05); flex-wrap: wrap; }
+    .league-name { font-size: 20px; font-weight: 800; }
+    .league-meta { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .gw-badge { background: rgba(26,111,255,0.08); border: 1px solid rgba(26,111,255,0.2); color: var(--accent); font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 100px; white-space: nowrap; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
+    table { width: 100%; border-collapse: collapse; min-width: 760px; }
+    thead th { background: var(--surface2); padding: 11px 14px; text-align: left; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    thead th:first-child { padding-left: 18px; }
+    thead th:last-child { text-align: center; }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--surface2); }
+    tbody tr.is-me { background: rgba(26,111,255,0.035); }
+    tbody tr.is-me:hover { background: rgba(26,111,255,0.07); }
+    tbody td { padding: 12px 14px; font-size: 14px; vertical-align: middle; }
+    tbody td:first-child { padding-left: 18px; }
+    tbody td:last-child { text-align: center; }
+
+    /* Rank */
+    .rank-cell { display: flex; align-items: center; gap: 6px; }
+    .rank-num { font-weight: 800; font-size: 16px; min-width: 24px; }
+    .rank-chg { font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 4px; white-space: nowrap; }
+    .chg-up { background: rgba(0,151,107,0.1); color: #00976B; }
+    .chg-down { background: rgba(232,64,64,0.1); color: #E84040; }
+    .chg-same { background: rgba(108,92,231,0.08); color: var(--muted); }
+
+    /* Manager */
+    .mgr-name { font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+    .you-tag { font-size: 10px; background: rgba(26,111,255,0.1); color: var(--accent); padding: 1px 6px; border-radius: 4px; font-weight: 700; }
+    .mgr-team { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* Points */
+    .pts-live { font-weight: 800; font-size: 17px; color: var(--accent2); }
+    .pts-live.loading-pts { color: var(--muted); font-size: 13px; font-weight: 400; }
+    .pts-total { font-weight: 700; font-size: 14px; }
+
+    /* Active chip tag */
+    .chip-active-tag { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; margin-top: 3px; display: inline-block; }
+    .chip-tag-wc { background: rgba(108,92,231,0.12); color: var(--accent2); }
+    .chip-tag-tc { background: rgba(196,127,0,0.12); color: #C47F00; }
+    .chip-tag-bb { background: rgba(26,111,255,0.12); color: var(--accent); }
+    .chip-tag-fh { background: rgba(0,151,107,0.12); color: #00976B; }
+
+    /* Captain */
+    .cap-name { font-weight: 600; font-size: 13px; }
+    .cap-pts { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* Transfer */
+    .tfr-num { font-weight: 700; font-size: 14px; }
+    .tfr-hit { font-size: 11px; color: #E84040; margin-top: 2px; }
+
+    /* Chips remaining */
+    .chips-cell { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; min-width: 80px; }
+    .chip-pill { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 5px; white-space: nowrap; }
+    .pill-wc { background: rgba(108,92,231,0.12); color: var(--accent2); }
+    .pill-tc { background: rgba(196,127,0,0.12); color: #C47F00; }
+    .pill-bb { background: rgba(26,111,255,0.12); color: var(--accent); }
+    .pill-fh { background: rgba(0,151,107,0.12); color: #00976B; }
+    .chips-none { font-size: 12px; color: var(--muted); }
+
+    /* Pagination */
+    .pagination { display: flex; align-items: center; justify-content: space-between; padding: 16px 2px 0; }
+    .page-info { font-size: 13px; color: var(--muted); }
+    .page-btns { display: flex; gap: 8px; }
+    .table-note { font-size: 11px; color: var(--muted); padding: 10px 2px 0; }
+
+    @media (max-width: 600px) {
+      nav { padding: 14px 16px; }
+      .nav-links { gap: 4px; }
+      .nav-link { padding: 5px 10px; font-size: 12px; }
+      .container { margin-top: 24px; }
+      .league-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <a class="logo" href="/"><span>FPL</span>GWReady</a>
+  <div class="nav-links">
+    <a class="nav-link" href="/">Home</a>
+    <a class="nav-link" href="/players.html">Players</a>
+    <a class="nav-link" href="/team.html">My Team</a>
+    <a class="nav-link active" href="/mini-league.html">Mini League</a>
+    <a class="nav-link" href="/next-move.html">Next Move</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-title">Mini League 🏆</div>
+  <p class="page-sub">Track all rivals — live GW points, captain, transfers & chips remaining.</p>
+
+  <div class="input-card">
+    <label class="input-label" for="fpl-id">Your FPL Team ID</label>
+    <div class="input-row">
+      <input type="text" id="fpl-id" placeholder="e.g. 222758" maxlength="10"/>
+      <button class="btn" id="load-btn" onclick="loadLeagues()">Load My Leagues →</button>
+    </div>
+    <div class="error-msg" id="error-msg"></div>
+  </div>
+
+  <div class="input-card" id="league-selector" style="display:none;">
+    <label class="input-label">Select League</label>
+    <div class="input-row">
+      <select id="league-select"></select>
+      <button class="btn" onclick="loadLeague(1)">View League →</button>
+    </div>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p id="loading-msg">Loading...</p>
+  </div>
+
+  <div class="result" id="result">
+    <div class="league-header" id="league-header"></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Manager / Team</th>
+            <th>Live GW</th>
+            <th>Total</th>
+            <th>Captain</th>
+            <th>Tfr</th>
+            <th>Chips Left</th>
+            <th>View</th>
+          </tr>
+        </thead>
+        <tbody id="league-tbody"></tbody>
+      </table>
+    </div>
+    <div class="table-note">Live GW pts exclude auto-subs · includes provisional bonus · data from FPL Official API</div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+</div>
+
+<div style="text-align:center;padding:24px;font-size:11px;color:#6B63A8;border-top:1px solid rgba(108,92,231,0.1);margin-top:40px;">
+  Data sourced from <a href="https://fantasy.premierleague.com" target="_blank" style="color:#1A6FFF;text-decoration:none;">FPL Official API</a>
+  · Built by <strong>FPLGWReady</strong>
+</div>
+
+<script>
+let currentGW = 38;
+let currentLeagueId = null;
+let currentPage = 1;
+let myEntryId = null;
+let playerMap = {};
+
+async function fetchAPI(endpoint) {
+  const res = await fetch(`/api/fpl?endpoint=${encodeURIComponent(endpoint)}`);
+  if (!res.ok) throw new Error('FPL API error — try again shortly.');
+  return res.json();
+}
+
+function showLoading(msg) {
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('loading-msg').textContent = msg;
+}
+function hideLoading() { document.getElementById('loading').style.display = 'none'; }
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+async function loadLeagues() {
+  const id = document.getElementById('fpl-id').value.trim();
+  if (!id || isNaN(id)) { showError('Please enter a valid FPL Team ID.'); return; }
+  localStorage.setItem('fpl_id', id);
+  myEntryId = parseInt(id);
+  document.getElementById('error-msg').style.display = 'none';
+  document.getElementById('load-btn').disabled = true;
+  document.getElementById('league-selector').style.display = 'none';
+  document.getElementById('result').style.display = 'none';
+  showLoading('Fetching your leagues...');
+  try {
+    const entry = await fetchAPI(`entry/${id}/`);
+    const leagues = (entry.leagues?.classic || []).filter(l => l.league_type !== 's');
+    if (!leagues.length) { hideLoading(); showError('No mini leagues found for this Team ID.'); document.getElementById('load-btn').disabled = false; return; }
+    const sel = document.getElementById('league-select');
+    sel.innerHTML = '<option value="">— Select a league —</option>';
+    leagues.sort((a, b) => a.name.localeCompare(b.name)).forEach(l => {
+      const opt = document.createElement('option');
+      opt.value = l.id;
+      opt.textContent = `${l.name}  (your rank: ${l.entry_rank ?? '?'})`;
+      sel.appendChild(opt);
+    });
+    hideLoading();
+    document.getElementById('league-selector').style.display = 'block';
+  } catch(e) {
+    hideLoading();
+    showError(e.message || 'Failed to load leagues. Please try again.');
+  }
+  document.getElementById('load-btn').disabled = false;
+}
+
+async function loadLeague(page = 1) {
+  const leagueId = document.getElementById('league-select').value;
+  if (!leagueId) { showError('Please select a league first.'); return; }
+  currentLeagueId = leagueId;
+  currentPage = page;
+  document.getElementById('error-msg').style.display = 'none';
+  document.getElementById('result').style.display = 'none';
+  showLoading('Loading standings...');
+
+  try {
+    const [standings, boot] = await Promise.all([
+      fetchAPI(`leagues-classic/${leagueId}/standings/?page_standings=${page}`),
+      fetchAPI('bootstrap-static/')
+    ]);
+
+    const curEvent = boot.events.find(e => e.is_current) || [...boot.events].reverse().find(e => e.finished);
+    currentGW = curEvent?.id || 38;
+    playerMap = {};
+    boot.elements.forEach(p => { playerMap[p.id] = p; });
+
+    const entries = standings.standings.results;
+    const hasNext = standings.standings.has_next;
+
+    showLoading(`Loading ${entries.length} teams' data...`);
+
+    const [liveData, ...perEntry] = await Promise.all([
+      fetchAPI(`event/${currentGW}/live/`),
+      ...entries.map(e => Promise.allSettled([
+        fetchAPI(`entry/${e.entry}/event/${currentGW}/picks/`),
+        fetchAPI(`entry/${e.entry}/history/`)
+      ]))
+    ]);
+
+    const liveMap = {};
+    liveData.elements.forEach(e => { liveMap[e.id] = e.stats; });
+
+    const picksMap = {}, histMap = {};
+    entries.forEach((e, i) => {
+      const [pr, hr] = perEntry[i];
+      if (pr.status === 'fulfilled') picksMap[e.entry] = pr.value;
+      if (hr.status === 'fulfilled') histMap[e.entry] = hr.value;
+    });
+
+    hideLoading();
+    renderHeader(standings.league, entries.length, page, hasNext);
+    renderTable(entries, picksMap, histMap, liveMap);
+    renderPagination(page, hasNext);
+    document.getElementById('result').style.display = 'block';
+
+  } catch(e) {
+    hideLoading();
+    showError(e.message || 'Failed to load league data.');
+  }
+}
+
+function computeLivePts(picks, liveMap) {
+  if (!picks) return null;
+  let total = 0;
+  picks.picks.filter(p => p.position <= 11).forEach(pick => {
+    const s = liveMap[pick.element];
+    if (s) total += s.total_points * pick.multiplier;
+  });
+  return total;
+}
+
+function chipsLeft(history, gw) {
+  if (!history) return null;
+  const used = history.chips || [];
+  const left = [];
+  const wc1 = used.some(c => c.name === 'wildcard' && c.event <= 19);
+  const wc2 = used.some(c => c.name === 'wildcard' && c.event >= 20);
+  if (!wc1 && gw <= 19) left.push('WC');
+  if (!wc2 && gw >= 20) left.push('WC');
+  if (!used.some(c => c.name === '3xc')) left.push('TC');
+  if (!used.some(c => c.name === 'bboost')) left.push('BB');
+  if (!used.some(c => c.name === 'freehit')) left.push('FH');
+  return left;
+}
+
+const CHIP_LABEL = { wildcard: 'WC', '3xc': 'TC', bboost: 'BB', freehit: 'FH' };
+const CHIP_CLASS = { WC: 'pill-wc', TC: 'pill-tc', BB: 'pill-bb', FH: 'pill-fh' };
+const CHIP_ACTIVE_CLASS = { wildcard: 'chip-tag-wc', '3xc': 'chip-tag-tc', bboost: 'chip-tag-bb', freehit: 'chip-tag-fh' };
+
+function renderHeader(league, count, page, hasNext) {
+  document.getElementById('league-header').innerHTML = `
+    <div>
+      <div class="league-name">${league.name}</div>
+      <div class="league-meta">Page ${page} · ${count} entries shown${hasNext ? ' · more pages available' : ''}</div>
+    </div>
+    <div class="gw-badge">GW ${currentGW} Live</div>
+  `;
+}
+
+function renderTable(entries, picksMap, histMap, liveMap) {
+  const tbody = document.getElementById('league-tbody');
+  tbody.innerHTML = '';
+
+  entries.forEach(e => {
+    const picks = picksMap[e.entry];
+    const hist = histMap[e.entry];
+
+    const livePts = computeLivePts(picks, liveMap);
+    const remaining = chipsLeft(hist, currentGW);
+
+    // Captain
+    let capName = '—', capPts = null;
+    if (picks) {
+      const capPick = picks.picks.find(p => p.is_captain);
+      if (capPick) {
+        capName = playerMap[capPick.element]?.web_name || '—';
+        const ls = liveMap[capPick.element];
+        if (ls) capPts = ls.total_points * capPick.multiplier;
+      }
+    }
+
+    // Active chip this GW
+    const activeChip = picks?.active_chip;
+    const chipTag = activeChip
+      ? `<div class="chip-active-tag ${CHIP_ACTIVE_CLASS[activeChip] || ''}">${CHIP_LABEL[activeChip] || activeChip.toUpperCase()} active</div>`
+      : '';
+
+    // Transfers
+    const tfr = picks?.entry_history?.event_transfers ?? '—';
+    const tfrCost = picks?.entry_history?.event_transfers_cost ?? 0;
+
+    // Rank change
+    const diff = (e.last_rank || 0) - e.rank;
+    const rankBadge = e.last_rank
+      ? diff > 0
+        ? `<span class="rank-chg chg-up">↑${diff}</span>`
+        : diff < 0
+          ? `<span class="rank-chg chg-down">↓${Math.abs(diff)}</span>`
+          : `<span class="rank-chg chg-same">—</span>`
+      : '';
+
+    // Chips left pills
+    let chipsHtml;
+    if (!remaining) {
+      chipsHtml = '<span class="chips-none">—</span>';
+    } else if (!remaining.length) {
+      chipsHtml = '<span class="chips-none">All used</span>';
+    } else {
+      chipsHtml = remaining.map(c => `<span class="chip-pill ${CHIP_CLASS[c]}">${c}</span>`).join('');
+    }
+
+    const isMe = e.entry === myEntryId;
+    const tr = document.createElement('tr');
+    if (isMe) tr.className = 'is-me';
+
+    tr.innerHTML = `
+      <td>
+        <div class="rank-cell">
+          <span class="rank-num">${e.rank}</span>
+          ${rankBadge}
+        </div>
+      </td>
+      <td>
+        <div class="mgr-name">
+          ${e.player_name}
+          ${isMe ? '<span class="you-tag">You</span>' : ''}
+        </div>
+        <div class="mgr-team">${e.entry_name}</div>
+      </td>
+      <td>
+        <div class="pts-live${livePts === null ? ' loading-pts' : ''}">${livePts !== null ? livePts : '—'}</div>
+        ${chipTag}
+      </td>
+      <td>
+        <div class="pts-total">${e.total.toLocaleString()}</div>
+      </td>
+      <td>
+        <div class="cap-name">${capName}</div>
+        <div class="cap-pts">${capPts !== null ? capPts + ' pts' : '—'}</div>
+      </td>
+      <td>
+        <div class="tfr-num">${tfr}</div>
+        ${tfrCost > 0 ? `<div class="tfr-hit">−${tfrCost} pts</div>` : ''}
+      </td>
+      <td>
+        <div class="chips-cell">${chipsHtml}</div>
+      </td>
+      <td>
+        <a href="team.html?id=${e.entry}&gw=${currentGW}" class="btn btn-sm btn-outline" style="text-decoration:none;display:inline-block;">View →</a>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderPagination(page, hasNext) {
+  document.getElementById('pagination').innerHTML = `
+    <div class="page-info">Page ${page} of standings</div>
+    <div class="page-btns">
+      ${page > 1 ? `<button class="btn btn-sm btn-outline" onclick="loadLeague(${page - 1})">← Prev</button>` : ''}
+      ${hasNext ? `<button class="btn btn-sm" onclick="loadLeague(${page + 1})">Next →</button>` : ''}
+    </div>
+  `;
+}
+
+document.getElementById('fpl-id').addEventListener('keydown', e => { if (e.key === 'Enter') loadLeagues(); });
+const params = new URLSearchParams(window.location.search);
+const savedId = localStorage.getItem('fpl_id');
+if (savedId) document.getElementById('fpl-id').value = savedId;
+if (params.get('id')) { document.getElementById('fpl-id').value = params.get('id'); loadLeagues(); }
+</script>
+</body>
+</html>
