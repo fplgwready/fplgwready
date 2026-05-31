@@ -17,7 +17,7 @@
     body::before { content: ''; position: fixed; top: -200px; left: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(108,92,231,0.07) 0%, transparent 70%); pointer-events: none; }
     body::after { content: ''; position: fixed; bottom: -200px; right: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(26,111,255,0.06) 0%, transparent 70%); pointer-events: none; }
     nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(248,249,255,0.92); backdrop-filter: blur(12px); z-index: 100; }
-    .logo { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.5px; text-decoration: none; color: var(--text); }
+    .logo { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.5px; text-decoration: none; color: var(--text); display: flex; align-items: center; gap: 10px; }
     .logo span { color: var(--accent2); }
     .nav-links { display: flex; gap: 8px; }
     .nav-link { background: var(--surface2); border: 1px solid var(--border); padding: 6px 14px; border-radius: 100px; font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.15s; }
@@ -106,7 +106,7 @@
 </head>
 <body>
 <nav>
-  <a class="logo" href="/"><span>FPL</span>GWReady</a>
+  <a class="logo" href="/"><img src="/logo.jpeg" alt="" style="width:34px;height:34px;border-radius:8px;object-fit:cover;object-position:center 32%;flex-shrink:0;"/><span>FPL</span>GWReady</a>
   <div class="nav-links">
     <a class="nav-link" href="/">Home</a>
     <a class="nav-link" href="/players.html">Players</a>
