@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     /^entry\/\d+\/history\/$/,
     /^entry\/\d+\/event\/\d+\/picks\/$/,
     /^bootstrap-static\/$/,
-    /^leagues-classic\/\d+\/standings\/$/,
+    /^leagues-classic\/\d+\/standings\/(\?page_standings=\d+)?$/,
     /^event\/\d+\/live\/$/,
     /^fixtures\/$/,
   ];
