@@ -180,7 +180,11 @@ async function initSupabase() {
 async function fetchCurrentGW() {
   const res = await fetch('/api/fpl?endpoint=bootstrap-static/');
   const data = await res.json();
-  return data.events?.find(e => e.is_current)?.id || data.events?.find(e => e.is_next)?.id || null;
+  const events = data.events || [];
+  return events.find(e => e.is_current)?.id
+    || events.find(e => e.is_next)?.id
+    || events.filter(e => e.finished).pop()?.id
+    || 38;
 }
 
 function timeAgo(dateStr) {
@@ -198,7 +202,14 @@ function initials(name) {
 
 async function loadFeed() {
   const feed = document.getElementById('feed');
-  if (!supabase || !currentGW) return;
+  if (!supabase) {
+    feed.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div>Could not connect to database. Check Supabase config.</div>`;
+    return;
+  }
+  if (!currentGW) {
+    feed.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div>Could not determine current GW. Try refreshing.</div>`;
+    return;
+  }
 
   document.getElementById('gw-badge').textContent = `GW ${currentGW}`;
 
@@ -319,8 +330,8 @@ async function submitPick() {
 }
 
 (async () => {
-  await initSupabase();
-  currentGW = await fetchCurrentGW();
+  try { await initSupabase(); } catch(e) { console.error('Supabase init failed', e); }
+  try { currentGW = await fetchCurrentGW(); } catch(e) { console.error('GW fetch failed', e); }
   await loadFeed();
   const saved = localStorage.getItem('fpl_id');
   if (saved) document.getElementById('fpl-id').value = saved;
