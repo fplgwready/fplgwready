@@ -166,10 +166,18 @@ const PLAYERS_DATA = {"gw":38,"players":[{"n":"Watkins","t":"AVL","p":4,"c":87,"
 
 // ── Supabase init ──────────────────────────────────────────
 async function initSupabase() {
-  const res = await fetch('/api/supabase-config');
-  const json = await res.json();
-  if (!res.ok || !json.key) throw new Error(json.error || 'Missing SUPABASE_KEY in Vercel env');
-  supabase = window.supabase.createClient(json.url, json.key);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 5000);
+  try {
+    const res = await fetch('/api/supabase-config', { signal: controller.signal });
+    clearTimeout(timer);
+    const json = await res.json();
+    if (!res.ok || !json.key) throw new Error(json.error || 'Missing SUPABASE_KEY in Vercel env');
+    supabase = window.supabase.createClient(json.url, json.key);
+  } catch(e) {
+    clearTimeout(timer);
+    throw new Error(e.name === 'AbortError' ? 'Supabase config timed out (5s)' : e.message);
+  }
 }
 
 // ── Bootstrap / player dropdown ───────────────────────────
