@@ -125,23 +125,18 @@
           <label class="input-label" for="display-name">Your Name</label>
           <input type="text" id="display-name" placeholder="e.g. Arsène"/>
         </div>
+        <datalist id="players-list"></datalist>
         <div class="field-group span2">
           <label class="input-label" for="captain-pick">Captain Pick *</label>
-          <select id="captain-pick" disabled>
-            <option value="">Loading players...</option>
-          </select>
+          <input type="text" id="captain-pick" list="players-list" placeholder="Loading players..." disabled autocomplete="off"/>
         </div>
         <div class="field-group">
           <label class="input-label" for="transfer-in">Transfer In</label>
-          <select id="transfer-in" disabled>
-            <option value="">Loading players...</option>
-          </select>
+          <input type="text" id="transfer-in" list="players-list" placeholder="Optional" disabled autocomplete="off"/>
         </div>
         <div class="field-group">
           <label class="input-label" for="transfer-out">Transfer Out</label>
-          <select id="transfer-out" disabled>
-            <option value="">Loading players...</option>
-          </select>
+          <input type="text" id="transfer-out" list="players-list" placeholder="Optional" disabled autocomplete="off"/>
         </div>
         <div class="field-group span2">
           <label class="input-label" for="reason">Reasoning (optional)</label>
@@ -189,34 +184,12 @@ async function initSupabase() {
 
 function buildDropdowns(players) {
   if (!players || !players.length) throw new Error('No player data');
-
-  // Build one HTML string per select — far fewer DOM operations than individual appends
-  const byPos = { 1: [], 2: [], 3: [], 4: [] };
-  players.forEach(p => { if (byPos[p.p]) byPos[p.p].push(p); });
-
-  function buildHTML(includeBlank) {
-    let html = includeBlank ? '<option value="">No transfer</option>' : '<option value="">Select captain...</option>';
-    [1, 2, 3, 4].forEach(pos => {
-      html += `<optgroup label="${POS[pos]}">`;
-      byPos[pos].forEach(p => {
-        html += `<option value="${p.n}">${p.n} (${p.t} · £${(p.c / 10).toFixed(1)}m)</option>`;
-      });
-      html += '</optgroup>';
-    });
-    return html;
-  }
-
-  const captainHTML = buildHTML(false);
-  const transferHTML = buildHTML(true);
-
-  document.getElementById('captain-pick').innerHTML = captainHTML;
-  document.getElementById('transfer-in').innerHTML = transferHTML;
-  document.getElementById('transfer-out').innerHTML = transferHTML;
-
+  document.getElementById('players-list').innerHTML =
+    players.map(p => `<option value="${p.n}">${p.n} (${p.t} · £${(p.c / 10).toFixed(1)}m)</option>`).join('');
   document.getElementById('captain-pick').disabled = false;
+  document.getElementById('captain-pick').placeholder = 'Type player name...';
   document.getElementById('transfer-in').disabled = false;
   document.getElementById('transfer-out').disabled = false;
-
   document.getElementById('init-loading').style.display = 'none';
 }
 
@@ -238,11 +211,19 @@ async function initBootstrap() {
   } catch(e) {}
 
   if (!players) {
-    const res = await fetch('/players.json');
-    if (!res.ok) throw new Error(`/players.json returned ${res.status}`);
-    const data = await res.json();
-    players = data.players;
-    gw = data.gw;
+    const res = await fetch('/api/fpl?endpoint=bootstrap-static/');
+    if (!res.ok) throw new Error('FPL API failed');
+    const boot = await res.json();
+    const events = boot.events || [];
+    gw = events.find(e => e.is_current)?.id
+      || events.find(e => e.is_next)?.id
+      || events.filter(e => e.finished).pop()?.id
+      || 38;
+    const teams = {};
+    boot.teams.forEach(t => { teams[t.id] = t.short_name; });
+    players = boot.elements.map(p => ({
+      n: p.web_name, t: teams[p.team] || '?', p: p.element_type, c: p.now_cost
+    }));
     try { localStorage.setItem(CACHE_KEY, JSON.stringify({ gw, players, ts: Date.now() })); } catch(e) {}
   }
 
