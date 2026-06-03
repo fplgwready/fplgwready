@@ -155,8 +155,9 @@
     </div>
   </div>
 
-  <div class="section-title">
-    Community Picks <span class="section-badge" id="gw-badge">Loading...</span>
+  <div class="section-title" style="justify-content:space-between;">
+    <span>Community Picks <span class="section-badge" id="gw-badge">Loading...</span></span>
+    <button id="change-pick-btn" onclick="changePick()" style="display:none;background:none;border:none;font-size:13px;color:var(--muted);cursor:pointer;font-family:inherit;text-decoration:underline;">Change my pick</button>
   </div>
 
   <div id="feed">
@@ -373,6 +374,7 @@ async function submitPick() {
     if (fplId) localStorage.setItem('fpl_id', fplId);
     document.getElementById('form-wrap').style.display = 'none';
     document.getElementById('init-loading').style.display = 'none';
+    document.getElementById('change-pick-btn').style.display = 'inline';
     suc.textContent = `Pick submitted! Here's what the community is captaining ↓`;
     suc.style.display = 'block';
     await loadFeed();
@@ -383,6 +385,13 @@ async function submitPick() {
 
   btn.disabled = false;
   btn.textContent = 'Share My Pick →';
+}
+
+function changePick() {
+  document.getElementById('form-wrap').style.display = 'block';
+  document.getElementById('change-pick-btn').style.display = 'none';
+  document.getElementById('submit-success').style.display = 'none';
+  document.getElementById('form-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ── Boot ──────────────────────────────────────────────────
@@ -396,6 +405,7 @@ async function submitPick() {
   if (hasSubmitted()) {
     document.getElementById('form-wrap').style.display = 'none';
     document.getElementById('init-loading').style.display = 'none';
+    document.getElementById('change-pick-btn').style.display = 'inline';
   }
 
   const [supabaseErr] = await Promise.all([
