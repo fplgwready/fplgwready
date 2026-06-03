@@ -282,7 +282,7 @@ async function loadFeed() {
 
   try {
     const data = await Promise.race([
-      sbSelect('community_picks', { gw: `eq.${currentGW}`, select: 'captain_pick', limit: 500 }),
+      sbSelect('community_picks', { gw: `eq.${currentGW}`, select: 'captain_pick,transfer_in,transfer_out', limit: 500 }),
       new Promise((_, rej) => setTimeout(() => rej(new Error('Database timeout — is Supabase paused?')), 8000))
     ]);
 
@@ -291,31 +291,45 @@ async function loadFeed() {
       return;
     }
 
-    // Aggregate captain picks
-    const counts = {};
-    data.forEach(row => {
-      if (row.captain_pick) counts[row.captain_pick] = (counts[row.captain_pick] || 0) + 1;
-    });
     const total = data.length;
-    const top5 = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 5);
 
-    const rows = top5.map(([name, count], i) => {
-      const pct = Math.round(count / total * 100);
-      return `<div class="result-row">
-        <span class="result-rank">${i + 1}</span>
-        <span class="result-name">${name}</span>
-        <div class="result-bar-wrap"><div class="result-bar-fill" style="width:${pct}%"></div></div>
-        <span class="result-pct">${pct}%</span>
-      </div>`;
-    }).join('');
+    function buildBars(field, color) {
+      const counts = {};
+      data.forEach(row => { if (row[field]) counts[row[field]] = (counts[row[field]] || 0) + 1; });
+      const top5 = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+      const max = top5[0]?.[1] || 1;
+      return top5.map(([name, count], i) => {
+        const pct = Math.round(count / total * 100);
+        const barW = Math.round(count / max * 100);
+        return `<div class="result-row">
+          <span class="result-rank">${i + 1}</span>
+          <span class="result-name">${name}</span>
+          <div class="result-bar-wrap"><div class="result-bar-fill" style="width:${barW}%;background:${color}"></div></div>
+          <span class="result-pct">${pct}%</span>
+        </div>`;
+      }).join('');
+    }
 
-    feed.innerHTML = `<div class="results-card">
-      <div class="results-header">
-        <div class="results-title">Top Captain Picks</div>
-        <div class="results-count">${total} response${total !== 1 ? 's' : ''}</div>
+    feed.innerHTML = `
+      <div class="results-card" style="margin-bottom:12px;">
+        <div class="results-header">
+          <div class="results-title">⚡ Top Captain Picks</div>
+          <div class="results-count">${total} response${total !== 1 ? 's' : ''}</div>
+        </div>
+        ${buildBars('captain_pick', 'linear-gradient(90deg,#6C5CE7,#1A6FFF)')}
       </div>
-      ${rows}
-    </div>`;
+      <div class="results-card" style="margin-bottom:12px;">
+        <div class="results-header">
+          <div class="results-title">↑ Top Transfer In</div>
+        </div>
+        ${buildBars('transfer_in', 'linear-gradient(90deg,#00976B,#1A6FFF)')}
+      </div>
+      <div class="results-card">
+        <div class="results-header">
+          <div class="results-title">↓ Top Transfer Out</div>
+        </div>
+        ${buildBars('transfer_out', 'linear-gradient(90deg,#E84040,#C47F00)')}
+      </div>`;
 
   } catch(e) {
     feed.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div>${e.message}</div>`;
