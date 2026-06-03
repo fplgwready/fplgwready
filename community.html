@@ -208,6 +208,7 @@ function buildDropdowns(players) {
 
   const byPos = { 1:[], 2:[], 3:[], 4:[] };
   players.forEach(p => { if (byPos[p.p]) byPos[p.p].push(p); });
+  Object.values(byPos).forEach(arr => arr.sort((a, b) => a.n.localeCompare(b.n)));
 
   function buildHTML(includeBlank) {
     let html = includeBlank ? '<option value="">No transfer</option>' : '<option value="">Select captain...</option>';
