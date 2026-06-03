@@ -116,7 +116,7 @@
       <div class="init-spinner"></div> Loading players...
     </div>
 
-    <div id="form-wrap" style="display:none;">
+    <div id="form-wrap">
       <div class="form-grid">
         <div class="field-group">
           <label class="input-label" for="fpl-id">FPL Team ID</label>
@@ -128,20 +128,20 @@
         </div>
         <div class="field-group span2">
           <label class="input-label" for="captain-pick">Captain Pick *</label>
-          <select id="captain-pick">
-            <option value="">Select captain...</option>
+          <select id="captain-pick" disabled>
+            <option value="">Loading players...</option>
           </select>
         </div>
         <div class="field-group">
           <label class="input-label" for="transfer-in">Transfer In</label>
-          <select id="transfer-in">
-            <option value="">No transfer</option>
+          <select id="transfer-in" disabled>
+            <option value="">Loading players...</option>
           </select>
         </div>
         <div class="field-group">
           <label class="input-label" for="transfer-out">Transfer Out</label>
-          <select id="transfer-out">
-            <option value="">No transfer</option>
+          <select id="transfer-out" disabled>
+            <option value="">Loading players...</option>
           </select>
         </div>
         <div class="field-group span2">
@@ -185,23 +185,9 @@ async function initSupabase() {
   supabase = window.supabase.createClient(url, key);
 }
 
-async function initBootstrap() {
-  const res = await fetch('/api/fpl?endpoint=bootstrap-static/');
-  const data = await res.json();
-  const events = data.events || [];
-  currentGW = events.find(e => e.is_current)?.id
-    || events.find(e => e.is_next)?.id
-    || events.filter(e => e.finished).pop()?.id
-    || 38;
-
-  const teamMap = {};
-  (data.teams || []).forEach(t => { teamMap[t.id] = t.short_name; });
-
-  const players = (data.elements || []).filter(p => p.status !== 'u');
-
+function buildDropdowns(players) {
   const byPos = { 1: [], 2: [], 3: [], 4: [] };
-  players.forEach(p => { if (byPos[p.element_type]) byPos[p.element_type].push(p); });
-  Object.values(byPos).forEach(arr => arr.sort((a, b) => (parseFloat(b.ep_this) || 0) - (parseFloat(a.ep_this) || 0)));
+  players.forEach(p => { if (byPos[p.p]) byPos[p.p].push(p); });
 
   function buildOptions(selId, includeBlank) {
     const sel = document.getElementById(selId);
@@ -211,20 +197,39 @@ async function initBootstrap() {
       grp.label = POS[pos];
       byPos[pos].forEach(p => {
         const opt = document.createElement('option');
-        opt.value = p.web_name;
-        opt.textContent = `${p.web_name} (${teamMap[p.team] || ''} · £${(p.now_cost / 10).toFixed(1)}m)`;
+        opt.value = p.n;
+        opt.textContent = `${p.n} (${p.t} · £${(p.c / 10).toFixed(1)}m)`;
         grp.appendChild(opt);
       });
       sel.appendChild(grp);
     });
+    sel.disabled = false;
   }
 
   buildOptions('captain-pick', false);
   buildOptions('transfer-in', true);
   buildOptions('transfer-out', true);
-
   document.getElementById('init-loading').style.display = 'none';
   document.getElementById('form-wrap').style.display = 'block';
+}
+
+async function initBootstrap() {
+  const CACHE_KEY = 'fpl_players_v1';
+  const CACHE_TTL = 60 * 60 * 1000; // 1 hour
+  try {
+    const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+    if (cached && (Date.now() - cached.ts) < CACHE_TTL) {
+      currentGW = cached.gw;
+      buildDropdowns(cached.players);
+      return;
+    }
+  } catch(e) {}
+
+  const res = await fetch('/api/players');
+  const { gw, players } = await res.json();
+  currentGW = gw;
+  buildDropdowns(players);
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify({ gw, players, ts: Date.now() })); } catch(e) {}
 }
 
 function timeAgo(dateStr) {
