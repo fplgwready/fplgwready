@@ -68,6 +68,21 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .feed-empty { text-align: center; padding: 48px 0; color: var(--muted); font-size: 14px; background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius); }
     .feed-empty-icon { font-size: 32px; margin-bottom: 10px; }
+    .feed-locked { text-align: center; padding: 40px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+    .feed-locked-icon { font-size: 36px; margin-bottom: 12px; }
+    .feed-locked-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .feed-locked-sub { font-size: 14px; color: var(--muted); }
+    .results-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
+    .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+    .results-title { font-size: 15px; font-weight: 700; }
+    .results-count { font-size: 12px; color: var(--muted); }
+    .result-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .result-row:last-child { margin-bottom: 0; }
+    .result-rank { font-size: 13px; font-weight: 800; color: var(--muted); min-width: 18px; }
+    .result-name { font-size: 14px; font-weight: 700; min-width: 90px; }
+    .result-bar-wrap { flex: 1; background: var(--surface2); border-radius: 100px; height: 10px; overflow: hidden; }
+    .result-bar-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--accent2), var(--accent)); transition: width 0.6s ease; }
+    .result-pct { font-size: 13px; font-weight: 700; color: var(--accent2); min-width: 38px; text-align: right; }
     @media (max-width: 540px) {
       nav { padding: 14px 16px; }
       .nav-links { gap: 4px; }
@@ -92,8 +107,8 @@
 </nav>
 
 <div class="container">
-  <div class="page-title">Community Picks 💬</div>
-  <p class="page-sub">Share your GW plans — captain, transfers & thinking.</p>
+  <div class="page-title">Captain Poll 📊</div>
+  <p class="page-sub">Who do you think will captain their team this GW? Submit to reveal the community results.</p>
 
   <div class="input-card">
     <div id="init-loading" class="init-loading">
@@ -116,15 +131,15 @@
           </select>
         </div>
         <div class="field-group">
-          <label class="input-label" for="transfer-in">Transfer In</label>
+          <label class="input-label" for="transfer-in">Transfer In *</label>
           <select id="transfer-in">
-            <option value="">No transfer</option>
+            <option value="">Select transfer in...</option>
           </select>
         </div>
         <div class="field-group">
-          <label class="input-label" for="transfer-out">Transfer Out</label>
+          <label class="input-label" for="transfer-out">Transfer Out *</label>
           <select id="transfer-out">
-            <option value="">No transfer</option>
+            <option value="">Select transfer out...</option>
           </select>
         </div>
         <div class="field-group span2">
@@ -246,15 +261,20 @@ function initials(name) {
     : (name||'FP').slice(0,2).toUpperCase();
 }
 
+function hasSubmitted() {
+  return localStorage.getItem(`submitted_gw_${currentGW}`) === 'true';
+}
+
 async function loadFeed() {
   const feed = document.getElementById('feed');
 
-  if (!SB_KEY) {
-    feed.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div>Could not connect to database.</div>`;
+  if (!hasSubmitted()) {
+    feed.innerHTML = `<div class="feed-locked"><div class="feed-locked-icon">🔒</div><div class="feed-locked-title">Results hidden</div><div class="feed-locked-sub">Submit your pick above to reveal what the community is captaining.</div></div>`;
     return;
   }
-  if (!currentGW) {
-    feed.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div>Could not determine current GW.</div>`;
+
+  if (!SB_KEY) {
+    feed.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div>Could not connect to database.</div>`;
     return;
   }
 
@@ -262,42 +282,40 @@ async function loadFeed() {
 
   try {
     const data = await Promise.race([
-      sbSelect('community_picks', { gw: `eq.${currentGW}`, order: 'created_at.desc', limit: 50, select: '*' }),
+      sbSelect('community_picks', { gw: `eq.${currentGW}`, select: 'captain_pick', limit: 500 }),
       new Promise((_, rej) => setTimeout(() => rej(new Error('Database timeout — is Supabase paused?')), 8000))
     ]);
 
     if (!data?.length) {
-      feed.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">💬</div>No picks yet for GW ${currentGW}.<br>Be the first to share yours!</div>`;
+      feed.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">💬</div>No picks yet for GW ${currentGW}.</div>`;
       return;
     }
 
-    const container = document.createElement('div');
-    container.className = 'feed';
-    data.forEach(pick => {
-      const card = document.createElement('div');
-      card.className = 'pick-card';
-      const tfr = pick.transfer_in && pick.transfer_out
-        ? `<span class="pick-tag tag-in">↑ ${pick.transfer_in}</span><span class="tag-arrow">→</span><span class="pick-tag tag-out">↓ ${pick.transfer_out}</span>`
-        : pick.transfer_in ? `<span class="pick-tag tag-in">↑ ${pick.transfer_in}</span>` : '';
-      const displayName = pick.manager_name || `ID ${pick.fpl_id}`;
-      card.innerHTML = `
-        <div class="pick-header">
-          <div class="pick-avatar">${initials(displayName)}</div>
-          <div class="pick-meta">
-            <div class="pick-mgr">${displayName}</div>
-            <div class="pick-team">${pick.team_name||''}</div>
-          </div>
-          <div class="pick-time">${timeAgo(pick.created_at)}</div>
-        </div>
-        <div class="pick-body">
-          ${pick.captain_pick ? `<span class="pick-tag tag-captain">© ${pick.captain_pick}</span>` : ''}
-          ${tfr}
-        </div>
-        ${pick.reason ? `<div class="pick-reason">${pick.reason}</div>` : ''}`;
-      container.appendChild(card);
+    // Aggregate captain picks
+    const counts = {};
+    data.forEach(row => {
+      if (row.captain_pick) counts[row.captain_pick] = (counts[row.captain_pick] || 0) + 1;
     });
-    feed.innerHTML = '';
-    feed.appendChild(container);
+    const total = data.length;
+    const top5 = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+    const rows = top5.map(([name, count], i) => {
+      const pct = Math.round(count / total * 100);
+      return `<div class="result-row">
+        <span class="result-rank">${i + 1}</span>
+        <span class="result-name">${name}</span>
+        <div class="result-bar-wrap"><div class="result-bar-fill" style="width:${pct}%"></div></div>
+        <span class="result-pct">${pct}%</span>
+      </div>`;
+    }).join('');
+
+    feed.innerHTML = `<div class="results-card">
+      <div class="results-header">
+        <div class="results-title">Top Captain Picks</div>
+        <div class="results-count">${total} response${total !== 1 ? 's' : ''}</div>
+      </div>
+      ${rows}
+    </div>`;
 
   } catch(e) {
     feed.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div>${e.message}</div>`;
@@ -315,7 +333,11 @@ async function submitPick() {
   const displayName = document.getElementById('display-name').value.trim();
   const captain = document.getElementById('captain-pick').value;
 
+  const transferIn = document.getElementById('transfer-in').value;
+  const transferOut = document.getElementById('transfer-out').value;
   if (!captain) { err.textContent = 'Please select your captain.'; err.style.display = 'block'; return; }
+  if (!transferIn) { err.textContent = 'Please select your transfer in.'; err.style.display = 'block'; return; }
+  if (!transferOut) { err.textContent = 'Please select your transfer out.'; err.style.display = 'block'; return; }
   if (!fplId || isNaN(fplId)) { err.textContent = 'Please enter your FPL Team ID.'; err.style.display = 'block'; return; }
   if (!SB_KEY) { err.textContent = 'Database not connected. Please refresh.'; err.style.display = 'block'; return; }
 
@@ -328,18 +350,17 @@ async function submitPick() {
       manager_name: displayName || null,
       team_name: null,
       captain_pick: captain,
-      transfer_in: document.getElementById('transfer-in').value || null,
-      transfer_out: document.getElementById('transfer-out').value || null,
+      transfer_in: transferIn,
+      transfer_out: transferOut,
       reason: document.getElementById('reason').value.trim() || null,
       gw: currentGW
     });
-    suc.textContent = `Pick shared! Good luck GW ${currentGW} ✓`;
-    suc.style.display = 'block';
-    document.getElementById('captain-pick').value = '';
-    document.getElementById('transfer-in').value = '';
-    document.getElementById('transfer-out').value = '';
-    document.getElementById('reason').value = '';
+    localStorage.setItem(`submitted_gw_${currentGW}`, 'true');
     if (fplId) localStorage.setItem('fpl_id', fplId);
+    document.getElementById('form-wrap').style.display = 'none';
+    document.getElementById('init-loading').style.display = 'none';
+    suc.textContent = `Pick submitted! Here's what the community is captaining ↓`;
+    suc.style.display = 'block';
     await loadFeed();
   } catch(e) {
     err.textContent = e.message || 'Could not save your pick. Please try again.';
@@ -357,6 +378,11 @@ async function submitPick() {
 
   let bootstrapErr = null;
   try { initBootstrap(); } catch(e) { bootstrapErr = e.message; }
+
+  if (hasSubmitted()) {
+    document.getElementById('form-wrap').style.display = 'none';
+    document.getElementById('init-loading').style.display = 'none';
+  }
 
   const [supabaseErr] = await Promise.all([
     initSupabase().then(() => null).catch(e => e.message)
