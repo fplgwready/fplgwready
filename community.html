@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>FPLGWReady — Community</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -174,6 +173,7 @@
   · Built by <strong>FPLGWReady</strong>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 let supabase = null;
 let currentGW = null;
@@ -354,16 +354,17 @@ async function submitPick() {
   const saved = localStorage.getItem('fpl_id');
   if (saved) document.getElementById('fpl-id').value = saved;
 
-  // feed and dropdowns load independently — whichever is ready first shows first
-  const supabaseReady = initSupabase().catch(e => console.error('Supabase init failed', e));
-  const bootstrapReady = initBootstrap().catch(e => {
-    console.error('Bootstrap failed', e);
-    document.getElementById('init-loading').innerHTML = '⚠️ Could not load players. Try refreshing.';
-  });
+  await Promise.all([
+    initSupabase().catch(e => {
+      document.getElementById('feed').innerHTML =
+        `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div>${e.message || 'Could not connect to Supabase. Check SUPABASE_KEY in Vercel env vars.'}</div>`;
+    }),
+    initBootstrap().catch(e => {
+      document.getElementById('init-loading').innerHTML = '⚠️ Could not load players. Try refreshing.';
+    })
+  ]);
 
-  await supabaseReady;
-  await loadFeed();       // feed shows as soon as Supabase is ready
-  await bootstrapReady;  // dropdowns finish in background
+  await loadFeed();
 })();
 </script>
 </body>
