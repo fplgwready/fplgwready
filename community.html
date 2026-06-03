@@ -346,11 +346,13 @@ async function submitPick() {
 }
 
 (async () => {
-  try { await initSupabase(); } catch(e) { console.error('Supabase init failed', e); }
-  try { await initBootstrap(); } catch(e) {
-    console.error('Bootstrap failed', e);
-    document.getElementById('init-loading').innerHTML = '⚠️ Could not load players. Try refreshing.';
-  }
+  await Promise.all([
+    initSupabase().catch(e => console.error('Supabase init failed', e)),
+    initBootstrap().catch(e => {
+      console.error('Bootstrap failed', e);
+      document.getElementById('init-loading').innerHTML = '⚠️ Could not load players. Try refreshing.';
+    })
+  ]);
   await loadFeed();
   const saved = localStorage.getItem('fpl_id');
   if (saved) document.getElementById('fpl-id').value = saved;

@@ -21,7 +21,8 @@ export default async function handler(req, res) {
     });
     if (!response.ok) return res.status(response.status).json({ error: 'FPL API error' });
     const data = await response.json();
-    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate');
+    const isHeavy = endpoint.startsWith('bootstrap-static') || endpoint.startsWith('fixtures');
+    res.setHeader('Cache-Control', isHeavy ? 's-maxage=300, stale-while-revalidate=3600' : 's-maxage=60, stale-while-revalidate');
     return res.status(200).json(data);
   } catch(e) {
     return res.status(500).json({ error: 'Failed to fetch from FPL' });
