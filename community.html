@@ -99,7 +99,7 @@
     <div id="init-loading" class="init-loading">
       <div class="init-spinner"></div> Loading players...
     </div>
-    <div id="form-wrap" style="display:none;">
+    <div id="form-wrap">
       <div class="form-grid">
         <div class="field-group">
           <label class="input-label" for="fpl-id">FPL Team ID</label>
@@ -194,8 +194,11 @@ async function initBootstrap() {
   if (!res.ok) throw new Error(`FPL API error: ${res.status}`);
   const boot = await res.json();
 
-  const currentEvent = boot.events?.find(e => e.is_current) || boot.events?.find(e => e.is_next);
-  currentGW = currentEvent?.id || 1;
+  const events = boot.events || [];
+  currentGW = events.find(e => e.is_current)?.id
+    || events.find(e => e.is_next)?.id
+    || events.filter(e => e.finished).pop()?.id
+    || 38;
 
   const teams = {};
   boot.teams.forEach(t => { teams[t.id] = t.short_name; });
