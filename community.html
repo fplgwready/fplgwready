@@ -68,6 +68,12 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .feed-empty { text-align: center; padding: 48px 0; color: var(--muted); font-size: 14px; background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius); }
     .feed-empty-icon { font-size: 32px; margin-bottom: 10px; }
+    .manager-bar { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
+    .manager-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--accent2); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #fff; flex-shrink: 0; }
+    .manager-info { flex: 1; }
+    .manager-name { font-size: 15px; font-weight: 800; }
+    .manager-team { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .verified-badge { font-size: 11px; background: rgba(0,151,107,0.1); color: var(--green); padding: 2px 8px; border-radius: 100px; font-weight: 600; white-space: nowrap; }
     .feed-locked { text-align: center; padding: 40px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
     .feed-locked-icon { font-size: 36px; margin-bottom: 12px; }
     .feed-locked-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
@@ -114,33 +120,39 @@
     <div id="init-loading" class="init-loading">
       <div class="init-spinner"></div> Loading players...
     </div>
-    <div id="form-wrap">
+
+    <!-- Step 1: Enter FPL ID -->
+    <div id="step-id">
+      <label class="input-label" for="fpl-id">Your FPL Team ID</label>
+      <div class="input-row">
+        <input type="text" id="fpl-id" placeholder="e.g. 222758" maxlength="10"/>
+        <button class="btn" id="fetch-btn" onclick="fetchManagerInfo()">Check →</button>
+      </div>
+      <div class="error-msg" id="fetch-error"></div>
+    </div>
+
+    <!-- Step 2: Manager confirmed + form -->
+    <div id="step-form" style="display:none;">
+      <div id="manager-bar" class="manager-bar" style="margin-bottom:16px;">
+        <div class="manager-avatar" id="m-avatar"></div>
+        <div class="manager-info">
+          <div class="manager-name" id="m-name"></div>
+          <div class="manager-team" id="m-team"></div>
+        </div>
+        <span class="verified-badge">Verified ✓</span>
+      </div>
       <div class="form-grid">
-        <div class="field-group">
-          <label class="input-label" for="fpl-id">FPL Team ID</label>
-          <input type="text" id="fpl-id" placeholder="e.g. 222758" maxlength="10"/>
-        </div>
-        <div class="field-group">
-          <label class="input-label" for="display-name">Your Name</label>
-          <input type="text" id="display-name" placeholder="e.g. Arsène"/>
-        </div>
         <div class="field-group span2">
           <label class="input-label" for="captain-pick">Captain Pick *</label>
-          <select id="captain-pick">
-            <option value="">Select captain...</option>
-          </select>
+          <select id="captain-pick"><option value="">Select captain...</option></select>
         </div>
         <div class="field-group">
           <label class="input-label" for="transfer-in">Transfer In *</label>
-          <select id="transfer-in">
-            <option value="">Select transfer in...</option>
-          </select>
+          <select id="transfer-in"><option value="">Select transfer in...</option></select>
         </div>
         <div class="field-group">
           <label class="input-label" for="transfer-out">Transfer Out *</label>
-          <select id="transfer-out">
-            <option value="">Select transfer out...</option>
-          </select>
+          <select id="transfer-out"><option value="">Select transfer out...</option></select>
         </div>
         <div class="field-group span2">
           <label class="input-label" for="reason">Reasoning (optional)</label>
@@ -151,13 +163,16 @@
         </div>
       </div>
       <div class="error-msg" id="submit-error"></div>
-      <div class="success-msg" id="submit-success"></div>
+    </div>
+
+    <!-- Already submitted -->
+    <div id="step-done" style="display:none;">
+      <div class="success-msg" id="already-msg" style="display:block;margin-top:0;"></div>
     </div>
   </div>
 
-  <div class="section-title" style="justify-content:space-between;">
-    <span>Community Picks <span class="section-badge" id="gw-badge">Loading...</span></span>
-    <button id="change-pick-btn" onclick="changePick()" style="display:none;background:none;border:none;font-size:13px;color:var(--muted);cursor:pointer;font-family:inherit;text-decoration:underline;">Change my pick</button>
+  <div class="section-title">
+    Community Picks <span class="section-badge" id="gw-badge">Loading...</span>
   </div>
 
   <div id="feed">
@@ -241,9 +256,7 @@ function buildDropdowns(players) {
   document.getElementById('captain-pick').innerHTML = buildHTML(false);
   document.getElementById('transfer-in').innerHTML = buildHTML(true);
   document.getElementById('transfer-out').innerHTML = buildHTML(true);
-
   document.getElementById('init-loading').style.display = 'none';
-  document.getElementById('form-wrap').style.display = 'block';
 }
 
 // ── Feed ──────────────────────────────────────────────────
@@ -262,15 +275,13 @@ function initials(name) {
     : (name||'FP').slice(0,2).toUpperCase();
 }
 
-function hasSubmitted() {
-  return localStorage.getItem(`submitted_gw_${currentGW}`) === 'true';
-}
+let resultsUnlocked = false;
 
 async function loadFeed() {
   const feed = document.getElementById('feed');
 
-  if (!hasSubmitted()) {
-    feed.innerHTML = `<div class="feed-locked"><div class="feed-locked-icon">🔒</div><div class="feed-locked-title">Results hidden</div><div class="feed-locked-sub">Submit your pick above to reveal what the community is captaining.</div></div>`;
+  if (!resultsUnlocked) {
+    feed.innerHTML = `<div class="feed-locked"><div class="feed-locked-icon">🔒</div><div class="feed-locked-title">Results hidden</div><div class="feed-locked-sub">Enter your FPL ID above and submit your pick to reveal the community results.</div></div>`;
     return;
   }
 
@@ -337,61 +348,86 @@ async function loadFeed() {
   }
 }
 
+// ── Fetch manager info ────────────────────────────────────
+let managerData = null;
+
+async function fetchManagerInfo() {
+  const id = document.getElementById('fpl-id').value.trim();
+  const err = document.getElementById('fetch-error');
+  const btn = document.getElementById('fetch-btn');
+  err.style.display = 'none';
+  if (!id || isNaN(id)) { err.textContent = 'Please enter a valid FPL Team ID.'; err.style.display = 'block'; return; }
+
+  btn.disabled = true; btn.textContent = 'Checking...';
+  try {
+    const [entry, existing] = await Promise.all([
+      fetch(`/api/fpl?endpoint=entry/${id}/`).then(r => { if (!r.ok) throw new Error('Team not found.'); return r.json(); }),
+      SB_KEY ? sbSelect('community_picks', { fpl_id: `eq.${id}`, gw: `eq.${currentGW}`, select: 'id', limit: 1 }) : Promise.resolve([])
+    ]);
+
+    managerData = { id, name: `${entry.player_first_name} ${entry.player_last_name}`, team: entry.name };
+    localStorage.setItem('fpl_id', id);
+
+    if (existing?.length > 0) {
+      // Already submitted
+      document.getElementById('step-id').style.display = 'none';
+      document.getElementById('already-msg').textContent = `${managerData.name} sudah submit pick untuk GW ${currentGW}. Gabisa submit lagi ya!`;
+      document.getElementById('step-done').style.display = 'block';
+      resultsUnlocked = true;
+      await loadFeed();
+    } else {
+      // Show form
+      const av = document.getElementById('m-avatar');
+      const parts = managerData.name.trim().split(' ');
+      av.textContent = parts.length >= 2 ? (parts[0][0] + parts[parts.length-1][0]).toUpperCase() : managerData.name.slice(0,2).toUpperCase();
+      document.getElementById('m-name').textContent = managerData.name;
+      document.getElementById('m-team').textContent = managerData.team;
+      document.getElementById('step-id').style.display = 'none';
+      document.getElementById('step-form').style.display = 'block';
+    }
+  } catch(e) {
+    err.textContent = e.message || 'Could not fetch manager info.';
+    err.style.display = 'block';
+  }
+  btn.disabled = false; btn.textContent = 'Check →';
+}
+
 // ── Submit ────────────────────────────────────────────────
 async function submitPick() {
   const err = document.getElementById('submit-error');
-  const suc = document.getElementById('submit-success');
   const btn = document.getElementById('submit-btn');
-  err.style.display = 'none'; suc.style.display = 'none';
+  err.style.display = 'none';
 
-  const fplId = document.getElementById('fpl-id').value.trim();
-  const displayName = document.getElementById('display-name').value.trim();
   const captain = document.getElementById('captain-pick').value;
-
   const transferIn = document.getElementById('transfer-in').value;
   const transferOut = document.getElementById('transfer-out').value;
   if (!captain) { err.textContent = 'Please select your captain.'; err.style.display = 'block'; return; }
   if (!transferIn) { err.textContent = 'Please select your transfer in.'; err.style.display = 'block'; return; }
   if (!transferOut) { err.textContent = 'Please select your transfer out.'; err.style.display = 'block'; return; }
-  if (!fplId || isNaN(fplId)) { err.textContent = 'Please enter your FPL Team ID.'; err.style.display = 'block'; return; }
   if (!SB_KEY) { err.textContent = 'Database not connected. Please refresh.'; err.style.display = 'block'; return; }
 
-  btn.disabled = true;
-  btn.textContent = 'Sharing...';
-
+  btn.disabled = true; btn.textContent = 'Submitting...';
   try {
     await sbInsert('community_picks', {
-      fpl_id: fplId,
-      manager_name: displayName || null,
-      team_name: null,
+      fpl_id: managerData.id,
+      manager_name: managerData.name,
+      team_name: managerData.team,
       captain_pick: captain,
       transfer_in: transferIn,
       transfer_out: transferOut,
       reason: document.getElementById('reason').value.trim() || null,
       gw: currentGW
     });
-    localStorage.setItem(`submitted_gw_${currentGW}`, 'true');
-    if (fplId) localStorage.setItem('fpl_id', fplId);
-    document.getElementById('form-wrap').style.display = 'none';
-    document.getElementById('init-loading').style.display = 'none';
-    document.getElementById('change-pick-btn').style.display = 'inline';
-    suc.textContent = `Pick submitted! Here's what the community is captaining ↓`;
-    suc.style.display = 'block';
+    document.getElementById('step-form').style.display = 'none';
+    document.getElementById('already-msg').textContent = `Pick submitted! Here's what the community is picking ↓`;
+    document.getElementById('step-done').style.display = 'block';
+    resultsUnlocked = true;
     await loadFeed();
   } catch(e) {
     err.textContent = e.message || 'Could not save your pick. Please try again.';
     err.style.display = 'block';
   }
-
-  btn.disabled = false;
-  btn.textContent = 'Share My Pick →';
-}
-
-function changePick() {
-  document.getElementById('form-wrap').style.display = 'block';
-  document.getElementById('change-pick-btn').style.display = 'none';
-  document.getElementById('submit-success').style.display = 'none';
-  document.getElementById('form-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  btn.disabled = false; btn.textContent = 'Share My Pick →';
 }
 
 // ── Boot ──────────────────────────────────────────────────
@@ -401,12 +437,6 @@ function changePick() {
 
   let bootstrapErr = null;
   try { initBootstrap(); } catch(e) { bootstrapErr = e.message; }
-
-  if (hasSubmitted()) {
-    document.getElementById('form-wrap').style.display = 'none';
-    document.getElementById('init-loading').style.display = 'none';
-    document.getElementById('change-pick-btn').style.display = 'inline';
-  }
 
   const [supabaseErr] = await Promise.all([
     initSupabase().then(() => null).catch(e => e.message)
@@ -420,6 +450,7 @@ function changePick() {
     document.getElementById('init-loading').innerHTML = `⚠️ ${bootstrapErr}`;
   }
 
+  document.getElementById('fpl-id').addEventListener('keydown', e => { if (e.key === 'Enter') fetchManagerInfo(); });
   await loadFeed();
 })();
 </script>
