@@ -188,6 +188,7 @@ async function initSupabase() {
 }
 
 function buildDropdowns(players) {
+  if (!players || !players.length) throw new Error(`buildDropdowns called with empty players (${players})`);
   const byPos = { 1: [], 2: [], 3: [], 4: [] };
   players.forEach(p => { if (byPos[p.p]) byPos[p.p].push(p); });
 
@@ -217,21 +218,32 @@ function buildDropdowns(players) {
 
 async function initBootstrap() {
   const CACHE_KEY = 'fpl_players_v1';
-  const CACHE_TTL = 60 * 60 * 1000; // 1 hour
+  const CACHE_TTL = 60 * 60 * 1000;
+
+  let players = null, gw = null;
+
   try {
-    const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
-    if (cached && (Date.now() - cached.ts) < CACHE_TTL) {
-      currentGW = cached.gw;
-      buildDropdowns(cached.players);
-      return;
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (raw) {
+      const cached = JSON.parse(raw);
+      if ((Date.now() - cached.ts) < CACHE_TTL) {
+        players = cached.players;
+        gw = cached.gw;
+      }
     }
   } catch(e) {}
 
-  const res = await fetch('/players.json');
-  const { gw, players } = await res.json();
+  if (!players) {
+    const res = await fetch('/players.json');
+    if (!res.ok) throw new Error(`/players.json returned ${res.status}`);
+    const data = await res.json();
+    players = data.players;
+    gw = data.gw;
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ gw, players, ts: Date.now() })); } catch(e) {}
+  }
+
   currentGW = gw;
   buildDropdowns(players);
-  try { localStorage.setItem(CACHE_KEY, JSON.stringify({ gw, players, ts: Date.now() })); } catch(e) {}
 }
 
 function timeAgo(dateStr) {
