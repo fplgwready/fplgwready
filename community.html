@@ -260,12 +260,19 @@ async function loadFeed() {
 
   document.getElementById('gw-badge').textContent = `GW ${currentGW}`;
 
-  const { data, error } = await supabase
-    .from('community_picks')
-    .select('*')
-    .eq('gw', currentGW)
-    .order('created_at', { ascending: false })
-    .limit(50);
+  const timeout = new Promise((_, rej) =>
+    setTimeout(() => rej(new Error('Supabase query timed out — project may be paused at supabase.com/dashboard')), 8000)
+  );
+  let data, error;
+  try {
+    ({ data, error } = await Promise.race([
+      supabase.from('community_picks').select('*').eq('gw', currentGW).order('created_at', { ascending: false }).limit(50),
+      timeout
+    ]));
+  } catch(e) {
+    feed.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div>${e.message}</div>`;
+    return;
+  }
 
   if (error) {
     feed.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div>Could not load picks. Try refreshing.</div>`;
