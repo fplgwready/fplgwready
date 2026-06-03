@@ -181,8 +181,10 @@ const POS = { 1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD' };
 
 async function initSupabase() {
   const res = await fetch('/api/supabase-config');
-  const { url, key } = await res.json();
-  supabase = window.supabase.createClient(url, key);
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || 'supabase-config endpoint failed');
+  if (!json.key) throw new Error('SUPABASE_KEY is empty in Vercel env');
+  supabase = window.supabase.createClient(json.url, json.key);
 }
 
 function buildDropdowns(players) {
@@ -354,15 +356,21 @@ async function submitPick() {
   const saved = localStorage.getItem('fpl_id');
   if (saved) document.getElementById('fpl-id').value = saved;
 
+  let supabaseErr = null, bootstrapErr = null;
+
   await Promise.all([
-    initSupabase().catch(e => {
-      document.getElementById('feed').innerHTML =
-        `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div>${e.message || 'Could not connect to Supabase. Check SUPABASE_KEY in Vercel env vars.'}</div>`;
-    }),
-    initBootstrap().catch(e => {
-      document.getElementById('init-loading').innerHTML = '⚠️ Could not load players. Try refreshing.';
-    })
+    initSupabase().catch(e => { supabaseErr = e.message; }),
+    initBootstrap().catch(e => { bootstrapErr = e.message; })
   ]);
+
+  if (supabaseErr) {
+    document.getElementById('feed').innerHTML =
+      `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div><strong>Supabase error:</strong><br>${supabaseErr}</div>`;
+    return;
+  }
+  if (bootstrapErr) {
+    document.getElementById('init-loading').textContent = `⚠️ Players error: ${bootstrapErr}`;
+  }
 
   await loadFeed();
 })();
