@@ -188,32 +188,36 @@ async function initSupabase() {
 }
 
 function buildDropdowns(players) {
-  if (!players || !players.length) throw new Error(`buildDropdowns called with empty players (${players})`);
+  if (!players || !players.length) throw new Error('No player data');
+
+  // Build one HTML string per select — far fewer DOM operations than individual appends
   const byPos = { 1: [], 2: [], 3: [], 4: [] };
   players.forEach(p => { if (byPos[p.p]) byPos[p.p].push(p); });
 
-  function buildOptions(selId, includeBlank) {
-    const sel = document.getElementById(selId);
-    sel.innerHTML = includeBlank ? '<option value="">No transfer</option>' : '<option value="">Select captain...</option>';
+  function buildHTML(includeBlank) {
+    let html = includeBlank ? '<option value="">No transfer</option>' : '<option value="">Select captain...</option>';
     [1, 2, 3, 4].forEach(pos => {
-      const grp = document.createElement('optgroup');
-      grp.label = POS[pos];
+      html += `<optgroup label="${POS[pos]}">`;
       byPos[pos].forEach(p => {
-        const opt = document.createElement('option');
-        opt.value = p.n;
-        opt.textContent = `${p.n} (${p.t} · £${(p.c / 10).toFixed(1)}m)`;
-        grp.appendChild(opt);
+        html += `<option value="${p.n}">${p.n} (${p.t} · £${(p.c / 10).toFixed(1)}m)</option>`;
       });
-      sel.appendChild(grp);
+      html += '</optgroup>';
     });
-    sel.disabled = false;
+    return html;
   }
 
-  buildOptions('captain-pick', false);
-  buildOptions('transfer-in', true);
-  buildOptions('transfer-out', true);
+  const captainHTML = buildHTML(false);
+  const transferHTML = buildHTML(true);
+
+  document.getElementById('captain-pick').innerHTML = captainHTML;
+  document.getElementById('transfer-in').innerHTML = transferHTML;
+  document.getElementById('transfer-out').innerHTML = transferHTML;
+
+  document.getElementById('captain-pick').disabled = false;
+  document.getElementById('transfer-in').disabled = false;
+  document.getElementById('transfer-out').disabled = false;
+
   document.getElementById('init-loading').style.display = 'none';
-  document.getElementById('form-wrap').style.display = 'block';
 }
 
 async function initBootstrap() {
