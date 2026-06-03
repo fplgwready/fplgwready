@@ -225,7 +225,7 @@ async function initBootstrap() {
     }
   } catch(e) {}
 
-  const res = await fetch('/api/players');
+  const res = await fetch('/players.json');
   const { gw, players } = await res.json();
   currentGW = gw;
   buildDropdowns(players);
