@@ -16,26 +16,18 @@
     body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; overflow-x: hidden; }
     body::before { content: ''; position: fixed; top: -200px; left: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(108,92,231,0.07) 0%, transparent 70%); pointer-events: none; }
     body::after { content: ''; position: fixed; bottom: -200px; right: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(26,111,255,0.06) 0%, transparent 70%); pointer-events: none; }
-
     nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(248,249,255,0.92); backdrop-filter: blur(12px); z-index: 100; }
     .logo { font-weight: 800; font-size: 22px; letter-spacing: -0.5px; text-decoration: none; color: var(--text); display: flex; align-items: center; gap: 10px; }
     .logo span { color: var(--accent2); }
     .nav-links { display: flex; gap: 8px; }
     .nav-link { background: var(--surface2); border: 1px solid var(--border); padding: 6px 14px; border-radius: 100px; font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.15s; }
     .nav-link:hover, .nav-link.active { color: var(--text); border-color: var(--accent2); }
-
     .container { max-width: 720px; margin: 40px auto; padding: 0 24px 80px; }
     .page-title { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
     .page-sub { color: var(--muted); font-size: 15px; margin-bottom: 28px; }
-
     .input-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 14px; box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
     .input-label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 8px; display: block; }
-    .input-row { display: flex; gap: 10px; flex-wrap: wrap; }
-    input[type="text"], textarea, select {
-      background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
-      padding: 12px 16px; font-size: 14px; color: var(--text); font-family: 'Inter', sans-serif;
-      outline: none; transition: border-color 0.2s; width: 100%;
-    }
+    input[type="text"], textarea, select { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 14px; color: var(--text); font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; width: 100%; }
     input[type="text"]:focus, textarea:focus, select:focus { border-color: var(--accent); }
     input[type="text"]::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.7; }
     textarea { resize: vertical; min-height: 76px; }
@@ -51,15 +43,10 @@
     .btn-full { width: 100%; }
     .error-msg { background: rgba(220,50,50,0.08); border: 1px solid rgba(220,50,50,0.2); color: #CC3333; border-radius: 10px; padding: 12px 16px; font-size: 14px; margin-top: 12px; display: none; }
     .success-msg { background: rgba(0,151,107,0.08); border: 1px solid rgba(0,151,107,0.2); color: var(--green); border-radius: 10px; padding: 12px 16px; font-size: 14px; margin-top: 12px; display: none; }
-
     .init-loading { text-align: center; padding: 12px 0 4px; color: var(--muted); font-size: 13px; display: flex; align-items: center; gap: 8px; justify-content: center; }
     .init-spinner { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
-
-    /* Section title */
     .section-title { font-size: 16px; font-weight: 700; margin: 28px 0 12px; display: flex; align-items: center; gap: 8px; }
     .section-badge { font-size: 11px; padding: 2px 9px; border-radius: 100px; background: rgba(26,111,255,0.1); color: var(--accent); font-weight: 600; }
-
-    /* Feed */
     .feed { display: flex; flex-direction: column; gap: 10px; }
     .pick-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: 0 1px 8px rgba(108,92,231,0.04); transition: border-color 0.15s; }
     .pick-card:hover { border-color: var(--accent2); }
@@ -76,13 +63,11 @@
     .tag-out { background: rgba(232,64,64,0.1); color: var(--red); }
     .tag-arrow { color: var(--muted); font-size: 13px; }
     .pick-reason { font-size: 13px; color: var(--muted); margin-top: 10px; line-height: 1.55; padding-top: 10px; border-top: 1px solid var(--border); }
-
     .feed-loading { text-align: center; padding: 40px 0; color: var(--muted); font-size: 14px; }
     .feed-spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .feed-empty { text-align: center; padding: 48px 0; color: var(--muted); font-size: 14px; background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius); }
     .feed-empty-icon { font-size: 32px; margin-bottom: 10px; }
-
     @media (max-width: 540px) {
       nav { padding: 14px 16px; }
       .nav-links { gap: 4px; }
@@ -107,15 +92,14 @@
 </nav>
 
 <div class="container">
-  <div class="page-title">Community Picks</div>
+  <div class="page-title">Community Picks 💬</div>
   <p class="page-sub">Share your GW plans — captain, transfers & thinking.</p>
 
   <div class="input-card">
     <div id="init-loading" class="init-loading">
       <div class="init-spinner"></div> Loading players...
     </div>
-
-    <div id="form-wrap">
+    <div id="form-wrap" style="display:none;">
       <div class="form-grid">
         <div class="field-group">
           <label class="input-label" for="fpl-id">FPL Team ID</label>
@@ -125,18 +109,23 @@
           <label class="input-label" for="display-name">Your Name</label>
           <input type="text" id="display-name" placeholder="e.g. Arsène"/>
         </div>
-        <datalist id="players-list"></datalist>
         <div class="field-group span2">
           <label class="input-label" for="captain-pick">Captain Pick *</label>
-          <input type="text" id="captain-pick" list="players-list" placeholder="Loading players..." disabled autocomplete="off"/>
+          <select id="captain-pick">
+            <option value="">Select captain...</option>
+          </select>
         </div>
         <div class="field-group">
           <label class="input-label" for="transfer-in">Transfer In</label>
-          <input type="text" id="transfer-in" list="players-list" placeholder="Optional" disabled autocomplete="off"/>
+          <select id="transfer-in">
+            <option value="">No transfer</option>
+          </select>
         </div>
         <div class="field-group">
           <label class="input-label" for="transfer-out">Transfer Out</label>
-          <input type="text" id="transfer-out" list="players-list" placeholder="Optional" disabled autocomplete="off"/>
+          <select id="transfer-out">
+            <option value="">No transfer</option>
+          </select>
         </div>
         <div class="field-group span2">
           <label class="input-label" for="reason">Reasoning (optional)</label>
@@ -172,145 +161,164 @@
 <script>
 let supabase = null;
 let currentGW = null;
-const POS = { 1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD' };
+const POS = { 1:'GK', 2:'DEF', 3:'MID', 4:'FWD' };
 
+// ── Supabase init ──────────────────────────────────────────
 async function initSupabase() {
   const res = await fetch('/api/supabase-config');
   const json = await res.json();
-  if (!res.ok) throw new Error(json.error || 'supabase-config endpoint failed');
-  if (!json.key) throw new Error('SUPABASE_KEY is empty in Vercel env');
+  if (!res.ok || !json.key) throw new Error(json.error || 'Missing SUPABASE_KEY in Vercel env');
   supabase = window.supabase.createClient(json.url, json.key);
 }
 
-function buildDropdowns(players) {
-  if (!players || !players.length) throw new Error('No player data');
-  document.getElementById('players-list').innerHTML =
-    players.map(p => `<option value="${p.n}">${p.n} (${p.t} · £${(p.c / 10).toFixed(1)}m)</option>`).join('');
-  document.getElementById('captain-pick').disabled = false;
-  document.getElementById('captain-pick').placeholder = 'Type player name...';
-  document.getElementById('transfer-in').disabled = false;
-  document.getElementById('transfer-out').disabled = false;
-  document.getElementById('init-loading').style.display = 'none';
-}
-
+// ── Bootstrap / player dropdown ───────────────────────────
 async function initBootstrap() {
-  const CACHE_KEY = 'fpl_players_v1';
-  const CACHE_TTL = 60 * 60 * 1000;
+  const CACHE_KEY = 'fpl_players_v2';
+  const CACHE_TTL = 60 * 60 * 1000; // 1 hour
 
-  let players = null, gw = null;
-
+  // Try cache first
   try {
     const raw = localStorage.getItem(CACHE_KEY);
     if (raw) {
       const cached = JSON.parse(raw);
       if ((Date.now() - cached.ts) < CACHE_TTL) {
-        players = cached.players;
-        gw = cached.gw;
+        currentGW = cached.gw;
+        buildDropdowns(cached.players);
+        return;
       }
     }
   } catch(e) {}
 
-  if (!players) {
-    const res = await fetch('/api/fpl?endpoint=bootstrap-static/');
-    if (!res.ok) throw new Error('FPL API failed');
-    const boot = await res.json();
-    const events = boot.events || [];
-    gw = events.find(e => e.is_current)?.id
-      || events.find(e => e.is_next)?.id
-      || events.filter(e => e.finished).pop()?.id
-      || 38;
-    const teams = {};
-    boot.teams.forEach(t => { teams[t.id] = t.short_name; });
-    players = boot.elements.map(p => ({
-      n: p.web_name, t: teams[p.team] || '?', p: p.element_type, c: p.now_cost
-    }));
-    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ gw, players, ts: Date.now() })); } catch(e) {}
-  }
+  // Fetch from FPL API
+  const res = await fetch('/api/fpl?endpoint=bootstrap-static/');
+  if (!res.ok) throw new Error(`FPL API error: ${res.status}`);
+  const boot = await res.json();
 
-  currentGW = gw;
+  const currentEvent = boot.events?.find(e => e.is_current) || boot.events?.find(e => e.is_next);
+  currentGW = currentEvent?.id || 1;
+
+  const teams = {};
+  boot.teams.forEach(t => { teams[t.id] = t.short_name; });
+
+  const players = boot.elements
+    .filter(p => p.status === 'a' || p.status === 'd')
+    .map(p => ({
+      n: p.web_name,
+      t: teams[p.team] || '?',
+      p: p.element_type,
+      c: p.now_cost
+    }));
+
   buildDropdowns(players);
+
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ gw: currentGW, players, ts: Date.now() }));
+  } catch(e) {}
 }
 
+function buildDropdowns(players) {
+  if (!players?.length) throw new Error('No player data');
+
+  const byPos = { 1:[], 2:[], 3:[], 4:[] };
+  players.forEach(p => { if (byPos[p.p]) byPos[p.p].push(p); });
+
+  function buildHTML(includeBlank) {
+    let html = includeBlank ? '<option value="">No transfer</option>' : '<option value="">Select captain...</option>';
+    [1,2,3,4].forEach(pos => {
+      html += `<optgroup label="${POS[pos]}">`;
+      byPos[pos].forEach(p => {
+        html += `<option value="${p.n}">${p.n} (${p.t} · £${(p.c/10).toFixed(1)}m)</option>`;
+      });
+      html += '</optgroup>';
+    });
+    return html;
+  }
+
+  document.getElementById('captain-pick').innerHTML = buildHTML(false);
+  document.getElementById('transfer-in').innerHTML = buildHTML(true);
+  document.getElementById('transfer-out').innerHTML = buildHTML(true);
+
+  document.getElementById('init-loading').style.display = 'none';
+  document.getElementById('form-wrap').style.display = 'block';
+}
+
+// ── Feed ──────────────────────────────────────────────────
 function timeAgo(dateStr) {
   const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
   if (diff < 60) return 'just now';
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
+  if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+  return `${Math.floor(diff/86400)}d ago`;
 }
 
 function initials(name) {
-  const parts = (name || 'FPL').trim().split(' ');
-  return parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : (name || 'FP').slice(0, 2).toUpperCase();
+  const parts = (name||'FPL').trim().split(' ');
+  return parts.length >= 2
+    ? (parts[0][0]+parts[parts.length-1][0]).toUpperCase()
+    : (name||'FP').slice(0,2).toUpperCase();
 }
 
 async function loadFeed() {
   const feed = document.getElementById('feed');
+
   if (!supabase) {
     feed.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div>Could not connect to database.</div>`;
     return;
   }
   if (!currentGW) {
-    feed.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div>Could not determine current GW. Try refreshing.</div>`;
+    feed.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div>Could not determine current GW.</div>`;
     return;
   }
 
   document.getElementById('gw-badge').textContent = `GW ${currentGW}`;
 
-  const timeout = new Promise((_, rej) =>
-    setTimeout(() => rej(new Error('Supabase query timed out — project may be paused at supabase.com/dashboard')), 8000)
-  );
-  let data, error;
   try {
-    ({ data, error } = await Promise.race([
+    const { data, error } = await Promise.race([
       supabase.from('community_picks').select('*').eq('gw', currentGW).order('created_at', { ascending: false }).limit(50),
-      timeout
-    ]));
+      new Promise((_, rej) => setTimeout(() => rej(new Error('Database timeout — check Supabase dashboard')), 8000))
+    ]);
+
+    if (error) throw new Error(error.message);
+
+    if (!data?.length) {
+      feed.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">💬</div>No picks yet for GW ${currentGW}.<br>Be the first to share yours!</div>`;
+      return;
+    }
+
+    const container = document.createElement('div');
+    container.className = 'feed';
+    data.forEach(pick => {
+      const card = document.createElement('div');
+      card.className = 'pick-card';
+      const tfr = pick.transfer_in && pick.transfer_out
+        ? `<span class="pick-tag tag-in">↑ ${pick.transfer_in}</span><span class="tag-arrow">→</span><span class="pick-tag tag-out">↓ ${pick.transfer_out}</span>`
+        : pick.transfer_in ? `<span class="pick-tag tag-in">↑ ${pick.transfer_in}</span>` : '';
+      const displayName = pick.manager_name || `ID ${pick.fpl_id}`;
+      card.innerHTML = `
+        <div class="pick-header">
+          <div class="pick-avatar">${initials(displayName)}</div>
+          <div class="pick-meta">
+            <div class="pick-mgr">${displayName}</div>
+            <div class="pick-team">${pick.team_name||''}</div>
+          </div>
+          <div class="pick-time">${timeAgo(pick.created_at)}</div>
+        </div>
+        <div class="pick-body">
+          ${pick.captain_pick ? `<span class="pick-tag tag-captain">© ${pick.captain_pick}</span>` : ''}
+          ${tfr}
+        </div>
+        ${pick.reason ? `<div class="pick-reason">${pick.reason}</div>` : ''}`;
+      container.appendChild(card);
+    });
+    feed.innerHTML = '';
+    feed.appendChild(container);
+
   } catch(e) {
     feed.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div>${e.message}</div>`;
-    return;
   }
-
-  if (error) {
-    feed.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div>Could not load picks. Try refreshing.</div>`;
-    return;
-  }
-
-  if (!data || data.length === 0) {
-    feed.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">💬</div>No picks yet for GW ${currentGW}.<br>Be the first to share yours!</div>`;
-    return;
-  }
-
-  feed.innerHTML = '';
-  const container = document.createElement('div');
-  container.className = 'feed';
-  data.forEach(pick => {
-    const card = document.createElement('div');
-    card.className = 'pick-card';
-    const tfr = (pick.transfer_in && pick.transfer_out)
-      ? `<span class="pick-tag tag-in">↑ ${pick.transfer_in}</span><span class="tag-arrow">→</span><span class="pick-tag tag-out">↓ ${pick.transfer_out}</span>`
-      : (pick.transfer_in ? `<span class="pick-tag tag-in">↑ ${pick.transfer_in}</span>` : '');
-    const reason = pick.reason ? `<div class="pick-reason">${pick.reason}</div>` : '';
-    const displayName = pick.manager_name || `ID ${pick.fpl_id}`;
-    card.innerHTML = `
-      <div class="pick-header">
-        <div class="pick-avatar">${initials(displayName)}</div>
-        <div class="pick-meta">
-          <div class="pick-mgr">${displayName}</div>
-          <div class="pick-team">${pick.team_name || ''}</div>
-        </div>
-        <div class="pick-time">${timeAgo(pick.created_at)}</div>
-      </div>
-      <div class="pick-body">
-        ${pick.captain_pick ? `<span class="pick-tag tag-captain">© ${pick.captain_pick}</span>` : ''}
-        ${tfr}
-      </div>
-      ${reason}`;
-    container.appendChild(card);
-  });
-  feed.appendChild(container);
 }
 
+// ── Submit ────────────────────────────────────────────────
 async function submitPick() {
   const err = document.getElementById('submit-error');
   const suc = document.getElementById('submit-success');
@@ -323,11 +331,12 @@ async function submitPick() {
 
   if (!captain) { err.textContent = 'Please select your captain.'; err.style.display = 'block'; return; }
   if (!fplId || isNaN(fplId)) { err.textContent = 'Please enter your FPL Team ID.'; err.style.display = 'block'; return; }
+  if (!supabase) { err.textContent = 'Database not connected. Please refresh.'; err.style.display = 'block'; return; }
 
   btn.disabled = true;
   btn.textContent = 'Sharing...';
 
-  const payload = {
+  const { error } = await supabase.from('community_picks').insert([{
     fpl_id: fplId,
     manager_name: displayName || null,
     team_name: null,
@@ -336,9 +345,8 @@ async function submitPick() {
     transfer_out: document.getElementById('transfer-out').value || null,
     reason: document.getElementById('reason').value.trim() || null,
     gw: currentGW
-  };
+  }]);
 
-  const { error } = await supabase.from('community_picks').insert([payload]);
   if (error) {
     err.textContent = 'Could not save your pick. Please try again.';
     err.style.display = 'block';
@@ -352,28 +360,27 @@ async function submitPick() {
     if (fplId) localStorage.setItem('fpl_id', fplId);
     await loadFeed();
   }
+
   btn.disabled = false;
   btn.textContent = 'Share My Pick →';
 }
 
+// ── Boot ──────────────────────────────────────────────────
 (async () => {
   const saved = localStorage.getItem('fpl_id');
   if (saved) document.getElementById('fpl-id').value = saved;
 
-  let supabaseErr = null, bootstrapErr = null;
-
-  await Promise.all([
-    initSupabase().catch(e => { supabaseErr = e.message; }),
-    initBootstrap().catch(e => { bootstrapErr = e.message; })
+  const [supabaseErr, bootstrapErr] = await Promise.all([
+    initSupabase().then(() => null).catch(e => e.message),
+    initBootstrap().then(() => null).catch(e => e.message)
   ]);
 
   if (supabaseErr) {
     document.getElementById('feed').innerHTML =
-      `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div><strong>Supabase error:</strong><br>${supabaseErr}</div>`;
-    return;
+      `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div><strong>Database error:</strong><br>${supabaseErr}</div>`;
   }
   if (bootstrapErr) {
-    document.getElementById('init-loading').textContent = `⚠️ Players error: ${bootstrapErr}`;
+    document.getElementById('init-loading').innerHTML = `⚠️ ${bootstrapErr}`;
   }
 
   await loadFeed();
