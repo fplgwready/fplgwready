@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FPLGWReady — Community</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #F8F9FF; --surface: #FFFFFF; --surface2: #F0F2FF;
+      --accent: #1A6FFF; --accent2: #6C5CE7; --text: #1A1535;
+      --muted: #6B63A8; --border: rgba(108,92,231,0.15); --radius: 16px;
+      --green: #00976B; --red: #E84040;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; top: -200px; left: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(108,92,231,0.07) 0%, transparent 70%); pointer-events: none; }
+    body::after { content: ''; position: fixed; bottom: -200px; right: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(26,111,255,0.06) 0%, transparent 70%); pointer-events: none; }
+
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(248,249,255,0.92); backdrop-filter: blur(12px); z-index: 100; }
+    .logo { font-weight: 800; font-size: 22px; letter-spacing: -0.5px; text-decoration: none; color: var(--text); display: flex; align-items: center; gap: 10px; }
+    .logo span { color: var(--accent2); }
+    .nav-links { display: flex; gap: 8px; }
+    .nav-link { background: var(--surface2); border: 1px solid var(--border); padding: 6px 14px; border-radius: 100px; font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.15s; }
+    .nav-link:hover, .nav-link.active { color: var(--text); border-color: var(--accent2); }
+
+    .container { max-width: 720px; margin: 40px auto; padding: 0 24px 80px; }
+    .page-title { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+    .page-sub { color: var(--muted); font-size: 15px; margin-bottom: 28px; }
+
+    /* Input card */
+    .input-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 14px; box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
+    .input-label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 10px; display: block; }
+    .input-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    input[type="text"], textarea { flex: 1; min-width: 140px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 15px; color: var(--text); font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; }
+    input[type="text"]:focus, textarea:focus { border-color: var(--accent); }
+    input[type="text"]::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.7; }
+    textarea { resize: vertical; min-height: 80px; width: 100%; flex: unset; }
+    .input-group { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+    .input-group-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .input-group-row input { flex: 1; min-width: 140px; }
+    .btn { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 12px 22px; font-size: 15px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }
+    .btn:hover { opacity: 0.88; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-green { background: var(--green); }
+    .error-msg { background: rgba(220,50,50,0.08); border: 1px solid rgba(220,50,50,0.2); color: #CC3333; border-radius: 10px; padding: 12px 16px; font-size: 14px; margin-top: 10px; display: none; }
+    .success-msg { background: rgba(0,151,107,0.08); border: 1px solid rgba(0,151,107,0.2); color: var(--green); border-radius: 10px; padding: 12px 16px; font-size: 14px; margin-top: 10px; display: none; }
+
+    /* Manager bar */
+    .manager-bar { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin-top: 14px; display: flex; align-items: center; gap: 12px; }
+    .manager-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--accent2); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #fff; flex-shrink: 0; }
+    .manager-info { flex: 1; }
+    .manager-name { font-size: 15px; font-weight: 800; }
+    .manager-team { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .verified-badge { font-size: 11px; background: rgba(0,151,107,0.1); color: var(--green); padding: 2px 8px; border-radius: 100px; font-weight: 600; }
+
+    /* Section title */
+    .section-title { font-size: 16px; font-weight: 700; margin: 28px 0 12px; display: flex; align-items: center; gap: 8px; }
+    .section-badge { font-size: 11px; padding: 2px 9px; border-radius: 100px; background: rgba(26,111,255,0.1); color: var(--accent); font-weight: 600; }
+
+    /* Feed */
+    .feed { display: flex; flex-direction: column; gap: 10px; }
+    .pick-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: 0 1px 8px rgba(108,92,231,0.04); transition: border-color 0.15s; }
+    .pick-card:hover { border-color: var(--accent2); }
+    .pick-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .pick-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent2); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: #fff; flex-shrink: 0; }
+    .pick-meta { flex: 1; }
+    .pick-mgr { font-size: 14px; font-weight: 700; }
+    .pick-team { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .pick-time { font-size: 11px; color: var(--muted); white-space: nowrap; }
+    .pick-body { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .pick-tag { font-size: 12px; padding: 4px 10px; border-radius: 7px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+    .tag-captain { background: rgba(196,127,0,0.1); color: #C47F00; }
+    .tag-in { background: rgba(0,151,107,0.1); color: var(--green); }
+    .tag-out { background: rgba(232,64,64,0.1); color: var(--red); }
+    .tag-arrow { color: var(--muted); font-size: 13px; }
+    .pick-reason { font-size: 13px; color: var(--muted); margin-top: 10px; line-height: 1.55; padding-top: 10px; border-top: 1px solid var(--border); }
+
+    .feed-loading { text-align: center; padding: 40px 0; color: var(--muted); font-size: 14px; }
+    .feed-spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .feed-empty { text-align: center; padding: 48px 0; color: var(--muted); font-size: 14px; background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius); }
+    .feed-empty-icon { font-size: 32px; margin-bottom: 10px; }
+
+    @media (max-width: 540px) {
+      nav { padding: 14px 16px; }
+      .nav-links { gap: 4px; }
+      .nav-link { padding: 5px 10px; font-size: 12px; }
+      .container { margin-top: 24px; }
+      .input-card { padding: 18px 16px; }
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <a class="logo" href="/"><img src="/logo.jpeg" alt="" style="width:34px;height:34px;border-radius:8px;object-fit:cover;object-position:center 32%;flex-shrink:0;"/><span>FPL</span>GWReady</a>
+  <div class="nav-links">
+    <a class="nav-link" href="/">Home</a>
+    <a class="nav-link" href="/players.html">Players</a>
+    <a class="nav-link" href="/team.html">My Team</a>
+    <a class="nav-link" href="/mini-league.html">Mini League</a>
+    <a class="nav-link active" href="/community.html">Community</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-title">Community Picks</div>
+  <p class="page-sub">Share your GW plans — captain, transfers & thinking.</p>
+
+  <div class="input-card">
+    <label class="input-label" for="fpl-id">Your FPL Team ID</label>
+    <div class="input-row">
+      <input type="text" id="fpl-id" placeholder="e.g. 222758" maxlength="10"/>
+      <button class="btn" id="fetch-btn" onclick="fetchManagerInfo()">Fetch Info →</button>
+    </div>
+    <div class="error-msg" id="fetch-error"></div>
+
+    <div id="manager-bar" class="manager-bar" style="display:none;">
+      <div class="manager-avatar" id="m-avatar"></div>
+      <div class="manager-info">
+        <div class="manager-name" id="m-name"></div>
+        <div class="manager-team" id="m-team"></div>
+      </div>
+      <span class="verified-badge">Verified</span>
+    </div>
+
+    <div id="form-fields" class="input-group" style="display:none;">
+      <div>
+        <label class="input-label" for="captain-pick">Captain Pick</label>
+        <input type="text" id="captain-pick" placeholder="e.g. Salah"/>
+      </div>
+      <div>
+        <label class="input-label">Transfer (optional)</label>
+        <div class="input-group-row">
+          <input type="text" id="transfer-in" placeholder="In: e.g. Mbeumo"/>
+          <input type="text" id="transfer-out" placeholder="Out: e.g. Saka"/>
+        </div>
+      </div>
+      <div>
+        <label class="input-label" for="reason">Reason / Thinking (optional)</label>
+        <textarea id="reason" placeholder="Why are you going with this captain? Any reasoning behind your transfer?"></textarea>
+      </div>
+      <div style="display:flex;justify-content:flex-end;">
+        <button class="btn btn-green" id="submit-btn" onclick="submitPick()">Share My Pick →</button>
+      </div>
+      <div class="error-msg" id="submit-error"></div>
+      <div class="success-msg" id="submit-success"></div>
+    </div>
+  </div>
+
+  <div class="section-title">
+    Community Picks <span class="section-badge" id="gw-badge">Loading...</span>
+  </div>
+
+  <div id="feed">
+    <div class="feed-loading">
+      <div class="feed-spinner"></div>
+      Loading community picks...
+    </div>
+  </div>
+</div>
+
+<div style="text-align:center;padding:24px;font-size:11px;color:#6B63A8;border-top:1px solid rgba(108,92,231,0.1);margin-top:40px;">
+  Data sourced from <a href="https://fantasy.premierleague.com" target="_blank" style="color:#1A6FFF;text-decoration:none;">FPL Official API</a>
+  · Built by <strong>FPLGWReady</strong>
+</div>
+
+<script>
+let supabase = null;
+let currentGW = null;
+let managerData = null;
+
+async function initSupabase() {
+  const res = await fetch('/api/supabase-config');
+  const { url, key } = await res.json();
+  supabase = window.supabase.createClient(url, key);
+}
+
+async function fetchCurrentGW() {
+  const res = await fetch('/api/fpl?endpoint=bootstrap-static/');
+  const data = await res.json();
+  return data.events?.find(e => e.is_current)?.id || data.events?.find(e => e.is_next)?.id || null;
+}
+
+function timeAgo(dateStr) {
+  const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
+}
+
+function initials(name) {
+  const parts = name.trim().split(' ');
+  return parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : name.slice(0, 2).toUpperCase();
+}
+
+async function loadFeed() {
+  const feed = document.getElementById('feed');
+  if (!supabase || !currentGW) return;
+
+  document.getElementById('gw-badge').textContent = `GW ${currentGW}`;
+
+  const { data, error } = await supabase
+    .from('community_picks')
+    .select('*')
+    .eq('gw', currentGW)
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  if (error) {
+    feed.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div>Could not load picks. Try refreshing.</div>`;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    feed.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">💬</div>No picks yet for GW ${currentGW}.<br>Be the first to share yours!</div>`;
+    return;
+  }
+
+  feed.innerHTML = '';
+  const container = document.createElement('div');
+  container.className = 'feed';
+  data.forEach(pick => {
+    const card = document.createElement('div');
+    card.className = 'pick-card';
+    const tfr = (pick.transfer_in && pick.transfer_out)
+      ? `<span class="pick-tag tag-in">↑ ${pick.transfer_in}</span><span class="tag-arrow">→</span><span class="pick-tag tag-out">↓ ${pick.transfer_out}</span>`
+      : (pick.transfer_in ? `<span class="pick-tag tag-in">↑ ${pick.transfer_in}</span>` : '');
+    const reason = pick.reason ? `<div class="pick-reason">${pick.reason}</div>` : '';
+    card.innerHTML = `
+      <div class="pick-header">
+        <div class="pick-avatar">${initials(pick.manager_name || 'FPL')}</div>
+        <div class="pick-meta">
+          <div class="pick-mgr">${pick.manager_name || 'Unknown'}</div>
+          <div class="pick-team">${pick.team_name || ''}</div>
+        </div>
+        <div class="pick-time">${timeAgo(pick.created_at)}</div>
+      </div>
+      <div class="pick-body">
+        ${pick.captain_pick ? `<span class="pick-tag tag-captain">© ${pick.captain_pick}</span>` : ''}
+        ${tfr}
+      </div>
+      ${reason}`;
+    container.appendChild(card);
+  });
+  feed.appendChild(container);
+}
+
+async function fetchManagerInfo() {
+  const id = document.getElementById('fpl-id').value.trim();
+  const err = document.getElementById('fetch-error');
+  const btn = document.getElementById('fetch-btn');
+  err.style.display = 'none';
+  if (!id || isNaN(id)) { err.textContent = 'Please enter a valid FPL Team ID.'; err.style.display = 'block'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Fetching...';
+  try {
+    const res = await fetch(`/api/fpl?endpoint=entry/${id}/`);
+    if (!res.ok) throw new Error('Team not found. Check your FPL ID.');
+    const data = await res.json();
+    managerData = { id, name: `${data.player_first_name} ${data.player_last_name}`, team: data.name };
+    const av = document.getElementById('m-avatar');
+    av.textContent = initials(managerData.name);
+    document.getElementById('m-name').textContent = managerData.name;
+    document.getElementById('m-team').textContent = managerData.team;
+    document.getElementById('manager-bar').style.display = 'flex';
+    document.getElementById('form-fields').style.display = 'flex';
+    localStorage.setItem('fpl_id', id);
+  } catch(e) {
+    err.textContent = e.message || 'Could not fetch manager info. Try again.';
+    err.style.display = 'block';
+  }
+  btn.disabled = false;
+  btn.textContent = 'Fetch Info →';
+}
+
+async function submitPick() {
+  const err = document.getElementById('submit-error');
+  const suc = document.getElementById('submit-success');
+  const btn = document.getElementById('submit-btn');
+  err.style.display = 'none'; suc.style.display = 'none';
+
+  const captain = document.getElementById('captain-pick').value.trim();
+  if (!captain) { err.textContent = 'Please enter your captain pick.'; err.style.display = 'block'; return; }
+  if (!managerData) { err.textContent = 'Please fetch your manager info first.'; err.style.display = 'block'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Sharing...';
+
+  const payload = {
+    fpl_id: managerData.id,
+    manager_name: managerData.name,
+    team_name: managerData.team,
+    captain_pick: captain,
+    transfer_in: document.getElementById('transfer-in').value.trim() || null,
+    transfer_out: document.getElementById('transfer-out').value.trim() || null,
+    reason: document.getElementById('reason').value.trim() || null,
+    gw: currentGW
+  };
+
+  const { error } = await supabase.from('community_picks').insert([payload]);
+  if (error) {
+    err.textContent = 'Could not save your pick. Please try again.';
+    err.style.display = 'block';
+  } else {
+    suc.textContent = `Pick shared! Good luck GW ${currentGW} ✓`;
+    suc.style.display = 'block';
+    document.getElementById('captain-pick').value = '';
+    document.getElementById('transfer-in').value = '';
+    document.getElementById('transfer-out').value = '';
+    document.getElementById('reason').value = '';
+    await loadFeed();
+  }
+  btn.disabled = false;
+  btn.textContent = 'Share My Pick →';
+}
+
+(async () => {
+  await initSupabase();
+  currentGW = await fetchCurrentGW();
+  await loadFeed();
+  const saved = localStorage.getItem('fpl_id');
+  if (saved) document.getElementById('fpl-id').value = saved;
+})();
+</script>
+</body>
+</html>
