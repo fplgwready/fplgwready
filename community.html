@@ -29,31 +29,32 @@
     .page-title { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
     .page-sub { color: var(--muted); font-size: 15px; margin-bottom: 28px; }
 
-    /* Input card */
     .input-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 14px; box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
-    .input-label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 10px; display: block; }
+    .input-label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 8px; display: block; }
     .input-row { display: flex; gap: 10px; flex-wrap: wrap; }
-    input[type="text"], textarea { flex: 1; min-width: 140px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 15px; color: var(--text); font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; }
-    input[type="text"]:focus, textarea:focus { border-color: var(--accent); }
+    input[type="text"], textarea, select {
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+      padding: 12px 16px; font-size: 14px; color: var(--text); font-family: 'Inter', sans-serif;
+      outline: none; transition: border-color 0.2s; width: 100%;
+    }
+    input[type="text"]:focus, textarea:focus, select:focus { border-color: var(--accent); }
     input[type="text"]::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.7; }
-    textarea { resize: vertical; min-height: 80px; width: 100%; flex: unset; }
-    .input-group { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
-    .input-group-row { display: flex; gap: 10px; flex-wrap: wrap; }
-    .input-group-row input { flex: 1; min-width: 140px; }
+    textarea { resize: vertical; min-height: 76px; }
+    select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B63A8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+    select:disabled { opacity: 0.45; cursor: not-allowed; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+    .form-grid .span2 { grid-column: span 2; }
     .btn { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 12px 22px; font-size: 15px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }
     .btn:hover { opacity: 0.88; }
     .btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .btn-green { background: var(--green); }
-    .error-msg { background: rgba(220,50,50,0.08); border: 1px solid rgba(220,50,50,0.2); color: #CC3333; border-radius: 10px; padding: 12px 16px; font-size: 14px; margin-top: 10px; display: none; }
-    .success-msg { background: rgba(0,151,107,0.08); border: 1px solid rgba(0,151,107,0.2); color: var(--green); border-radius: 10px; padding: 12px 16px; font-size: 14px; margin-top: 10px; display: none; }
+    .btn-full { width: 100%; }
+    .error-msg { background: rgba(220,50,50,0.08); border: 1px solid rgba(220,50,50,0.2); color: #CC3333; border-radius: 10px; padding: 12px 16px; font-size: 14px; margin-top: 12px; display: none; }
+    .success-msg { background: rgba(0,151,107,0.08); border: 1px solid rgba(0,151,107,0.2); color: var(--green); border-radius: 10px; padding: 12px 16px; font-size: 14px; margin-top: 12px; display: none; }
 
-    /* Manager bar */
-    .manager-bar { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin-top: 14px; display: flex; align-items: center; gap: 12px; }
-    .manager-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--accent2); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #fff; flex-shrink: 0; }
-    .manager-info { flex: 1; }
-    .manager-name { font-size: 15px; font-weight: 800; }
-    .manager-team { font-size: 12px; color: var(--muted); margin-top: 2px; }
-    .verified-badge { font-size: 11px; background: rgba(0,151,107,0.1); color: var(--green); padding: 2px 8px; border-radius: 100px; font-weight: 600; }
+    .init-loading { text-align: center; padding: 12px 0 4px; color: var(--muted); font-size: 13px; display: flex; align-items: center; gap: 8px; justify-content: center; }
+    .init-spinner { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
 
     /* Section title */
     .section-title { font-size: 16px; font-weight: 700; margin: 28px 0 12px; display: flex; align-items: center; gap: 8px; }
@@ -70,7 +71,7 @@
     .pick-team { font-size: 11px; color: var(--muted); margin-top: 1px; }
     .pick-time { font-size: 11px; color: var(--muted); white-space: nowrap; }
     .pick-body { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .pick-tag { font-size: 12px; padding: 4px 10px; border-radius: 7px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+    .pick-tag { font-size: 12px; padding: 4px 10px; border-radius: 7px; font-weight: 600; }
     .tag-captain { background: rgba(196,127,0,0.1); color: #C47F00; }
     .tag-in { background: rgba(0,151,107,0.1); color: var(--green); }
     .tag-out { background: rgba(232,64,64,0.1); color: var(--red); }
@@ -89,6 +90,8 @@
       .nav-link { padding: 5px 10px; font-size: 12px; }
       .container { margin-top: 24px; }
       .input-card { padding: 18px 16px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-grid .span2 { grid-column: span 1; }
     }
   </style>
 </head>
@@ -109,40 +112,45 @@
   <p class="page-sub">Share your GW plans — captain, transfers & thinking.</p>
 
   <div class="input-card">
-    <label class="input-label" for="fpl-id">Your FPL Team ID</label>
-    <div class="input-row">
-      <input type="text" id="fpl-id" placeholder="e.g. 222758" maxlength="10"/>
-      <button class="btn" id="fetch-btn" onclick="fetchManagerInfo()">Fetch Info →</button>
-    </div>
-    <div class="error-msg" id="fetch-error"></div>
-
-    <div id="manager-bar" class="manager-bar" style="display:none;">
-      <div class="manager-avatar" id="m-avatar"></div>
-      <div class="manager-info">
-        <div class="manager-name" id="m-name"></div>
-        <div class="manager-team" id="m-team"></div>
-      </div>
-      <span class="verified-badge">Verified</span>
+    <div id="init-loading" class="init-loading">
+      <div class="init-spinner"></div> Loading players...
     </div>
 
-    <div id="form-fields" class="input-group" style="display:none;">
-      <div>
-        <label class="input-label" for="captain-pick">Captain Pick</label>
-        <input type="text" id="captain-pick" placeholder="e.g. Salah"/>
-      </div>
-      <div>
-        <label class="input-label">Transfer (optional)</label>
-        <div class="input-group-row">
-          <input type="text" id="transfer-in" placeholder="In: e.g. Mbeumo"/>
-          <input type="text" id="transfer-out" placeholder="Out: e.g. Saka"/>
+    <div id="form-wrap" style="display:none;">
+      <div class="form-grid">
+        <div class="field-group">
+          <label class="input-label" for="fpl-id">FPL Team ID</label>
+          <input type="text" id="fpl-id" placeholder="e.g. 222758" maxlength="10"/>
         </div>
-      </div>
-      <div>
-        <label class="input-label" for="reason">Reason / Thinking (optional)</label>
-        <textarea id="reason" placeholder="Why are you going with this captain? Any reasoning behind your transfer?"></textarea>
-      </div>
-      <div style="display:flex;justify-content:flex-end;">
-        <button class="btn btn-green" id="submit-btn" onclick="submitPick()">Share My Pick →</button>
+        <div class="field-group">
+          <label class="input-label" for="display-name">Your Name</label>
+          <input type="text" id="display-name" placeholder="e.g. Arsène"/>
+        </div>
+        <div class="field-group span2">
+          <label class="input-label" for="captain-pick">Captain Pick *</label>
+          <select id="captain-pick">
+            <option value="">Select captain...</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="input-label" for="transfer-in">Transfer In</label>
+          <select id="transfer-in">
+            <option value="">No transfer</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="input-label" for="transfer-out">Transfer Out</label>
+          <select id="transfer-out">
+            <option value="">No transfer</option>
+          </select>
+        </div>
+        <div class="field-group span2">
+          <label class="input-label" for="reason">Reasoning (optional)</label>
+          <textarea id="reason" placeholder="Why this captain? Any thoughts on your transfer?"></textarea>
+        </div>
+        <div class="span2">
+          <button class="btn btn-green btn-full" id="submit-btn" onclick="submitPick()">Share My Pick →</button>
+        </div>
       </div>
       <div class="error-msg" id="submit-error"></div>
       <div class="success-msg" id="submit-success"></div>
@@ -169,7 +177,7 @@
 <script>
 let supabase = null;
 let currentGW = null;
-let managerData = null;
+const POS = { 1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD' };
 
 async function initSupabase() {
   const res = await fetch('/api/supabase-config');
@@ -177,14 +185,46 @@ async function initSupabase() {
   supabase = window.supabase.createClient(url, key);
 }
 
-async function fetchCurrentGW() {
+async function initBootstrap() {
   const res = await fetch('/api/fpl?endpoint=bootstrap-static/');
   const data = await res.json();
   const events = data.events || [];
-  return events.find(e => e.is_current)?.id
+  currentGW = events.find(e => e.is_current)?.id
     || events.find(e => e.is_next)?.id
     || events.filter(e => e.finished).pop()?.id
     || 38;
+
+  const teamMap = {};
+  (data.teams || []).forEach(t => { teamMap[t.id] = t.short_name; });
+
+  const players = (data.elements || []).filter(p => p.status !== 'u');
+
+  const byPos = { 1: [], 2: [], 3: [], 4: [] };
+  players.forEach(p => { if (byPos[p.element_type]) byPos[p.element_type].push(p); });
+  Object.values(byPos).forEach(arr => arr.sort((a, b) => (parseFloat(b.ep_this) || 0) - (parseFloat(a.ep_this) || 0)));
+
+  function buildOptions(selId, includeBlank) {
+    const sel = document.getElementById(selId);
+    sel.innerHTML = includeBlank ? '<option value="">No transfer</option>' : '<option value="">Select captain...</option>';
+    [1, 2, 3, 4].forEach(pos => {
+      const grp = document.createElement('optgroup');
+      grp.label = POS[pos];
+      byPos[pos].forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.web_name;
+        opt.textContent = `${p.web_name} (${teamMap[p.team] || ''} · £${(p.now_cost / 10).toFixed(1)}m)`;
+        grp.appendChild(opt);
+      });
+      sel.appendChild(grp);
+    });
+  }
+
+  buildOptions('captain-pick', false);
+  buildOptions('transfer-in', true);
+  buildOptions('transfer-out', true);
+
+  document.getElementById('init-loading').style.display = 'none';
+  document.getElementById('form-wrap').style.display = 'block';
 }
 
 function timeAgo(dateStr) {
@@ -196,14 +236,14 @@ function timeAgo(dateStr) {
 }
 
 function initials(name) {
-  const parts = name.trim().split(' ');
-  return parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : name.slice(0, 2).toUpperCase();
+  const parts = (name || 'FPL').trim().split(' ');
+  return parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : (name || 'FP').slice(0, 2).toUpperCase();
 }
 
 async function loadFeed() {
   const feed = document.getElementById('feed');
   if (!supabase) {
-    feed.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div>Could not connect to database. Check Supabase config.</div>`;
+    feed.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div>Could not connect to database.</div>`;
     return;
   }
   if (!currentGW) {
@@ -240,11 +280,12 @@ async function loadFeed() {
       ? `<span class="pick-tag tag-in">↑ ${pick.transfer_in}</span><span class="tag-arrow">→</span><span class="pick-tag tag-out">↓ ${pick.transfer_out}</span>`
       : (pick.transfer_in ? `<span class="pick-tag tag-in">↑ ${pick.transfer_in}</span>` : '');
     const reason = pick.reason ? `<div class="pick-reason">${pick.reason}</div>` : '';
+    const displayName = pick.manager_name || `ID ${pick.fpl_id}`;
     card.innerHTML = `
       <div class="pick-header">
-        <div class="pick-avatar">${initials(pick.manager_name || 'FPL')}</div>
+        <div class="pick-avatar">${initials(displayName)}</div>
         <div class="pick-meta">
-          <div class="pick-mgr">${pick.manager_name || 'Unknown'}</div>
+          <div class="pick-mgr">${displayName}</div>
           <div class="pick-team">${pick.team_name || ''}</div>
         </div>
         <div class="pick-time">${timeAgo(pick.created_at)}</div>
@@ -259,55 +300,29 @@ async function loadFeed() {
   feed.appendChild(container);
 }
 
-async function fetchManagerInfo() {
-  const id = document.getElementById('fpl-id').value.trim();
-  const err = document.getElementById('fetch-error');
-  const btn = document.getElementById('fetch-btn');
-  err.style.display = 'none';
-  if (!id || isNaN(id)) { err.textContent = 'Please enter a valid FPL Team ID.'; err.style.display = 'block'; return; }
-
-  btn.disabled = true;
-  btn.textContent = 'Fetching...';
-  try {
-    const res = await fetch(`/api/fpl?endpoint=entry/${id}/`);
-    if (!res.ok) throw new Error('Team not found. Check your FPL ID.');
-    const data = await res.json();
-    managerData = { id, name: `${data.player_first_name} ${data.player_last_name}`, team: data.name };
-    const av = document.getElementById('m-avatar');
-    av.textContent = initials(managerData.name);
-    document.getElementById('m-name').textContent = managerData.name;
-    document.getElementById('m-team').textContent = managerData.team;
-    document.getElementById('manager-bar').style.display = 'flex';
-    document.getElementById('form-fields').style.display = 'flex';
-    localStorage.setItem('fpl_id', id);
-  } catch(e) {
-    err.textContent = e.message || 'Could not fetch manager info. Try again.';
-    err.style.display = 'block';
-  }
-  btn.disabled = false;
-  btn.textContent = 'Fetch Info →';
-}
-
 async function submitPick() {
   const err = document.getElementById('submit-error');
   const suc = document.getElementById('submit-success');
   const btn = document.getElementById('submit-btn');
   err.style.display = 'none'; suc.style.display = 'none';
 
-  const captain = document.getElementById('captain-pick').value.trim();
-  if (!captain) { err.textContent = 'Please enter your captain pick.'; err.style.display = 'block'; return; }
-  if (!managerData) { err.textContent = 'Please fetch your manager info first.'; err.style.display = 'block'; return; }
+  const fplId = document.getElementById('fpl-id').value.trim();
+  const displayName = document.getElementById('display-name').value.trim();
+  const captain = document.getElementById('captain-pick').value;
+
+  if (!captain) { err.textContent = 'Please select your captain.'; err.style.display = 'block'; return; }
+  if (!fplId || isNaN(fplId)) { err.textContent = 'Please enter your FPL Team ID.'; err.style.display = 'block'; return; }
 
   btn.disabled = true;
   btn.textContent = 'Sharing...';
 
   const payload = {
-    fpl_id: managerData.id,
-    manager_name: managerData.name,
-    team_name: managerData.team,
+    fpl_id: fplId,
+    manager_name: displayName || null,
+    team_name: null,
     captain_pick: captain,
-    transfer_in: document.getElementById('transfer-in').value.trim() || null,
-    transfer_out: document.getElementById('transfer-out').value.trim() || null,
+    transfer_in: document.getElementById('transfer-in').value || null,
+    transfer_out: document.getElementById('transfer-out').value || null,
     reason: document.getElementById('reason').value.trim() || null,
     gw: currentGW
   };
@@ -323,6 +338,7 @@ async function submitPick() {
     document.getElementById('transfer-in').value = '';
     document.getElementById('transfer-out').value = '';
     document.getElementById('reason').value = '';
+    if (fplId) localStorage.setItem('fpl_id', fplId);
     await loadFeed();
   }
   btn.disabled = false;
@@ -331,7 +347,10 @@ async function submitPick() {
 
 (async () => {
   try { await initSupabase(); } catch(e) { console.error('Supabase init failed', e); }
-  try { currentGW = await fetchCurrentGW(); } catch(e) { console.error('GW fetch failed', e); }
+  try { await initBootstrap(); } catch(e) {
+    console.error('Bootstrap failed', e);
+    document.getElementById('init-loading').innerHTML = '⚠️ Could not load players. Try refreshing.';
+  }
   await loadFeed();
   const saved = localStorage.getItem('fpl_id');
   if (saved) document.getElementById('fpl-id').value = saved;
