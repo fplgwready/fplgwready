@@ -351,16 +351,19 @@ async function submitPick() {
 }
 
 (async () => {
-  await Promise.all([
-    initSupabase().catch(e => console.error('Supabase init failed', e)),
-    initBootstrap().catch(e => {
-      console.error('Bootstrap failed', e);
-      document.getElementById('init-loading').innerHTML = '⚠️ Could not load players. Try refreshing.';
-    })
-  ]);
-  await loadFeed();
   const saved = localStorage.getItem('fpl_id');
   if (saved) document.getElementById('fpl-id').value = saved;
+
+  // feed and dropdowns load independently — whichever is ready first shows first
+  const supabaseReady = initSupabase().catch(e => console.error('Supabase init failed', e));
+  const bootstrapReady = initBootstrap().catch(e => {
+    console.error('Bootstrap failed', e);
+    document.getElementById('init-loading').innerHTML = '⚠️ Could not load players. Try refreshing.';
+  });
+
+  await supabaseReady;
+  await loadFeed();       // feed shows as soon as Supabase is ready
+  await bootstrapReady;  // dropdowns finish in background
 })();
 </script>
 </body>
