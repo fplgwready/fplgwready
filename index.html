@@ -58,6 +58,7 @@
       nav { padding: 14px 16px; }
       .hero { margin-top: 48px; }
       .features-grid { grid-template-columns: 1fr; }
+      .features-grid a[style*="span 2"] { grid-column: span 1; }
       .input-row { flex-direction: column; }
       .countdown-strip { gap: 8px; }
       .countdown-block { min-width: 56px; padding: 12px 14px; }
@@ -119,6 +120,12 @@
     <div class="feature-title">Community</div>
     <div class="feature-desc">Vote on the most captained player & share your transfer plans. See what the community is doing this gameweek!</div>
     <div class="feature-cta">Join the Conversation →</div>
+  </a>
+  <a class="feature-card" href="/challenge.html" style="grid-column: span 2; border-color: rgba(196,127,0,0.25); background: linear-gradient(135deg, rgba(196,127,0,0.04) 0%, rgba(26,111,255,0.03) 100%);">
+    <div class="feature-icon">🏆</div>
+    <div class="feature-title">GW Challenge <span class="coming-tag" style="background:rgba(196,127,0,0.12);color:#C47F00;">Win Rp 100k</span></div>
+    <div class="feature-desc">Think you can predict the top scorer? Spot a hidden gem? Three games, one gameweek! — the sharpest pick takes the prize.</div>
+    <div class="feature-cta" style="color:#C47F00;">Enter the Challenge →</div>
   </a>
 
 </div>

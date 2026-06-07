@@ -55,6 +55,7 @@
     .game-name { font-size: 15px; font-weight: 800; }
     .pts-badge { font-size: 12px; font-weight: 700; background: rgba(108,92,231,0.1); color: var(--accent2); padding: 3px 10px; border-radius: 100px; white-space: nowrap; }
     .game-desc { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+    .scoring-note { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.6; background: var(--surface2); border-radius: 8px; padding: 10px 12px; }
     .tot-pair-row { margin-bottom: 12px; }
     .tot-pair-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 8px; }
     .tot-pair { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; }
@@ -150,6 +151,7 @@
       </div>
       <p class="game-desc">Who will be the top scorer this GW?</p>
       <select id="game1-pick"><option value="">Select player...</option></select>
+      <p class="scoring-note">📐 Scoring: <strong>your pick's GW pts ÷ top scorer's GW pts × 40</strong>. Pick Salah (12 pts) when Haaland tops with 20? You score 12 ÷ 20 × 40 = <strong>24 pts</strong>.</p>
     </div>
 
     <div class="game-card">
