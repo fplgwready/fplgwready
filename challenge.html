@@ -309,12 +309,10 @@ function renderThisOrThat() {
       <div class="tot-pair">
         <div class="tot-card" id="tot-${i}-a" onclick="selectTot(${i},'${safeA}')">
           <div class="tot-player">${pair.player_a}</div>
-          ${teamA ? `<div class="tot-meta">${teamA}</div>` : ''}
         </div>
         <div class="tot-vs">VS</div>
         <div class="tot-card" id="tot-${i}-b" onclick="selectTot(${i},'${safeB}')">
           <div class="tot-player">${pair.player_b}</div>
-          ${teamB ? `<div class="tot-meta">${teamB}</div>` : ''}
         </div>
       </div>
     </div>`;
