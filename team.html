@@ -91,9 +91,12 @@
     .jersey-wrap svg { width: 48px; height: 48px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
     .captain-ring { position: absolute; top: -4px; right: -4px; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 800; color: #fff; z-index: 2; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
     .vice-ring { position: absolute; top: -4px; right: -4px; width: 18px; height: 18px; border-radius: 50%; background: var(--accent2); display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 800; color: #fff; z-index: 2; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
-    .pitch-name { font-size: 10px; font-weight: 700; color: #fff; text-align: center; line-height: 1.2; text-shadow: 0 1px 3px rgba(0,0,0,0.6); max-width: 76px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pitch-name { font-size: 10px; font-weight: 700; color: #fff; text-align: center; line-height: 1.2; max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .pitch-pts-badge { background: rgba(0,0,0,0.6); color: #fff; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 10px; backdrop-filter: blur(4px); }
     .pitch-pts-badge.zero { background: rgba(0,0,0,0.3); color: rgba(255,255,255,0.55); }
+    .player-info-card { background: rgba(0,0,0,0.52); border-radius: 7px; padding: 4px 6px; text-align: center; backdrop-filter: blur(6px); width: 100%; margin-top: 3px; }
+    .player-info-card .pitch-name { max-width: 100%; }
+    .player-info-meta { font-size: 8.5px; color: rgba(255,255,255,0.65); margin-top: 2px; letter-spacing: 0.1px; white-space: nowrap; }
 
     /* Bench */
     .bench-wrap { background: var(--surface); border: 1px solid var(--border); border-top: 2px dashed rgba(108,92,231,0.2); padding: 16px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
@@ -386,22 +389,22 @@ function makePlayerCard(pick, player, liveMap, isBench, benchNum) {
     jerseyEl.appendChild(ring);
   }
 
-  // Name
+  // Info card (name + xP/EO grouped)
+  const cardEl = document.createElement('div');
+  cardEl.className = 'player-info-card';
+
   const nameEl = document.createElement('div');
   nameEl.className = 'pitch-name';
   nameEl.textContent = player.web_name;
+  cardEl.appendChild(nameEl);
 
-  // xP & EO (starters only)
   if (!isBench) {
     const xp = parseFloat(player.ep_this) || 0;
     const eo = parseFloat(player.selected_by_percent) || 0;
     const metaEl = document.createElement('div');
-    metaEl.style.cssText = 'font-size:9px;color:rgba(255,255,255,0.75);text-align:center;line-height:1.5;text-shadow:0 1px 2px rgba(0,0,0,0.5);white-space:nowrap;';
-    metaEl.innerHTML = `xP ${xp.toFixed(1)}<br>EO ${eo.toFixed(1)}%`;
-    wrap.appendChild(nameEl);
-    wrap.appendChild(metaEl);
-  } else {
-    wrap.appendChild(nameEl);
+    metaEl.className = 'player-info-meta';
+    metaEl.textContent = `xP ${xp.toFixed(1)} · EO ${eo.toFixed(1)}%`;
+    cardEl.appendChild(metaEl);
   }
 
   // Points badge
@@ -410,6 +413,7 @@ function makePlayerCard(pick, player, liveMap, isBench, benchNum) {
   ptsEl.textContent = `${displayPts}`;
 
   wrap.appendChild(jerseyEl);
+  wrap.appendChild(cardEl);
   wrap.appendChild(ptsEl);
 
 
