@@ -57,7 +57,8 @@
     .game-desc { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
     .scoring-note { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.6; background: var(--surface2); border-radius: 8px; padding: 10px 12px; }
     .tot-pair-row { margin-bottom: 12px; }
-    .tot-pair-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 8px; }
+    .tot-pair-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 4px; }
+    .tot-pair-question { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
     .tot-pair { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; }
     .tot-card { background: var(--surface2); border: 2px solid var(--border); border-radius: 12px; padding: 16px 12px; text-align: center; cursor: pointer; transition: border-color 0.18s, background 0.18s; user-select: none; }
     .tot-card:hover { border-color: var(--accent2); }
@@ -168,7 +169,7 @@
         <div class="game-name">Game 3 — This or That</div>
         <div class="pts-badge">10 pts × 3</div>
       </div>
-      <p class="game-desc">Pick the player you think will score more points this GW.</p>
+      <p class="game-desc">Three pairs, three different questions — read the label on each pair before picking.</p>
       <div id="tot-container">
         <div class="tot-coming">⏳ Loading pairs...</div>
       </div>
@@ -283,6 +284,12 @@ function playerTeam(name) {
   return p ? p.t : '';
 }
 
+const PAIR_QUESTIONS = [
+  { label: 'Pair 1 · 10 pts', question: 'Who will score the most points this GW?' },
+  { label: 'Pair 2 · 10 pts', question: 'Who is the bigger differential this GW?' },
+  { label: 'Pair 3 · 10 pts', question: 'Who is the bigger differential this GW?' }
+];
+
 function renderThisOrThat() {
   const container = document.getElementById('tot-container');
   if (!thisOrThatPairs.length) {
@@ -295,8 +302,10 @@ function renderThisOrThat() {
     const teamB = playerTeam(pair.player_b);
     const safeA = pair.player_a.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
     const safeB = pair.player_b.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const q = PAIR_QUESTIONS[i] || { label: `Pair ${i + 1} · 10 pts`, question: 'Who scores more?' };
     html += `<div class="tot-pair-row">
-      <div class="tot-pair-label">Pair ${i + 1}</div>
+      <div class="tot-pair-label">${q.label}</div>
+      <div class="tot-pair-question">${q.question}</div>
       <div class="tot-pair">
         <div class="tot-card" id="tot-${i}-a" onclick="selectTot(${i},'${safeA}')">
           <div class="tot-player">${pair.player_a}</div>
