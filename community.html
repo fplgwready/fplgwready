@@ -59,9 +59,6 @@
     .pick-body { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .pick-tag { font-size: 12px; padding: 4px 10px; border-radius: 7px; font-weight: 600; }
     .tag-captain { background: rgba(196,127,0,0.1); color: #C47F00; }
-    .tag-in { background: rgba(0,151,107,0.1); color: var(--green); }
-    .tag-out { background: rgba(232,64,64,0.1); color: var(--red); }
-    .tag-arrow { color: var(--muted); font-size: 13px; }
     .pick-reason { font-size: 13px; color: var(--muted); margin-top: 10px; line-height: 1.55; padding-top: 10px; border-top: 1px solid var(--border); }
     .feed-loading { text-align: center; padding: 40px 0; color: var(--muted); font-size: 14px; }
     .feed-spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
@@ -147,15 +144,7 @@
           <label class="input-label" for="captain-pick">Captain Pick *</label>
           <select id="captain-pick"><option value="">Select captain...</option></select>
         </div>
-        <div class="field-group">
-          <label class="input-label" for="transfer-in">Transfer In *</label>
-          <select id="transfer-in"><option value="">Select transfer in...</option></select>
-        </div>
-        <div class="field-group">
-          <label class="input-label" for="transfer-out">Transfer Out *</label>
-          <select id="transfer-out"><option value="">Select transfer out...</option></select>
-        </div>
-        <div class="field-group span2">
+<div class="field-group span2">
           <label class="input-label" for="reason">Reasoning (optional)</label>
           <textarea id="reason" placeholder="Why this captain? Any thoughts on your transfer?"></textarea>
         </div>
@@ -242,8 +231,8 @@ function buildDropdowns(players) {
   players.forEach(p => { if (byPos[p.p]) byPos[p.p].push(p); });
   Object.values(byPos).forEach(arr => arr.sort((a, b) => a.n.localeCompare(b.n)));
 
-  function buildHTML(includeBlank) {
-    let html = includeBlank ? '<option value="">No transfer</option>' : '<option value="">Select captain...</option>';
+  function buildHTML() {
+    let html = '<option value="">Select captain...</option>';
     [1,2,3,4].forEach(pos => {
       html += `<optgroup label="${POS[pos]}">`;
       byPos[pos].forEach(p => {
@@ -254,9 +243,7 @@ function buildDropdowns(players) {
     return html;
   }
 
-  document.getElementById('captain-pick').innerHTML = buildHTML(false);
-  document.getElementById('transfer-in').innerHTML = buildHTML(true);
-  document.getElementById('transfer-out').innerHTML = buildHTML(true);
+  document.getElementById('captain-pick').innerHTML = buildHTML();
   document.getElementById('init-loading').style.display = 'none';
 }
 
@@ -295,7 +282,7 @@ async function loadFeed() {
 
   try {
     const data = await Promise.race([
-      sbSelect('community_picks', { gw: `eq.${currentGW}`, select: 'captain_pick,transfer_in,transfer_out', limit: 500 }),
+      sbSelect('community_picks', { gw: `eq.${currentGW}`, select: 'captain_pick', limit: 500 }),
       new Promise((_, rej) => setTimeout(() => rej(new Error('Database timeout — is Supabase paused?')), 8000))
     ]);
 
@@ -324,24 +311,12 @@ async function loadFeed() {
     }
 
     feed.innerHTML = `
-      <div class="results-card" style="margin-bottom:12px;">
+      <div class="results-card">
         <div class="results-header">
           <div class="results-title">⚡ Top Captain Picks</div>
           <div class="results-count">${total} response${total !== 1 ? 's' : ''}</div>
         </div>
         ${buildBars('captain_pick', 'linear-gradient(90deg,#6C5CE7,#1A6FFF)')}
-      </div>
-      <div class="results-card" style="margin-bottom:12px;">
-        <div class="results-header">
-          <div class="results-title">↑ Top Transfer In</div>
-        </div>
-        ${buildBars('transfer_in', 'linear-gradient(90deg,#00976B,#1A6FFF)')}
-      </div>
-      <div class="results-card">
-        <div class="results-header">
-          <div class="results-title">↓ Top Transfer Out</div>
-        </div>
-        ${buildBars('transfer_out', 'linear-gradient(90deg,#E84040,#C47F00)')}
       </div>`;
 
   } catch(e) {
@@ -400,11 +375,7 @@ async function submitPick() {
   err.style.display = 'none';
 
   const captain = document.getElementById('captain-pick').value;
-  const transferIn = document.getElementById('transfer-in').value;
-  const transferOut = document.getElementById('transfer-out').value;
   if (!captain) { err.textContent = 'Please select your captain.'; err.style.display = 'block'; return; }
-  if (!transferIn) { err.textContent = 'Please select your transfer in.'; err.style.display = 'block'; return; }
-  if (!transferOut) { err.textContent = 'Please select your transfer out.'; err.style.display = 'block'; return; }
   if (!SB_KEY) { err.textContent = 'Database not connected. Please refresh.'; err.style.display = 'block'; return; }
 
   btn.disabled = true; btn.textContent = 'Submitting...';
@@ -414,8 +385,6 @@ async function submitPick() {
       manager_name: managerData.name,
       team_name: managerData.team,
       captain_pick: captain,
-      transfer_in: transferIn,
-      transfer_out: transferOut,
       reason: document.getElementById('reason').value.trim() || null,
       gw: currentGW
     });
