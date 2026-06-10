@@ -86,6 +86,25 @@
     .result-bar-wrap { flex: 1; background: var(--surface2); border-radius: 100px; height: 10px; overflow: hidden; }
     .result-bar-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--accent2), var(--accent)); transition: width 0.6s ease; }
     .result-pct { font-size: 13px; font-weight: 700; color: var(--accent2); min-width: 38px; text-align: right; }
+    /* Poll section */
+    .poll-section { display: flex; flex-direction: column; gap: 10px; }
+    .poll-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; box-shadow: 0 1px 8px rgba(108,92,231,0.04); }
+    .poll-type-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 100px; margin-bottom: 10px; background: rgba(108,92,231,0.1); color: var(--accent2); }
+    .poll-question { font-size: 15px; font-weight: 700; margin-bottom: 14px; line-height: 1.45; }
+    .poll-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .poll-btn { background: var(--surface2); border: 2px solid var(--border); border-radius: 10px; padding: 11px 14px; font-size: 13px; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.15s; }
+    .poll-btn:hover:not(:disabled) { border-color: var(--accent2); background: rgba(108,92,231,0.06); }
+    .poll-btn:disabled { cursor: not-allowed; }
+    .poll-btn.selected { border-color: var(--accent2); background: rgba(108,92,231,0.1); color: var(--accent2); }
+    .poll-results { display: flex; flex-direction: column; gap: 10px; }
+    .poll-res-row { display: flex; flex-direction: column; gap: 4px; }
+    .poll-res-label { display: flex; justify-content: space-between; font-size: 13px; }
+    .poll-res-name { font-weight: 600; }
+    .poll-res-name.winner { color: var(--accent2); }
+    .poll-res-pct { font-weight: 700; color: var(--accent2); }
+    .poll-res-bar-wrap { background: var(--surface2); border-radius: 100px; height: 8px; overflow: hidden; }
+    .poll-res-bar { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--accent2), var(--accent)); transition: width 0.5s ease; }
+    .poll-total { font-size: 11px; color: var(--muted); text-align: right; margin-top: 2px; }
     @media (max-width: 540px) {
       nav { padding: 14px 16px; }
       .nav-links { gap: 4px; }
@@ -171,6 +190,11 @@
       Loading community picks...
     </div>
   </div>
+
+  <div class="section-title">🤔 Kegalauanmu GW ini</div>
+  <div id="poll-section" class="poll-section">
+    <div class="feed-loading"><div class="feed-spinner"></div>Loading polls...</div>
+  </div>
 </div>
 
 <div style="text-align:center;padding:24px;font-size:11px;color:#6B63A8;border-top:1px solid rgba(108,92,231,0.1);margin-top:40px;">
@@ -216,6 +240,15 @@ async function sbInsert(table, data) {
     body: JSON.stringify(data)
   });
   if (!res.ok) { const e = await res.json(); throw new Error(e.message || `DB write failed: ${res.status}`); }
+}
+
+async function sbPatch(table, filter, data) {
+  const res = await fetch(`${SB_URL}/rest/v1/${table}?${filter}`, {
+    method: 'PATCH',
+    headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.message || `DB update failed: ${res.status}`); }
 }
 
 // ── Bootstrap / player dropdown ───────────────────────────
@@ -400,6 +433,101 @@ async function submitPick() {
   btn.disabled = false; btn.textContent = 'Share My Pick →';
 }
 
+// ── Polls ─────────────────────────────────────────────────
+const POLL_TYPE_LABEL = { captain: '👑 Captain?', bench: '🪑 Bench?', transfer: '🔄 Transfer?', custom: '💡 Custom' };
+const pollsCache = {};
+
+function getVoterToken() {
+  let token = localStorage.getItem('voter_token');
+  if (!token) {
+    token = (crypto.randomUUID ? crypto.randomUUID() :
+      Math.random().toString(36).slice(2) + Date.now().toString(36) + Math.random().toString(36).slice(2));
+    localStorage.setItem('voter_token', token);
+  }
+  return token;
+}
+
+async function loadPolls() {
+  const el = document.getElementById('poll-section');
+  if (!SB_KEY) { el.innerHTML = ''; return; }
+  try {
+    const polls = await sbSelect('gw_polls', { is_active: 'eq.true', order: 'created_at.desc' });
+    if (!polls?.length) { el.innerHTML = '<div class="feed-empty"><div class="feed-empty-icon">🗳️</div>No active polls right now.</div>'; return; }
+    el.innerHTML = '';
+    polls.forEach(p => {
+      pollsCache[p.id] = p;
+      const voted = localStorage.getItem(`voted_poll_${p.id}`);
+      const card = document.createElement('div');
+      card.className = 'poll-card';
+      card.id = `poll-${p.id}`;
+      card.innerHTML = `
+        <div class="poll-type-badge">${POLL_TYPE_LABEL[p.type] || p.type}</div>
+        <div class="poll-question">${escPoll(p.question)}</div>
+        <div class="poll-voting">
+          <div class="poll-buttons">
+            <button class="poll-btn${voted === 'A' ? ' selected' : ''}" onclick="votePoll(${p.id},'A',this.closest('.poll-card'))"${voted ? ' disabled' : ''}>${escPoll(p.option_a)}</button>
+            <button class="poll-btn${voted === 'B' ? ' selected' : ''}" onclick="votePoll(${p.id},'B',this.closest('.poll-card'))"${voted ? ' disabled' : ''}>${escPoll(p.option_b)}</button>
+          </div>
+        </div>`;
+      el.appendChild(card);
+      if (voted) renderPollResults(card, p, voted);
+    });
+  } catch(e) {
+    el.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div>${e.message}</div>`;
+  }
+}
+
+function renderPollResults(cardEl, poll, votedOption) {
+  const total = (poll.votes_a || 0) + (poll.votes_b || 0);
+  const pctA = total ? Math.round((poll.votes_a || 0) / total * 100) : 50;
+  const pctB = total ? Math.round((poll.votes_b || 0) / total * 100) : 50;
+  const winnerA = (poll.votes_a || 0) >= (poll.votes_b || 0);
+  const votingEl = cardEl.querySelector('.poll-voting');
+  votingEl.innerHTML = `
+    <div class="poll-results">
+      <div class="poll-res-row">
+        <div class="poll-res-label">
+          <span class="poll-res-name${winnerA ? ' winner' : ''}">${escPoll(poll.option_a)}${votedOption === 'A' ? ' ✓' : ''}</span>
+          <span class="poll-res-pct">${pctA}%</span>
+        </div>
+        <div class="poll-res-bar-wrap"><div class="poll-res-bar" style="width:${pctA}%"></div></div>
+      </div>
+      <div class="poll-res-row">
+        <div class="poll-res-label">
+          <span class="poll-res-name${!winnerA ? ' winner' : ''}">${escPoll(poll.option_b)}${votedOption === 'B' ? ' ✓' : ''}</span>
+          <span class="poll-res-pct">${pctB}%</span>
+        </div>
+        <div class="poll-res-bar-wrap"><div class="poll-res-bar" style="width:${pctB}%"></div></div>
+      </div>
+      <div class="poll-total">${total} vote${total !== 1 ? 's' : ''}</div>
+    </div>`;
+}
+
+async function votePoll(pollId, option, cardEl) {
+  const btns = cardEl.querySelectorAll('.poll-btn');
+  btns.forEach(b => b.disabled = true);
+
+  const voterToken = getVoterToken();
+  const poll = pollsCache[pollId];
+  const field = option === 'A' ? 'votes_a' : 'votes_b';
+
+  try {
+    await sbInsert('poll_votes', { poll_id: pollId, voter_token: voterToken, voted_option: option });
+    poll[field] = (poll[field] || 0) + 1;
+    sbPatch('gw_polls', `id=eq.${pollId}`, { [field]: poll[field] }).catch(() => {});
+  } catch(e) {
+    // Unique violation = already voted; proceed to show results
+  }
+
+  localStorage.setItem(`voted_poll_${pollId}`, option);
+  btns.forEach((b, i) => { if ((i === 0 && option === 'A') || (i === 1 && option === 'B')) b.classList.add('selected'); });
+  renderPollResults(cardEl, poll, option);
+}
+
+function escPoll(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 // ── Boot ──────────────────────────────────────────────────
 (async () => {
   const saved = localStorage.getItem('fpl_id');
@@ -421,7 +549,7 @@ async function submitPick() {
   }
 
   document.getElementById('fpl-id').addEventListener('keydown', e => { if (e.key === 'Enter') fetchManagerInfo(); });
-  await loadFeed();
+  await Promise.all([ loadFeed(), loadPolls() ]);
 })();
 </script>
 </body>

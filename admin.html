@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FPLGWReady — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #F8F9FF; --surface: #FFFFFF; --surface2: #F0F2FF;
+      --accent: #1A6FFF; --accent2: #6C5CE7; --text: #1A1535;
+      --muted: #6B63A8; --border: rgba(108,92,231,0.15); --radius: 16px;
+      --green: #00976B; --red: #E84040;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; overflow-x: hidden; }
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; border-bottom: 1px solid var(--border); background: rgba(248,249,255,0.92); backdrop-filter: blur(12px); }
+    .logo { font-weight: 800; font-size: 22px; letter-spacing: -0.5px; text-decoration: none; color: var(--text); display: flex; align-items: center; gap: 10px; }
+    .logo span { color: var(--accent2); }
+    .nav-right { display: flex; gap: 8px; align-items: center; }
+    .nav-link { background: var(--surface2); border: 1px solid var(--border); padding: 6px 14px; border-radius: 100px; font-size: 13px; color: var(--muted); text-decoration: none; }
+    .admin-badge { font-size: 11px; background: rgba(232,64,64,0.1); color: var(--red); padding: 4px 10px; border-radius: 100px; font-weight: 700; }
+    .container { max-width: 720px; margin: 40px auto; padding: 0 24px 80px; }
+    .page-title { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+    .page-sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 16px; box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
+    .input-label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 8px; display: block; }
+    input[type="text"], input[type="password"], input[type="number"], select { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 14px; color: var(--text); font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; width: 100%; }
+    input:focus, select:focus { border-color: var(--accent); }
+    input::placeholder { color: var(--muted); opacity: 0.7; }
+    select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B63A8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+    .form-grid .span2 { grid-column: span 2; }
+    .btn { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 12px 22px; font-size: 15px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }
+    .btn:hover { opacity: 0.88; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-full { width: 100%; }
+    .btn-red { background: var(--red); }
+    .btn-sm { padding: 7px 14px; font-size: 13px; border-radius: 8px; }
+    .error-msg { background: rgba(220,50,50,0.08); border: 1px solid rgba(220,50,50,0.2); color: #CC3333; border-radius: 10px; padding: 12px 16px; font-size: 14px; margin-top: 12px; display: none; }
+    .success-msg { background: rgba(0,151,107,0.08); border: 1px solid rgba(0,151,107,0.2); color: var(--green); border-radius: 10px; padding: 12px 16px; font-size: 14px; margin-top: 12px; display: none; }
+    .section-title { font-size: 16px; font-weight: 700; margin: 28px 0 12px; display: flex; align-items: center; gap: 8px; }
+    .section-badge { font-size: 11px; padding: 2px 9px; border-radius: 100px; background: rgba(26,111,255,0.1); color: var(--accent); font-weight: 600; }
+    /* Password gate */
+    #gate { display: block; }
+    #admin-content { display: none; }
+    .gate-card { max-width: 400px; margin: 80px auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; box-shadow: 0 2px 16px rgba(108,92,231,0.08); text-align: center; }
+    .gate-icon { font-size: 40px; margin-bottom: 16px; }
+    .gate-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+    .gate-sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
+    /* Poll admin list */
+    .poll-admin-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; display: flex; align-items: flex-start; gap: 12px; }
+    .poll-admin-body { flex: 1; min-width: 0; }
+    .poll-admin-type { font-size: 11px; font-weight: 700; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .poll-admin-question { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+    .poll-admin-options { font-size: 13px; color: var(--muted); }
+    .poll-admin-votes { display: flex; gap: 16px; margin-top: 8px; }
+    .vote-stat { font-size: 12px; font-weight: 700; }
+    .vote-stat-a { color: var(--accent); }
+    .vote-stat-b { color: var(--accent2); }
+    .vote-stat-label { font-weight: 400; color: var(--muted); }
+    .poll-list { display: flex; flex-direction: column; gap: 10px; }
+    .feed-empty { text-align: center; padding: 40px 0; color: var(--muted); font-size: 14px; background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
+    @media (max-width: 540px) {
+      nav { padding: 14px 16px; }
+      .container { margin-top: 24px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-grid .span2 { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <a class="logo" href="/"><img src="/logo.jpeg" alt="" style="width:34px;height:34px;border-radius:8px;object-fit:cover;object-position:center 32%;flex-shrink:0;"/><span>FPL</span>GWReady</a>
+  <div class="nav-right">
+    <span class="admin-badge">Admin</span>
+    <a class="nav-link" href="/community.html">Community</a>
+  </div>
+</nav>
+
+<!-- Password gate -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-icon">🔐</div>
+    <div class="gate-title">Admin Access</div>
+    <div class="gate-sub">Enter the admin password to continue.</div>
+    <div class="field-group" style="text-align:left;margin-bottom:14px;">
+      <input type="password" id="gate-pw" placeholder="Password" autocomplete="current-password"/>
+    </div>
+    <button class="btn btn-full" onclick="checkPassword()">Enter →</button>
+    <div class="error-msg" id="gate-error">Incorrect password.</div>
+  </div>
+</div>
+
+<!-- Admin content -->
+<div id="admin-content">
+  <div class="container">
+    <div class="page-title">GW Poll Admin</div>
+    <p class="page-sub">Create and manage Kegalauanmu polls.</p>
+
+    <div class="card">
+      <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Create New Poll</div>
+      <div class="form-grid">
+        <div class="field-group">
+          <label class="input-label" for="poll-gw">Gameweek</label>
+          <input type="number" id="poll-gw" placeholder="e.g. 38" min="1" max="38"/>
+        </div>
+        <div class="field-group">
+          <label class="input-label" for="poll-type">Type</label>
+          <select id="poll-type">
+            <option value="captain">👑 Captain?</option>
+            <option value="bench">🪑 Bench?</option>
+            <option value="transfer">🔄 Transfer?</option>
+            <option value="custom">💡 Custom</option>
+          </select>
+        </div>
+        <div class="field-group span2">
+          <label class="input-label" for="poll-question">Question *</label>
+          <input type="text" id="poll-question" placeholder="e.g. Who should be captain vs Arsenal?"/>
+        </div>
+        <div class="field-group">
+          <label class="input-label" for="poll-a">Option A *</label>
+          <input type="text" id="poll-a" placeholder="e.g. Salah"/>
+        </div>
+        <div class="field-group">
+          <label class="input-label" for="poll-b">Option B *</label>
+          <input type="text" id="poll-b" placeholder="e.g. Haaland"/>
+        </div>
+        <div class="span2">
+          <button class="btn btn-full" id="create-btn" onclick="createPoll()">Create Poll →</button>
+        </div>
+      </div>
+      <div class="error-msg" id="create-error"></div>
+      <div class="success-msg" id="create-success"></div>
+    </div>
+
+    <div class="section-title">Active Polls <span class="section-badge" id="poll-count">Loading...</span></div>
+    <div id="poll-list" class="poll-list">
+      <div class="feed-empty"><span class="spinner"></span>Loading polls...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const ADMIN_PW = 'fplgwready2026';
+let SB_URL = null, SB_KEY = null;
+
+const TYPE_LABEL = { captain: '👑 Captain?', bench: '🪑 Bench?', transfer: '🔄 Transfer?', custom: '💡 Custom' };
+
+function checkPassword() {
+  const pw = document.getElementById('gate-pw').value;
+  const err = document.getElementById('gate-error');
+  if (pw !== ADMIN_PW) { err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  sessionStorage.setItem('admin_auth', '1');
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('admin-content').style.display = 'block';
+  initAdmin();
+}
+
+document.getElementById('gate-pw').addEventListener('keydown', e => { if (e.key === 'Enter') checkPassword(); });
+
+// Auto-login if session still active
+if (sessionStorage.getItem('admin_auth') === '1') {
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('admin-content').style.display = 'block';
+}
+
+async function initAdmin() {
+  try {
+    const res = await fetch('/api/supabase-admin-config', {
+      headers: { 'x-admin-password': ADMIN_PW }
+    });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || 'Config failed');
+    SB_URL = json.url;
+    SB_KEY = json.key;
+    await loadPolls();
+  } catch(e) {
+    document.getElementById('poll-list').innerHTML =
+      `<div class="feed-empty">⚠️ ${e.message}</div>`;
+  }
+}
+
+if (sessionStorage.getItem('admin_auth') === '1') initAdmin();
+
+async function sbSelect(table, filters = {}) {
+  const url = new URL(`${SB_URL}/rest/v1/${table}`);
+  Object.entries(filters).forEach(([k, v]) => url.searchParams.set(k, v));
+  const res = await fetch(url, { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } });
+  if (!res.ok) throw new Error(`DB read failed: ${res.status}`);
+  return res.json();
+}
+
+async function sbInsert(table, data) {
+  const res = await fetch(`${SB_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.message || `DB write failed: ${res.status}`); }
+}
+
+async function sbPatch(table, filter, data) {
+  const res = await fetch(`${SB_URL}/rest/v1/${table}?${filter}`, {
+    method: 'PATCH',
+    headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.message || `DB update failed: ${res.status}`); }
+}
+
+async function createPoll() {
+  const gw = parseInt(document.getElementById('poll-gw').value);
+  const type = document.getElementById('poll-type').value;
+  const question = document.getElementById('poll-question').value.trim();
+  const optionA = document.getElementById('poll-a').value.trim();
+  const optionB = document.getElementById('poll-b').value.trim();
+  const err = document.getElementById('create-error');
+  const ok = document.getElementById('create-success');
+  const btn = document.getElementById('create-btn');
+  err.style.display = 'none'; ok.style.display = 'none';
+
+  if (!gw || gw < 1 || gw > 38) { err.textContent = 'Please enter a valid GW (1–38).'; err.style.display = 'block'; return; }
+  if (!question) { err.textContent = 'Question is required.'; err.style.display = 'block'; return; }
+  if (!optionA || !optionB) { err.textContent = 'Both options are required.'; err.style.display = 'block'; return; }
+
+  btn.disabled = true; btn.textContent = 'Creating...';
+  try {
+    await sbInsert('gw_polls', { gw, type, question, option_a: optionA, option_b: optionB, votes_a: 0, votes_b: 0, is_active: true });
+    ok.textContent = 'Poll created!';
+    ok.style.display = 'block';
+    document.getElementById('poll-question').value = '';
+    document.getElementById('poll-a').value = '';
+    document.getElementById('poll-b').value = '';
+    await loadPolls();
+  } catch(e) {
+    err.textContent = e.message || 'Could not create poll.';
+    err.style.display = 'block';
+  }
+  btn.disabled = false; btn.textContent = 'Create Poll →';
+}
+
+async function loadPolls() {
+  const listEl = document.getElementById('poll-list');
+  const countEl = document.getElementById('poll-count');
+  try {
+    const polls = await sbSelect('gw_polls', { is_active: 'eq.true', order: 'created_at.desc' });
+    countEl.textContent = `${polls.length} active`;
+    if (!polls.length) {
+      listEl.innerHTML = '<div class="feed-empty">No active polls.</div>';
+      return;
+    }
+    listEl.innerHTML = polls.map(p => `
+      <div class="poll-admin-card" id="padmin-${p.id}">
+        <div class="poll-admin-body">
+          <div class="poll-admin-type">GW${p.gw} · ${TYPE_LABEL[p.type] || p.type}</div>
+          <div class="poll-admin-question">${escHtml(p.question)}</div>
+          <div class="poll-admin-options">A: ${escHtml(p.option_a)} &nbsp;·&nbsp; B: ${escHtml(p.option_b)}</div>
+          <div class="poll-admin-votes">
+            <span class="vote-stat vote-stat-a">${p.votes_a} <span class="vote-stat-label">votes A</span></span>
+            <span class="vote-stat vote-stat-b">${p.votes_b} <span class="vote-stat-label">votes B</span></span>
+            <span class="vote-stat" style="color:var(--muted)">${p.votes_a + p.votes_b} <span class="vote-stat-label">total</span></span>
+          </div>
+        </div>
+        <button class="btn btn-red btn-sm" onclick="closePoll(${p.id})">Tutup Poll</button>
+      </div>
+    `).join('');
+  } catch(e) {
+    listEl.innerHTML = `<div class="feed-empty">⚠️ ${e.message}</div>`;
+  }
+}
+
+async function closePoll(id) {
+  const card = document.getElementById(`padmin-${id}`);
+  const btn = card.querySelector('button');
+  btn.disabled = true; btn.textContent = 'Closing...';
+  try {
+    await sbPatch('gw_polls', `id=eq.${id}`, { is_active: false });
+    card.style.opacity = '0.4';
+    card.style.pointerEvents = 'none';
+    btn.textContent = 'Closed';
+    document.getElementById('poll-count').textContent =
+      `${document.querySelectorAll('[id^="padmin-"]').length - 1} active`;
+    setTimeout(() => { card.remove(); }, 800);
+  } catch(e) {
+    btn.disabled = false; btn.textContent = 'Tutup Poll';
+    alert('Error: ' + e.message);
+  }
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
