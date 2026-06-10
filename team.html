@@ -80,31 +80,48 @@
       #338f55 62.5%, #338f55 75%,
       #2d8a4e 75%, #2d8a4e 87.5%,
       #338f55 87.5%, #338f55 100%
-    ); padding: 24px 16px 20px; position: relative; }
+    ); padding: 20px 12px; position: relative; display: flex; flex-direction: column; gap: 24px; }
     .pitch::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 1px; height: 100%; background: rgba(255,255,255,0.12); pointer-events: none; }
-    .pitch-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
-    .pitch-row:last-child { margin-bottom: 0; }
+    .pitch-row { display: flex; justify-content: center; align-items: flex-end; gap: 8px; }
 
-    /* Player on pitch */
-    .pitch-player { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 76px; }
+    /* Jersey */
     .jersey-wrap { position: relative; width: 48px; height: 48px; flex-shrink: 0; }
     .jersey-wrap svg { width: 48px; height: 48px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
-    .captain-ring { position: absolute; top: -4px; right: -4px; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 800; color: #fff; z-index: 2; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
-    .vice-ring { position: absolute; top: -4px; right: -4px; width: 18px; height: 18px; border-radius: 50%; background: var(--accent2); display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 800; color: #fff; z-index: 2; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
-    .pitch-name { font-size: 10px; font-weight: 700; color: #fff; text-align: center; line-height: 1.2; max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .pitch-pts-badge { background: rgba(0,0,0,0.6); color: #fff; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 10px; backdrop-filter: blur(4px); }
-    .pitch-pts-badge.zero { background: rgba(0,0,0,0.3); color: rgba(255,255,255,0.55); }
-    .player-info-card { background: rgba(0,0,0,0.52); border-radius: 7px; padding: 4px 6px; text-align: center; backdrop-filter: blur(6px); width: 100%; margin-top: 3px; }
-    .player-info-card .pitch-name { max-width: 100%; }
-    .player-info-meta { font-size: 8.5px; color: rgba(255,255,255,0.65); margin-top: 2px; letter-spacing: 0.1px; white-space: nowrap; }
 
-    /* Bench */
-    .bench-wrap { background: var(--surface); border: 1px solid var(--border); border-top: 2px dashed rgba(108,92,231,0.2); padding: 16px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
-    .bench-player { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 76px; opacity: 0.7; }
-    .bench-player .jersey-wrap svg { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15)) grayscale(0.2); }
-    .bench-player .pitch-name { color: var(--muted); text-shadow: none; }
-    .bench-player .pitch-pts-badge { background: var(--surface2); color: var(--muted); box-shadow: none; }
-    .bench-num { font-size: 9px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    /* =====================
+       PLAYER CARD
+       ===================== */
+    .player-card { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 80px; }
+    .bench-section .player-card { width: 72px; }
+
+    /* Captain / Vice Badge */
+    .player-badge-wrapper { position: relative; display: inline-block; }
+    .captain-badge { position: absolute; top: -4px; left: -4px; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.4); line-height: 1; }
+    .captain-badge.captain { background-color: #f59e0b; color: #000; }
+    .captain-badge.vice { background-color: #6366f1; color: #fff; }
+
+    /* Player Info */
+    .player-info { display: flex; flex-direction: column; align-items: center; gap: 2px; background: #1f2937; border-radius: 6px; padding: 4px 6px; width: 100%; }
+    .player-name { font-size: 12px; font-weight: 600; color: #f9fafb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; text-align: center; }
+    .bench-section .player-name { font-size: 11px; }
+    .player-stats { font-size: 10px; text-align: center; }
+    .stat-xp { font-weight: 700; color: #f9fafb; }
+    .stat-divider { color: #6b7280; }
+    .stat-eo { color: #9ca3af; font-weight: 400; }
+    .bench-section .player-stats { font-size: 9px; }
+
+    /* Points Badge — Color Tiers */
+    .points-badge { min-width: 24px; height: 24px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; padding: 0 6px; transition: all 0.2s ease; }
+    .points-badge[data-pts="0"], .points-badge.pts-zero { background-color: #374151; color: #6b7280; opacity: 0.6; }
+    .points-badge.pts-low { background-color: #1f2937; color: #f9fafb; }
+    .points-badge.pts-mid { background-color: #16a34a; color: #fff; }
+    .points-badge.pts-high { background-color: #ca8a04; color: #fff; box-shadow: 0 0 8px rgba(202,138,4,0.5); }
+
+    /* Bench Divider + Section */
+    .bench-divider { display: flex; align-items: center; gap: 12px; padding: 12px 16px 8px; margin-top: 4px; }
+    .bench-divider::before, .bench-divider::after { content: ''; flex: 1; height: 1px; background-color: #374151; }
+    .bench-divider span { font-size: 11px; font-weight: 600; color: #6b7280; letter-spacing: 0.15em; text-transform: uppercase; white-space: nowrap; }
+    .bench-section { background-color: #f9fafb; padding: 8px 12px 16px; border-radius: 0 0 12px 12px; }
 
     @media (max-width: 540px) {
       nav { padding: 14px 16px; }
@@ -112,10 +129,10 @@
       .input-row { flex-direction: column; }
       .nav-links { gap: 4px; }
       .nav-link { padding: 5px 10px; font-size: 12px; }
-      .pitch-player, .bench-player { width: 58px; }
+      .player-card { width: 64px; }
       .jersey-wrap { width: 38px; height: 38px; }
       .jersey-wrap svg { width: 38px; height: 38px; }
-      .pitch-name { font-size: 9px; max-width: 58px; }
+      .player-name { font-size: 10px; }
     }
   </style>
 </head>
@@ -358,67 +375,98 @@ function renderPitch(allPicks, liveMap, chip) {
   // Bench
   const benchEl = document.getElementById('bench-wrap');
   benchEl.innerHTML = '';
-  bench.forEach((pick, idx) => {
+
+  const divider = document.createElement('div');
+  divider.className = 'bench-divider';
+  divider.innerHTML = '<span>Bench</span>';
+  benchEl.appendChild(divider);
+
+  const benchSection = document.createElement('div');
+  benchSection.className = 'bench-section';
+  const benchRow = document.createElement('div');
+  benchRow.className = 'pitch-row';
+  bench.forEach((pick) => {
     const player = playerMap[pick.element];
     if (!player) return;
-    benchEl.appendChild(makePlayerCard(pick, player, liveMap, true, idx + 1));
+    benchRow.appendChild(makePlayerCard(pick, player, liveMap, true));
   });
+  benchSection.appendChild(benchRow);
+  benchEl.appendChild(benchSection);
 }
 
-function makePlayerCard(pick, player, liveMap, isBench, benchNum) {
+function smartTruncateName(fullName) {
+  if (fullName.length <= 11) return fullName;
+  if (fullName.includes('-')) {
+    const parts = fullName.split('-');
+    return parts[0] + '-' + parts[1][0] + '.';
+  }
+  return fullName.substring(0, 9) + '.';
+}
+
+function getPointsBadgeClass(points) {
+  const pts = parseInt(points);
+  if (pts === 0) return 'pts-zero';
+  if (pts <= 5)  return 'pts-low';
+  if (pts <= 9)  return 'pts-mid';
+  return 'pts-high';
+}
+
+function makePlayerCard(pick, player, liveMap, isBench) {
   const pts = liveMap[pick.element] ?? 0;
   const mult = pick.multiplier > 1 ? pick.multiplier : null;
   const displayPts = mult ? pts * mult : pts;
 
-  const wrap = document.createElement('div');
-  wrap.className = isBench ? 'bench-player' : 'pitch-player';
+  const card = document.createElement('div');
+  card.className = 'player-card';
+  card.setAttribute('data-points', displayPts);
 
-  // Jersey
-  const jerseyEl = makeJerseyEl(player.team);
+  // Badge wrapper — jersey + optional captain/vice badge
+  const badgeWrapper = document.createElement('div');
+  badgeWrapper.className = 'player-badge-wrapper';
 
-  // Captain / vice badge
   if (pick.is_captain) {
-    const ring = document.createElement('div');
-    ring.className = 'captain-ring';
-    ring.textContent = 'C';
-    jerseyEl.appendChild(ring);
+    const badge = document.createElement('span');
+    badge.className = 'captain-badge captain';
+    badge.textContent = 'C';
+    badgeWrapper.appendChild(badge);
   } else if (pick.is_vice_captain) {
-    const ring = document.createElement('div');
-    ring.className = 'vice-ring';
-    ring.textContent = 'V';
-    jerseyEl.appendChild(ring);
+    const badge = document.createElement('span');
+    badge.className = 'captain-badge vice';
+    badge.textContent = 'V';
+    badgeWrapper.appendChild(badge);
   }
 
-  // Info card (name + xP/EO grouped)
-  const cardEl = document.createElement('div');
-  cardEl.className = 'player-info-card';
+  badgeWrapper.appendChild(makeJerseyEl(player.team));
+  card.appendChild(badgeWrapper);
 
-  const nameEl = document.createElement('div');
-  nameEl.className = 'pitch-name';
-  nameEl.textContent = player.web_name;
-  cardEl.appendChild(nameEl);
+  // Player info pill (name + stats)
+  const infoEl = document.createElement('div');
+  infoEl.className = 'player-info';
+
+  const nameEl = document.createElement('span');
+  nameEl.className = 'player-name';
+  nameEl.textContent = smartTruncateName(player.web_name);
+  infoEl.appendChild(nameEl);
 
   if (!isBench) {
     const xp = parseFloat(player.ep_this) || 0;
     const eo = parseFloat(player.selected_by_percent) || 0;
-    const metaEl = document.createElement('div');
-    metaEl.className = 'player-info-meta';
-    metaEl.textContent = `xP ${xp.toFixed(1)} · EO ${eo.toFixed(1)}%`;
-    cardEl.appendChild(metaEl);
+    const statsEl = document.createElement('span');
+    statsEl.className = 'player-stats';
+    statsEl.innerHTML = `<span class="stat-xp">xP ${xp.toFixed(1)}</span><span class="stat-divider"> · </span><span class="stat-eo">EO ${eo.toFixed(1)}%</span>`;
+    infoEl.appendChild(statsEl);
   }
 
-  // Points badge
+  card.appendChild(infoEl);
+
+  // Points badge with color tier
   const ptsEl = document.createElement('div');
-  ptsEl.className = 'pitch-pts-badge' + (displayPts === 0 ? ' zero' : '');
-  ptsEl.textContent = `${displayPts}`;
+  ptsEl.className = 'points-badge ' + getPointsBadgeClass(displayPts);
+  ptsEl.setAttribute('data-pts', displayPts);
+  ptsEl.textContent = displayPts;
+  card.appendChild(ptsEl);
 
-  wrap.appendChild(jerseyEl);
-  wrap.appendChild(cardEl);
-  wrap.appendChild(ptsEl);
-
-
-
-  return wrap;
+  return card;
 }
 
 async function jumpToGW(id, gw) {
