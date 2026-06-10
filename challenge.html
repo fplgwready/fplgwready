@@ -39,6 +39,8 @@
     .btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .btn-green { background: var(--green); }
     .btn-full { width: 100%; margin-top: 10px; }
+    .input-hint { font-size: 12px; color: var(--muted); margin-top: 8px; }
+    .input-hint a { color: var(--accent); text-decoration: none; }
     .error-msg { background: rgba(220,50,50,0.08); border: 1px solid rgba(220,50,50,0.2); color: #CC3333; border-radius: 10px; padding: 12px 16px; font-size: 14px; margin-top: 12px; display: none; }
     .success-msg { background: rgba(0,151,107,0.08); border: 1px solid rgba(0,151,107,0.2); color: var(--green); border-radius: 10px; padding: 16px 18px; font-size: 14px; display: none; }
     .init-loading { text-align: center; padding: 6px 0 12px; color: var(--muted); font-size: 13px; display: flex; align-items: center; gap: 8px; justify-content: center; }
@@ -129,6 +131,7 @@
         </div>
       </div>
       <button class="btn" id="check-btn" onclick="verifyIdentity()">Check →</button>
+      <p class="input-hint">Find your ID at <a href="https://fantasy.premierleague.com" target="_blank">fantasy.premierleague.com</a> → Points → check the URL</p>
       <div class="error-msg" id="check-error"></div>
     </div>
     <div id="step-verified" style="display:none;">

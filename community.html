@@ -45,6 +45,8 @@
     .success-msg { background: rgba(0,151,107,0.08); border: 1px solid rgba(0,151,107,0.2); color: var(--green); border-radius: 10px; padding: 12px 16px; font-size: 14px; margin-top: 12px; display: none; }
     .init-loading { text-align: center; padding: 12px 0 4px; color: var(--muted); font-size: 13px; display: flex; align-items: center; gap: 8px; justify-content: center; }
     .init-spinner { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
+    .input-hint { font-size: 12px; color: var(--muted); margin-top: 8px; }
+    .input-hint a { color: var(--accent); text-decoration: none; }
     .section-title { font-size: 16px; font-weight: 700; margin: 28px 0 12px; display: flex; align-items: center; gap: 8px; }
     .section-badge { font-size: 11px; padding: 2px 9px; border-radius: 100px; background: rgba(26,111,255,0.1); color: var(--accent); font-weight: 600; }
     .feed { display: flex; flex-direction: column; gap: 10px; }
@@ -145,6 +147,7 @@
         <input type="text" id="fpl-id" placeholder="e.g. 222758" maxlength="10"/>
         <button class="btn" id="fetch-btn" onclick="fetchManagerInfo()">Check →</button>
       </div>
+      <p class="input-hint">Find your ID at <a href="https://fantasy.premierleague.com" target="_blank">fantasy.premierleague.com</a> → Points → check the URL</p>
       <div class="error-msg" id="fetch-error"></div>
     </div>
 
@@ -191,7 +194,7 @@
     </div>
   </div>
 
-  <div class="section-title">🤔 Kegalauanmu GW ini</div>
+  <div class="section-title">🤔 GW Dilemmas</div>
   <div id="poll-section" class="poll-section">
     <div class="feed-loading"><div class="feed-spinner"></div>Loading polls...</div>
   </div>
@@ -380,7 +383,7 @@ async function fetchManagerInfo() {
     if (existing?.length > 0) {
       // Already submitted
       document.getElementById('step-id').style.display = 'none';
-      document.getElementById('already-msg').textContent = `${managerData.name} sudah submit pick untuk GW ${currentGW}. Gabisa submit lagi ya!`;
+      document.getElementById('already-msg').textContent = `${managerData.name} already submitted a pick for GW ${currentGW}. You can't submit again!`;
       document.getElementById('step-done').style.display = 'block';
       resultsUnlocked = true;
       await loadFeed();
