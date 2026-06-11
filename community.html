@@ -104,7 +104,7 @@
     .poll-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .poll-btn { background: var(--surface2); border: 2px solid var(--border); border-radius: 10px; padding: 11px 14px; font-size: 13px; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.15s; }
     .poll-btn:hover:not(:disabled) { border-color: var(--accent2); background: rgba(108,92,231,0.06); }
-    .poll-btn:disabled { cursor: not-allowed; }
+    .poll-btn:disabled { cursor: not-allowed; opacity: 0.55; }
     .poll-btn.selected { border-color: var(--accent2); background: rgba(108,92,231,0.1); color: var(--accent2); }
     .poll-results { display: flex; flex-direction: column; gap: 10px; }
     .poll-res-row { display: flex; flex-direction: column; gap: 4px; }
@@ -514,7 +514,7 @@ function renderPollResults(cardEl, poll, votedOption) {
     </div>`;
 }
 
-async function votePoll(pollId, option, cardEl) {
+function votePoll(pollId, option, cardEl) {
   const btns = cardEl.querySelectorAll('.poll-btn');
   btns.forEach(b => b.disabled = true);
 
@@ -522,17 +522,15 @@ async function votePoll(pollId, option, cardEl) {
   const poll = pollsCache[pollId];
   const field = option === 'A' ? 'votes_a' : 'votes_b';
 
-  try {
-    await sbInsert('poll_votes', { poll_id: pollId, voter_token: voterToken, voted_option: option });
-    poll[field] = (poll[field] || 0) + 1;
-    sbPatch('gw_polls', `id=eq.${pollId}`, { [field]: poll[field] }).catch(() => {});
-  } catch(e) {
-    // Unique violation = already voted; proceed to show results
-  }
-
+  // Optimistic: update count locally + show results immediately
+  poll[field] = (poll[field] || 0) + 1;
   localStorage.setItem(`voted_poll_${pollId}`, option);
-  btns.forEach((b, i) => { if ((i === 0 && option === 'A') || (i === 1 && option === 'B')) b.classList.add('selected'); });
   renderPollResults(cardEl, poll, option);
+
+  // Write to DB in background (silent fail is fine)
+  sbInsert('poll_votes', { poll_id: pollId, voter_token: voterToken, voted_option: option })
+    .then(() => sbPatch('gw_polls', `id=eq.${pollId}`, { [field]: poll[field] }))
+    .catch(() => {});
 }
 
 function escPoll(s) {
