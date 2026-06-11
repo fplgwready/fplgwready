@@ -153,47 +153,47 @@
 </div>
 
 <script>
-const ADMIN_PW = 'fplgwready2026';
 let SB_URL = null, SB_KEY = null;
 
 const TYPE_LABEL = { captain: '👑 Captain?', bench: '🪑 Bench?', transfer: '🔄 Transfer?', custom: '💡 Custom' };
 
-function checkPassword() {
-  const pw = document.getElementById('gate-pw').value;
+async function checkPassword() {
+  const pw = document.getElementById('gate-pw').value.trim();
   const err = document.getElementById('gate-error');
-  if (pw !== ADMIN_PW) { err.style.display = 'block'; return; }
+  const btn = document.querySelector('#gate .btn');
+  if (!pw) return;
   err.style.display = 'none';
-  sessionStorage.setItem('admin_auth', '1');
-  document.getElementById('gate').style.display = 'none';
-  document.getElementById('admin-content').style.display = 'block';
-  initAdmin();
+  btn.disabled = true; btn.textContent = 'Checking...';
+  try {
+    await initAdmin(pw);
+  } catch(e) {
+    err.textContent = e.message === '401' ? 'Incorrect password.' : (e.message || 'Could not connect.');
+    err.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Enter →';
+  }
 }
 
 document.getElementById('gate-pw').addEventListener('keydown', e => { if (e.key === 'Enter') checkPassword(); });
 
-// Auto-login if session still active
-if (sessionStorage.getItem('admin_auth') === '1') {
+async function initAdmin(pw) {
+  const password = pw || sessionStorage.getItem('admin_pw');
+  if (!password) return;
+  const res = await fetch('/api/supabase-admin-config', {
+    headers: { 'x-admin-password': password }
+  });
+  const json = await res.json();
+  if (res.status === 401) throw new Error('401');
+  if (!res.ok) throw new Error(json.error || 'Config failed');
+  SB_URL = json.url;
+  SB_KEY = json.key;
+  sessionStorage.setItem('admin_pw', password);
   document.getElementById('gate').style.display = 'none';
   document.getElementById('admin-content').style.display = 'block';
+  await loadPolls();
 }
 
-async function initAdmin() {
-  try {
-    const res = await fetch('/api/supabase-admin-config', {
-      headers: { 'x-admin-password': ADMIN_PW }
-    });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.error || 'Config failed');
-    SB_URL = json.url;
-    SB_KEY = json.key;
-    await loadPolls();
-  } catch(e) {
-    document.getElementById('poll-list').innerHTML =
-      `<div class="feed-empty">⚠️ ${e.message}</div>`;
-  }
-}
-
-if (sessionStorage.getItem('admin_auth') === '1') initAdmin();
+// Auto-login if session still active
+if (sessionStorage.getItem('admin_pw')) initAdmin();
 
 async function sbSelect(table, filters = {}) {
   const url = new URL(`${SB_URL}/rest/v1/${table}`);
