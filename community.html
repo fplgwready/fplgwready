@@ -476,8 +476,8 @@ async function loadPolls() {
         <div class="poll-question">${escPoll(p.question)}</div>
         <div class="poll-voting">
           <div class="poll-buttons">
-            <button class="poll-btn${voted === 'A' ? ' selected' : ''}" onclick="votePoll(${p.id},'A',this.closest('.poll-card'))"${voted ? ' disabled' : ''}>${escPoll(p.option_a)}</button>
-            <button class="poll-btn${voted === 'B' ? ' selected' : ''}" onclick="votePoll(${p.id},'B',this.closest('.poll-card'))"${voted ? ' disabled' : ''}>${escPoll(p.option_b)}</button>
+            <button class="poll-btn${voted === 'A' ? ' selected' : ''}" onclick="votePoll('${p.id}','A',this.closest('.poll-card'))"${voted ? ' disabled' : ''}>${escPoll(p.option_a)}</button>
+            <button class="poll-btn${voted === 'B' ? ' selected' : ''}" onclick="votePoll('${p.id}','B',this.closest('.poll-card'))"${voted ? ' disabled' : ''}>${escPoll(p.option_b)}</button>
           </div>
         </div>`;
       el.appendChild(card);

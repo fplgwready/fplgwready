@@ -254,7 +254,7 @@ async function loadPolls() {
             <span class="vote-stat" style="color:var(--muted)">${p.votes_a + p.votes_b} <span class="vote-stat-label">total</span></span>
           </div>
         </div>
-        <button class="btn btn-red btn-sm" onclick="closePoll(${p.id})">Close Poll</button>
+        <button class="btn btn-red btn-sm" onclick="closePoll('${p.id}')">Close Poll</button>
       </div>
     `).join('');
   } catch(e) {
