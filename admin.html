@@ -153,8 +153,6 @@
 </div>
 
 <script>
-let SB_URL = null, SB_KEY = null;
-
 const TYPE_LABEL = { captain: '👑 Captain?', bench: '🪑 Bench?', transfer: '🔄 Transfer?', custom: '💡 Custom' };
 
 async function checkPassword() {
@@ -175,58 +173,37 @@ async function checkPassword() {
 
 document.getElementById('gate-pw').addEventListener('keydown', e => { if (e.key === 'Enter') checkPassword(); });
 
+async function adminFetch(path, options = {}) {
+  const pw = sessionStorage.getItem('admin_pw');
+  const res = await fetch(path, {
+    ...options,
+    headers: { 'x-admin-password': pw, 'Content-Type': 'application/json', ...(options.headers || {}) }
+  });
+  if (res.status === 401) throw new Error('401');
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || `Request failed: ${res.status}`); }
+  return res.json();
+}
+
 async function initAdmin(pw) {
   const password = pw || sessionStorage.getItem('admin_pw');
   if (!password) return;
-  const res = await fetch('/api/supabase-admin-config', {
-    headers: { 'x-admin-password': password }
-  });
-  const json = await res.json();
+  const res = await fetch('/api/supabase-admin-config', { headers: { 'x-admin-password': password } });
   if (res.status === 401) throw new Error('401');
-  if (!res.ok) throw new Error(json.error || 'Config failed');
-  SB_URL = json.url;
-  SB_KEY = json.key;
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || 'Auth failed'); }
   sessionStorage.setItem('admin_pw', password);
   document.getElementById('gate').style.display = 'none';
   document.getElementById('admin-content').style.display = 'block';
   await loadPolls();
 }
 
-// Auto-login if session still active
 if (sessionStorage.getItem('admin_pw')) initAdmin();
-
-async function sbSelect(table, filters = {}) {
-  const url = new URL(`${SB_URL}/rest/v1/${table}`);
-  Object.entries(filters).forEach(([k, v]) => url.searchParams.set(k, v));
-  const res = await fetch(url, { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } });
-  if (!res.ok) throw new Error(`DB read failed: ${res.status}`);
-  return res.json();
-}
-
-async function sbInsert(table, data) {
-  const res = await fetch(`${SB_URL}/rest/v1/${table}`, {
-    method: 'POST',
-    headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-    body: JSON.stringify(data)
-  });
-  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.message || `DB write failed: ${res.status}`); }
-}
-
-async function sbPatch(table, filter, data) {
-  const res = await fetch(`${SB_URL}/rest/v1/${table}?${filter}`, {
-    method: 'PATCH',
-    headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-    body: JSON.stringify(data)
-  });
-  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.message || `DB update failed: ${res.status}`); }
-}
 
 async function createPoll() {
   const gw = parseInt(document.getElementById('poll-gw').value);
   const type = document.getElementById('poll-type').value;
   const question = document.getElementById('poll-question').value.trim();
-  const optionA = document.getElementById('poll-a').value.trim();
-  const optionB = document.getElementById('poll-b').value.trim();
+  const option_a = document.getElementById('poll-a').value.trim();
+  const option_b = document.getElementById('poll-b').value.trim();
   const err = document.getElementById('create-error');
   const ok = document.getElementById('create-success');
   const btn = document.getElementById('create-btn');
@@ -234,11 +211,14 @@ async function createPoll() {
 
   if (!gw || gw < 1 || gw > 38) { err.textContent = 'Please enter a valid GW (1–38).'; err.style.display = 'block'; return; }
   if (!question) { err.textContent = 'Question is required.'; err.style.display = 'block'; return; }
-  if (!optionA || !optionB) { err.textContent = 'Both options are required.'; err.style.display = 'block'; return; }
+  if (!option_a || !option_b) { err.textContent = 'Both options are required.'; err.style.display = 'block'; return; }
 
   btn.disabled = true; btn.textContent = 'Creating...';
   try {
-    await sbInsert('gw_polls', { gw, type, question, option_a: optionA, option_b: optionB, votes_a: 0, votes_b: 0, is_active: true });
+    await adminFetch('/api/admin-create-poll', {
+      method: 'POST',
+      body: JSON.stringify({ type, question, option_a, option_b, gw })
+    });
     ok.textContent = 'Poll created!';
     ok.style.display = 'block';
     document.getElementById('poll-question').value = '';
@@ -256,7 +236,7 @@ async function loadPolls() {
   const listEl = document.getElementById('poll-list');
   const countEl = document.getElementById('poll-count');
   try {
-    const polls = await sbSelect('gw_polls', { is_active: 'eq.true', order: 'created_at.desc' });
+    const polls = await adminFetch('/api/admin-polls');
     countEl.textContent = `${polls.length} active`;
     if (!polls.length) {
       listEl.innerHTML = '<div class="feed-empty">No active polls.</div>';
@@ -274,7 +254,7 @@ async function loadPolls() {
             <span class="vote-stat" style="color:var(--muted)">${p.votes_a + p.votes_b} <span class="vote-stat-label">total</span></span>
           </div>
         </div>
-        <button class="btn btn-red btn-sm" onclick="closePoll(${p.id})">Tutup Poll</button>
+        <button class="btn btn-red btn-sm" onclick="closePoll(${p.id})">Close Poll</button>
       </div>
     `).join('');
   } catch(e) {
@@ -287,7 +267,7 @@ async function closePoll(id) {
   const btn = card.querySelector('button');
   btn.disabled = true; btn.textContent = 'Closing...';
   try {
-    await sbPatch('gw_polls', `id=eq.${id}`, { is_active: false });
+    await adminFetch('/api/admin-close-poll', { method: 'POST', body: JSON.stringify({ id }) });
     card.style.opacity = '0.4';
     card.style.pointerEvents = 'none';
     btn.textContent = 'Closed';
@@ -295,7 +275,7 @@ async function closePoll(id) {
       `${document.querySelectorAll('[id^="padmin-"]').length - 1} active`;
     setTimeout(() => { card.remove(); }, 800);
   } catch(e) {
-    btn.disabled = false; btn.textContent = 'Tutup Poll';
+    btn.disabled = false; btn.textContent = 'Close Poll';
     alert('Error: ' + e.message);
   }
 }
