@@ -24,11 +24,11 @@
     body::before { content: ''; position: fixed; top: -200px; left: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(108,92,231,0.07) 0%, transparent 70%); pointer-events: none; }
     body::after { content: ''; position: fixed; bottom: -200px; right: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(26,111,255,0.06) 0%, transparent 70%); pointer-events: none; }
     nav { display: flex; align-items: center; gap: 24px; padding: 20px 40px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(248,249,255,0.92); backdrop-filter: blur(12px); z-index: 100; }
-    .logo { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.5px; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+    .logo { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.5px; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
     .logo span { color: var(--accent2); }
     .nav-badge { background: var(--surface2); border: 1px solid var(--border); padding: 6px 14px; border-radius: 100px; font-size: 13px; color: var(--muted); }
     .nav-links { display: flex; gap: 8px; }
-    .nav-link { background: var(--surface2); border: 1px solid var(--border); padding: 6px 14px; border-radius: 100px; font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.15s; }
+    .nav-link { background: var(--surface2); border: 1px solid var(--border); padding: 6px 14px; border-radius: 100px; font-size: 13px; color: var(--muted); text-decoration: none; white-space: nowrap; transition: color 0.15s; }
     .nav-link:hover { color: var(--text); border-color: var(--accent2); }
     .hero { max-width: 680px; margin: 80px auto 0; padding: 0 24px; text-align: center; }
     .hero-tag { display: inline-block; background: rgba(26,111,255,0.08); border: 1px solid rgba(26,111,255,0.2); color: var(--accent); font-size: 13px; font-weight: 500; padding: 6px 16px; border-radius: 100px; margin-bottom: 24px; letter-spacing: 0.5px; }
@@ -64,6 +64,7 @@
     .countdown-unit { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
     @media (max-width: 540px) {
       nav { padding: 14px 16px; }
+      .nav-links { gap: 4px; overflow-x: auto; flex-wrap: nowrap; flex: 1; scrollbar-width: none; }
       .hero { margin-top: 48px; }
       .features-grid { grid-template-columns: 1fr; }
       .features-grid a[style*="span 2"] { grid-column: span 1; }
@@ -71,6 +72,7 @@
       .countdown-strip { gap: 8px; }
       .countdown-block { min-width: 56px; padding: 12px 14px; }
     }
+    .nav-links::-webkit-scrollbar { display: none; }
   </style>
 </head>
 <body>
