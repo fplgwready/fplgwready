@@ -51,8 +51,8 @@
     .features-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; max-width: 680px; margin: 0 auto; padding: 0 24px; }
     .feature-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; text-decoration: none; color: var(--text); transition: border-color 0.2s, transform 0.15s, box-shadow 0.15s; display: block; box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
     .feature-card:hover { border-color: var(--accent2); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(108,92,231,0.1); }
-    .feature-icon { font-size: 28px; margin-bottom: 12px; }
-    .feature-title { font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+    .feature-icon { font-size: 22px; line-height: 1; }
+    .feature-title { font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
     .feature-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
     .feature-cta { font-size: 13px; font-weight: 600; color: var(--accent); display: flex; align-items: center; gap: 4px; }
     .coming-tag { font-size: 10px; background: rgba(108,92,231,0.1); color: var(--accent2); padding: 2px 8px; border-radius: 100px; }
@@ -107,38 +107,32 @@
 </div>
 <div class="features-grid">
   <a class="feature-card" href="/team.html">
-    <div class="feature-icon">📊</div>
-    <div class="feature-title">My Team</div>
+    <div class="feature-title"><span class="feature-icon">📊</span> My Team</div>
     <div class="feature-desc">See your picks, points & captain choices from every gameweek! Your full season history in one place.</div>
     <div class="feature-cta">Open My Team →</div>
   </a>
   <a class="feature-card" href="/players.html">
-    <div class="feature-icon">⚽</div>
-    <div class="feature-title">Players</div>
+    <div class="feature-title"><span class="feature-icon">⚽</span> Players</div>
     <div class="feature-desc">Browse every FPL player — xP, EO, form & fixtures for the next 3 gameweeks! Filter and sort your way.</div>
     <div class="feature-cta">Browse Players →</div>
   </a>
   <a class="feature-card" href="/mini-league.html">
-    <div class="feature-icon">🏆</div>
-    <div class="feature-title">Mini League</div>
+    <div class="feature-title"><span class="feature-icon">🏆</span> Mini League</div>
     <div class="feature-desc">Track every rival — live points, captain, transfers used & chips remaining this gameweek!</div>
     <div class="feature-cta">Open Mini League →</div>
   </a>
   <a class="feature-card" href="/community.html">
-    <div class="feature-icon">💬</div>
-    <div class="feature-title">Community</div>
+    <div class="feature-title"><span class="feature-icon">💬</span> Community</div>
     <div class="feature-desc">Vote on the most captained player & share your transfer plans. See what the community is doing this gameweek!</div>
     <div class="feature-cta">Join the Conversation →</div>
   </a>
   <a class="feature-card" href="/challenge.html" style="grid-column: span 2; border-color: rgba(196,127,0,0.25); background: linear-gradient(135deg, rgba(196,127,0,0.04) 0%, rgba(26,111,255,0.03) 100%);">
-    <div class="feature-icon">🏆</div>
-    <div class="feature-title">GW Challenge <span class="coming-tag" style="background:rgba(196,127,0,0.12);color:#C47F00;">Shopee Voucher Rp 50k 🛍️</span></div>
+    <div class="feature-title"><span class="feature-icon">🏆</span> GW Challenge <span class="coming-tag" style="background:rgba(196,127,0,0.12);color:#C47F00;">Shopee Voucher Rp 50k 🛍️</span></div>
     <div class="feature-desc">Think you can predict the top scorer? Spot a hidden gem? Three games, one gameweek! — the sharpest pick takes the prize.</div>
     <div class="feature-cta" style="color:#C47F00;">Enter the Challenge →</div>
   </a>
   <a class="feature-card" href="/insight.html" style="grid-column: span 2; border-color: rgba(108,92,231,0.25); background: linear-gradient(135deg, rgba(108,92,231,0.04) 0%, rgba(26,111,255,0.03) 100%);">
-    <div class="feature-icon">✨</div>
-    <div class="feature-title">Insights <span class="coming-tag">Premium</span></div>
+    <div class="feature-title"><span class="feature-icon">✨</span> Insights <span class="coming-tag">Premium</span></div>
     <div class="feature-desc">Top 100 GW template & expert weekly analysis — formation, captain picks, key differentials and more.</div>
     <div class="feature-cta">Explore Insights →</div>
   </a>
