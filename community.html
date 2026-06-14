@@ -538,21 +538,24 @@ function votePoll(pollId, option, cardEl) {
 
   const voterToken = getVoterToken();
   const poll = pollsCache[pollId];
-  const field = option === 'A' ? 'votes_a' : 'votes_b';
 
-  // Optimistic: update count locally + show results immediately
+  // Optimistic: show +1 immediately while API call is in flight
+  const field = option === 'A' ? 'votes_a' : 'votes_b';
   poll[field] = (poll[field] || 0) + 1;
   localStorage.setItem(`voted_poll_${pollId}`, option);
   renderPollResults(cardEl, poll, option);
 
-  // Insert vote, patch counter (best effort), then always re-fetch real counts
-  sbInsert('poll_votes', { poll_id: pollId, voter_token: voterToken, voted_option: option })
-    .then(() => sbPatch('gw_polls', `id=eq.${pollId}`, { [field]: poll[field] }).catch(() => {}))
-    .then(() => sbSelect('gw_polls', { 'id': `eq.${pollId}`, 'select': 'votes_a,votes_b', 'limit': '1' }))
-    .then(rows => {
-      if (rows && rows[0]) {
-        poll.votes_a = rows[0].votes_a;
-        poll.votes_b = rows[0].votes_b;
+  // Server-side vote: writes with service key so counts are always accurate
+  fetch('/api/vote-poll', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ poll_id: pollId, voter_token: voterToken, voted_option: option }),
+  })
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      if (data) {
+        poll.votes_a = data.votes_a;
+        poll.votes_b = data.votes_b;
         renderPollResults(cardEl, poll, option);
       }
     })
