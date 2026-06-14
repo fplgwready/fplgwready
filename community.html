@@ -491,10 +491,27 @@ async function loadPolls() {
 
 function renderPollResults(cardEl, poll, votedOption) {
   const total = (poll.votes_a || 0) + (poll.votes_b || 0);
-  const pctA = total ? Math.round((poll.votes_a || 0) / total * 100) : 50;
-  const pctB = total ? Math.round((poll.votes_b || 0) / total * 100) : 50;
-  const winnerA = (poll.votes_a || 0) >= (poll.votes_b || 0);
   const votingEl = cardEl.querySelector('.poll-voting');
+  if (total === 0) {
+    votingEl.innerHTML = `
+    <div class="poll-results">
+      <div class="poll-res-row">
+        <div class="poll-res-label">
+          <span class="poll-res-name">${escPoll(poll.option_a)}${votedOption === 'A' ? ' ✓' : ''}</span>
+        </div>
+      </div>
+      <div class="poll-res-row">
+        <div class="poll-res-label">
+          <span class="poll-res-name">${escPoll(poll.option_b)}${votedOption === 'B' ? ' ✓' : ''}</span>
+        </div>
+      </div>
+      <div class="poll-total">No votes yet</div>
+    </div>`;
+    return;
+  }
+  const pctA = Math.round((poll.votes_a || 0) / total * 100);
+  const pctB = 100 - pctA;
+  const winnerA = (poll.votes_a || 0) >= (poll.votes_b || 0);
   votingEl.innerHTML = `
     <div class="poll-results">
       <div class="poll-res-row">
@@ -528,9 +545,17 @@ function votePoll(pollId, option, cardEl) {
   localStorage.setItem(`voted_poll_${pollId}`, option);
   renderPollResults(cardEl, poll, option);
 
-  // Write to DB in background (silent fail is fine)
+  // Write to DB, then re-fetch to get accurate server-side vote counts
   sbInsert('poll_votes', { poll_id: pollId, voter_token: voterToken, voted_option: option })
     .then(() => sbPatch('gw_polls', `id=eq.${pollId}`, { [field]: poll[field] }))
+    .then(() => sbSelect('gw_polls', { 'id': `eq.${pollId}`, 'select': 'votes_a,votes_b', 'limit': '1' }))
+    .then(rows => {
+      if (rows && rows[0]) {
+        poll.votes_a = rows[0].votes_a;
+        poll.votes_b = rows[0].votes_b;
+        renderPollResults(cardEl, poll, option);
+      }
+    })
     .catch(() => {});
 }
 
