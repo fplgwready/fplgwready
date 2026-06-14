@@ -219,17 +219,18 @@ async function createPoll() {
       method: 'POST',
       body: JSON.stringify({ type, question, option_a, option_b, gw })
     });
-    ok.textContent = 'Poll created!';
+    ok.textContent = '✓ Poll created!';
     ok.style.display = 'block';
     document.getElementById('poll-question').value = '';
     document.getElementById('poll-a').value = '';
     document.getElementById('poll-b').value = '';
-    await loadPolls();
   } catch(e) {
     err.textContent = e.message || 'Could not create poll.';
     err.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Create Poll →';
   }
-  btn.disabled = false; btn.textContent = 'Create Poll →';
+  loadPolls().catch(() => {});
 }
 
 async function loadPolls() {

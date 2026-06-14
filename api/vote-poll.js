@@ -12,59 +12,46 @@ export default async function handler(req, res) {
 
   const SB_URL = process.env.SUPABASE_URL;
   const SB_KEY = process.env.SUPABASE_SERVICE_KEY;
-  const headers = {
+  const authHeaders = {
     apikey: SB_KEY,
     Authorization: `Bearer ${SB_KEY}`,
     'Content-Type': 'application/json',
-    Prefer: 'return=minimal',
   };
 
-  // Insert vote (ignore duplicate — unique constraint on poll_id + voter_token)
+  // 1. Insert vote — 409 means already voted, which is fine
   const insertRes = await fetch(`${SB_URL}/rest/v1/poll_votes`, {
     method: 'POST',
-    headers: { ...headers, Prefer: 'return=minimal' },
+    headers: { ...authHeaders, Prefer: 'return=minimal' },
     body: JSON.stringify({ poll_id, voter_token, voted_option }),
   });
 
-  // 409 = duplicate vote (already voted), still return current counts
   if (!insertRes.ok && insertRes.status !== 409) {
-    return res.status(insertRes.status).json({ error: 'Vote insert failed' });
+    const body = await insertRes.json().catch(() => ({}));
+    return res.status(insertRes.status).json({ error: body.message || 'Vote insert failed' });
   }
 
   const alreadyVoted = insertRes.status === 409;
 
-  // Increment the right column (only if new vote)
-  if (!alreadyVoted) {
-    const field = voted_option === 'A' ? 'votes_a' : 'votes_b';
-    const rpcRes = await fetch(`${SB_URL}/rpc/increment_poll_vote`, {
-      method: 'POST',
-      headers: { ...headers, Prefer: 'return=minimal' },
-      body: JSON.stringify({ p_poll_id: poll_id, p_field: field }),
-    });
-    // If RPC doesn't exist, fall back to manual increment
-    if (!rpcRes.ok) {
-      const pollRes = await fetch(`${SB_URL}/rest/v1/gw_polls?id=eq.${poll_id}&select=votes_a,votes_b`, {
-        headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` },
-      });
-      if (pollRes.ok) {
-        const [poll] = await pollRes.json();
-        if (poll) {
-          const newVal = (poll[field] || 0) + 1;
-          await fetch(`${SB_URL}/rest/v1/gw_polls?id=eq.${poll_id}`, {
-            method: 'PATCH',
-            headers,
-            body: JSON.stringify({ [field]: newVal }),
-          });
-        }
-      }
-    }
+  // 2. Count votes directly from poll_votes — always accurate, no race condition
+  const votesRes = await fetch(
+    `${SB_URL}/rest/v1/poll_votes?poll_id=eq.${poll_id}&select=voted_option`,
+    { headers: authHeaders }
+  );
+
+  if (!votesRes.ok) {
+    return res.status(500).json({ error: 'Failed to count votes' });
   }
 
-  // Return fresh counts
-  const countRes = await fetch(`${SB_URL}/rest/v1/gw_polls?id=eq.${poll_id}&select=votes_a,votes_b`, {
-    headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` },
-  });
-  if (!countRes.ok) return res.status(500).json({ error: 'Failed to fetch counts' });
-  const [poll] = await countRes.json();
-  return res.status(200).json({ votes_a: poll?.votes_a || 0, votes_b: poll?.votes_b || 0, already_voted: alreadyVoted });
+  const votes = await votesRes.json();
+  const votes_a = votes.filter(v => v.voted_option === 'A').length;
+  const votes_b = votes.filter(v => v.voted_option === 'B').length;
+
+  // 3. Update gw_polls cache with accurate counts (best effort, don't block response)
+  fetch(`${SB_URL}/rest/v1/gw_polls?id=eq.${poll_id}`, {
+    method: 'PATCH',
+    headers: { ...authHeaders, Prefer: 'return=minimal' },
+    body: JSON.stringify({ votes_a, votes_b }),
+  }).catch(() => {});
+
+  return res.status(200).json({ votes_a, votes_b, already_voted: alreadyVoted });
 }
