@@ -545,9 +545,9 @@ function votePoll(pollId, option, cardEl) {
   localStorage.setItem(`voted_poll_${pollId}`, option);
   renderPollResults(cardEl, poll, option);
 
-  // Write to DB, then re-fetch to get accurate server-side vote counts
+  // Insert vote, patch counter (best effort), then always re-fetch real counts
   sbInsert('poll_votes', { poll_id: pollId, voter_token: voterToken, voted_option: option })
-    .then(() => sbPatch('gw_polls', `id=eq.${pollId}`, { [field]: poll[field] }))
+    .then(() => sbPatch('gw_polls', `id=eq.${pollId}`, { [field]: poll[field] }).catch(() => {}))
     .then(() => sbSelect('gw_polls', { 'id': `eq.${pollId}`, 'select': 'votes_a,votes_b', 'limit': '1' }))
     .then(rows => {
       if (rows && rows[0]) {
