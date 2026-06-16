@@ -425,7 +425,7 @@ async function verifyIdentity() {
     document.getElementById('step-verified').style.display = 'block';
 
     if (existing?.length > 0) {
-      document.getElementById('done-msg').textContent = `${managerData.name} sudah submit challenge untuk GW ${currentGW}. Gabisa submit lagi ya!`;
+      document.getElementById('done-msg').textContent = `${managerData.name} has already submitted their challenge for GW ${currentGW}. No re-submissions allowed!`;
       document.getElementById('step-done').style.display = 'block';
     } else {
       document.getElementById('step-games').style.display = 'block';
