@@ -128,9 +128,14 @@
   <!-- Identity card -->
   <div class="input-card">
     <div id="init-loading" class="init-loading">
-      <div class="init-spinner"></div> Loading players...
+      <div class="init-spinner"></div> Loading...
     </div>
-    <div id="step-id">
+    <div id="submission-closed" style="display:none;text-align:center;padding:20px 0 8px;">
+      <div style="font-size:36px;margin-bottom:10px;">⏰</div>
+      <div style="font-size:18px;font-weight:800;margin-bottom:6px;">Submission Closed</div>
+      <div style="font-size:13px;color:var(--muted);">Results coming soon — check the leaderboard below!</div>
+    </div>
+    <div id="step-id" style="display:none;">
       <div class="id-row">
         <div class="field-group">
           <label class="input-label" for="fpl-id">FPL Team ID</label>
@@ -280,7 +285,6 @@ function initPlayers() {
   players.filter(p => p.x < 4).forEach(p => { g2 += `<option value="${p.n}">${p.n} (${p.t} · xP ${p.x})</option>`; });
   document.getElementById('game2-pick').innerHTML = g2;
 
-  document.getElementById('init-loading').style.display = 'none';
 }
 
 // ── This or That ──────────────────────────────────────────
@@ -491,7 +495,7 @@ function fmtTime(iso) {
 
 // ── Boot ──────────────────────────────────────────────────
 (async () => {
-  initPlayers();
+  initPlayers(); // sets currentGW synchronously
 
   const savedId = localStorage.getItem('fpl_id');
   const savedEmail = localStorage.getItem('challenge_email');
@@ -501,7 +505,23 @@ function fmtTime(iso) {
   document.getElementById('fpl-id').addEventListener('keydown', e => { if (e.key === 'Enter') verifyIdentity(); });
   document.getElementById('email').addEventListener('keydown', e => { if (e.key === 'Enter') verifyIdentity(); });
 
-  const supabaseErr = await initSupabase().then(() => null).catch(e => e.message);
+  const [supabaseResult, statusResult] = await Promise.allSettled([
+    initSupabase(),
+    fetch(`/api/challenge-status?gw=${currentGW}`)
+      .then(r => r.ok ? r.json() : { is_open: true })
+      .catch(() => ({ is_open: true }))
+  ]);
+
+  const supabaseErr = supabaseResult.status === 'rejected' ? supabaseResult.reason.message : null;
+  const is_open = statusResult.status === 'fulfilled' ? statusResult.value.is_open !== false : true;
+
+  document.getElementById('init-loading').style.display = 'none';
+
+  if (!is_open) {
+    document.getElementById('submission-closed').style.display = 'block';
+  } else {
+    document.getElementById('step-id').style.display = 'block';
+  }
 
   if (supabaseErr) {
     document.getElementById('leaderboard').innerHTML = `<div class="feed-empty">⚠️ Database error: ${supabaseErr}</div>`;

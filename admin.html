@@ -72,6 +72,20 @@
     .feed-empty { text-align: center; padding: 40px 0; color: var(--muted); font-size: 14px; background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius); }
     @keyframes spin { to { transform: rotate(360deg); } }
     .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
+    .btn-green { background: var(--green); }
+    .lb-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .lb-row { display: flex; align-items: center; gap: 12px; padding: 11px 18px; border-bottom: 1px solid var(--border); }
+    .lb-row:last-child { border-bottom: none; }
+    .lb-rank { font-size: 18px; min-width: 26px; text-align: center; flex-shrink: 0; }
+    .lb-rank-num { font-size: 13px; font-weight: 800; color: var(--muted); }
+    .lb-name { flex: 1; font-size: 13px; font-weight: 700; min-width: 0; }
+    .lb-name-sub { font-size: 11px; font-weight: 400; color: var(--muted); margin-top: 2px; }
+    .lb-score { font-size: 15px; font-weight: 800; color: var(--accent2); white-space: nowrap; }
+    .lb-score-label { font-size: 11px; color: var(--muted); font-weight: 400; }
+    .tot-result-group { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tot-result-label { display: flex; align-items: center; gap: 5px; font-size: 13px; cursor: pointer; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; transition: border-color 0.15s; }
+    .tot-result-label:hover { border-color: var(--accent2); }
+    .tot-result-label input[type="radio"] { accent-color: var(--accent); }
     @media (max-width: 540px) {
       nav { padding: 14px 16px; }
       .container { margin-top: 24px; }
@@ -106,8 +120,8 @@
 <!-- Admin content -->
 <div id="admin-content">
   <div class="container">
-    <div class="page-title">GW Poll Admin</div>
-    <p class="page-sub">Create and manage Kegalauanmu polls.</p>
+    <div class="page-title">FPLGWR Admin Panel</div>
+    <p class="page-sub">Manage polls, challenge status, game pairs, and scoring.</p>
 
     <div class="card">
       <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Create New Poll</div>
@@ -149,6 +163,118 @@
     <div id="poll-list" class="poll-list">
       <div class="feed-empty"><span class="spinner"></span>Loading polls...</div>
     </div>
+
+    <!-- ── Section 1: Challenge Status ── -->
+    <div class="section-title" style="margin-top:40px;">Challenge Status <span class="section-badge">Open / Close</span></div>
+    <div class="card">
+      <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Toggle submission window per GW</div>
+      <div class="form-grid">
+        <div class="field-group">
+          <label class="input-label" for="cfg-gw">Gameweek</label>
+          <input type="number" id="cfg-gw" placeholder="e.g. 38" min="1" max="38"/>
+        </div>
+        <div class="field-group" style="justify-content:flex-end;">
+          <label class="input-label">Current Status</label>
+          <div id="cfg-status-display" style="font-size:16px;font-weight:800;color:var(--muted);padding-top:4px;">—</div>
+        </div>
+        <div>
+          <button class="btn btn-full" id="cfg-load-btn" onclick="loadChallengeStatus()">Load Status →</button>
+        </div>
+        <div>
+          <button class="btn btn-full" id="cfg-toggle-btn" onclick="toggleChallengeStatus()" style="display:none;">Toggle →</button>
+        </div>
+      </div>
+      <div class="error-msg" id="cfg-error"></div>
+      <div class="success-msg" id="cfg-success"></div>
+    </div>
+
+    <!-- ── Section 2: This or That Pairs ── -->
+    <div class="section-title" style="margin-top:40px;">This or That Pairs <span class="section-badge">Pair Manager</span></div>
+    <div class="card">
+      <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Add New Pair</div>
+      <div class="form-grid">
+        <div class="field-group">
+          <label class="input-label" for="tot-gw">Gameweek</label>
+          <input type="number" id="tot-gw" placeholder="e.g. 38" min="1" max="38"/>
+        </div>
+        <div style="display:flex;align-items:flex-end;">
+          <button class="btn btn-full" onclick="loadTotPairs(parseInt(document.getElementById('tot-gw').value))">Load Pairs →</button>
+        </div>
+        <div class="field-group">
+          <label class="input-label" for="tot-player-a">Player A</label>
+          <input type="text" id="tot-player-a" placeholder="e.g. Salah"/>
+        </div>
+        <div class="field-group">
+          <label class="input-label" for="tot-player-b">Player B</label>
+          <input type="text" id="tot-player-b" placeholder="e.g. Haaland"/>
+        </div>
+        <div class="span2">
+          <button class="btn btn-full" id="tot-add-btn" onclick="addTotPair()">Add Pair →</button>
+        </div>
+      </div>
+      <div class="error-msg" id="tot-error"></div>
+      <div class="success-msg" id="tot-success"></div>
+    </div>
+    <div class="section-title">GW Pairs <span class="section-badge" id="tot-pairs-gw-badge">—</span></div>
+    <div id="tot-pairs-list" class="poll-list">
+      <div class="feed-empty">Enter a GW above and click Load Pairs.</div>
+    </div>
+
+    <!-- ── Section 3: Score Calculator ── -->
+    <div class="section-title" style="margin-top:40px;">Score Calculator <span class="section-badge">GW Scoring</span></div>
+    <div class="card">
+      <div class="form-grid" style="margin-bottom:0;">
+        <div class="field-group">
+          <label class="input-label" for="score-gw">Gameweek</label>
+          <input type="number" id="score-gw" placeholder="e.g. 38" min="1" max="38"/>
+        </div>
+        <div style="display:flex;align-items:flex-end;">
+          <button class="btn btn-full" id="score-load-btn" onclick="loadScoreData()">Load GW Data →</button>
+        </div>
+      </div>
+
+      <div id="score-form" style="display:none;margin-top:24px;">
+        <div style="border-top:1px solid var(--border);padding-top:20px;margin-bottom:20px;">
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">Game 1 — Top Scorer (40 pts)</div>
+          <div class="form-grid" style="margin-top:0;margin-bottom:12px;">
+            <div class="field-group">
+              <label class="input-label">Actual Top Scorer</label>
+              <input type="text" id="score-top-scorer" placeholder="e.g. Haaland"/>
+            </div>
+            <div class="field-group">
+              <label class="input-label">Their GW Pts</label>
+              <input type="number" id="score-top-pts" placeholder="e.g. 20" min="0"/>
+            </div>
+          </div>
+          <label class="input-label">Actual GW Pts per Predicted Player</label>
+          <div id="score-player-pts-list" style="display:flex;flex-direction:column;gap:8px;margin-top:8px;"></div>
+        </div>
+
+        <div style="border-top:1px solid var(--border);padding-top:20px;margin-bottom:20px;">
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">Game 2 — Hidden Gem (30 pts)</div>
+          <div class="field-group">
+            <label class="input-label">Actual Hidden Gem Player</label>
+            <input type="text" id="score-gem-winner" placeholder="e.g. Dorgu"/>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid var(--border);padding-top:20px;margin-bottom:20px;">
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">Game 3 — This or That (10 pts × 3)</div>
+          <div id="score-tot-pairs" style="display:flex;flex-direction:column;gap:14px;"></div>
+        </div>
+
+        <button class="btn btn-full" onclick="previewScores()">Preview Scores →</button>
+      </div>
+      <div class="error-msg" id="score-error"></div>
+    </div>
+
+    <div id="score-preview-section" style="display:none;margin-top:8px;">
+      <div class="section-title">Score Preview <span class="section-badge" id="score-preview-badge">GW —</span></div>
+      <div id="score-preview-table" class="lb-card" style="margin-bottom:14px;"></div>
+      <button class="btn btn-green btn-full" id="score-confirm-btn" onclick="confirmScores()">Confirm &amp; Update All Scores →</button>
+      <div class="success-msg" id="score-success" style="margin-top:12px;"></div>
+    </div>
+
   </div>
 </div>
 
@@ -283,6 +409,290 @@ async function closePoll(id) {
 
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Section 1: Challenge Status ───────────────────────────
+let challengeStatusData = null;
+
+async function loadChallengeStatus() {
+  const gw = parseInt(document.getElementById('cfg-gw').value);
+  const err = document.getElementById('cfg-error');
+  const ok = document.getElementById('cfg-success');
+  const btn = document.getElementById('cfg-load-btn');
+  err.style.display = 'none'; ok.style.display = 'none';
+
+  if (!gw || gw < 1 || gw > 38) { err.textContent = 'Enter a valid GW (1–38).'; err.style.display = 'block'; return; }
+
+  btn.disabled = true; btn.textContent = 'Loading...';
+  try {
+    const data = await adminFetch(`/api/admin-challenge-status?gw=${gw}`);
+    challengeStatusData = { gw, is_open: data.is_open };
+    updateChallengeStatusUI(data.is_open);
+  } catch(e) {
+    err.textContent = e.message || 'Could not load status.'; err.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Load Status →';
+  }
+}
+
+function updateChallengeStatusUI(is_open) {
+  const displayEl = document.getElementById('cfg-status-display');
+  const toggleBtn = document.getElementById('cfg-toggle-btn');
+  displayEl.textContent = is_open ? '🟢 Open' : '🔴 Closed';
+  displayEl.style.color = is_open ? 'var(--green)' : 'var(--red)';
+  toggleBtn.style.display = 'block';
+  toggleBtn.textContent = is_open ? 'Close Submissions ×' : 'Open Submissions ✓';
+  toggleBtn.className = `btn btn-full ${is_open ? 'btn-red' : 'btn-green'}`;
+}
+
+async function toggleChallengeStatus() {
+  if (!challengeStatusData) return;
+  const btn = document.getElementById('cfg-toggle-btn');
+  const err = document.getElementById('cfg-error');
+  const ok = document.getElementById('cfg-success');
+  err.style.display = 'none'; ok.style.display = 'none';
+  const newOpen = !challengeStatusData.is_open;
+  btn.disabled = true; btn.textContent = 'Updating...';
+  try {
+    await adminFetch('/api/admin-challenge-status', {
+      method: 'POST',
+      body: JSON.stringify({ gw: challengeStatusData.gw, is_open: newOpen })
+    });
+    challengeStatusData.is_open = newOpen;
+    updateChallengeStatusUI(newOpen);
+    ok.textContent = `✓ GW ${challengeStatusData.gw} submissions are now ${newOpen ? 'OPEN' : 'CLOSED'}.`;
+    ok.style.display = 'block';
+  } catch(e) {
+    err.textContent = e.message || 'Could not update status.'; err.style.display = 'block';
+    btn.disabled = false;
+    updateChallengeStatusUI(challengeStatusData.is_open);
+  }
+}
+
+// ── Section 2: This or That Pairs ────────────────────────
+async function addTotPair() {
+  const gw = parseInt(document.getElementById('tot-gw').value);
+  const playerA = document.getElementById('tot-player-a').value.trim();
+  const playerB = document.getElementById('tot-player-b').value.trim();
+  const err = document.getElementById('tot-error');
+  const ok = document.getElementById('tot-success');
+  const btn = document.getElementById('tot-add-btn');
+  err.style.display = 'none'; ok.style.display = 'none';
+
+  if (!gw || gw < 1 || gw > 38) { err.textContent = 'Enter a valid GW (1–38).'; err.style.display = 'block'; return; }
+  if (!playerA || !playerB) { err.textContent = 'Both player names are required.'; err.style.display = 'block'; return; }
+
+  btn.disabled = true; btn.textContent = 'Adding...';
+  try {
+    await adminFetch('/api/admin-this-or-that', {
+      method: 'POST',
+      body: JSON.stringify({ gw, player_a: playerA, player_b: playerB })
+    });
+    ok.textContent = `✓ Pair added for GW ${gw}: ${playerA} vs ${playerB}`;
+    ok.style.display = 'block';
+    document.getElementById('tot-player-a').value = '';
+    document.getElementById('tot-player-b').value = '';
+    loadTotPairs(gw);
+  } catch(e) {
+    err.textContent = e.message || 'Could not add pair.'; err.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Add Pair →';
+  }
+}
+
+async function loadTotPairs(gw) {
+  const listEl = document.getElementById('tot-pairs-list');
+  const badge = document.getElementById('tot-pairs-gw-badge');
+  if (!gw || gw < 1 || gw > 38) {
+    document.getElementById('tot-error').textContent = 'Enter a valid GW (1–38).';
+    document.getElementById('tot-error').style.display = 'block';
+    return;
+  }
+  badge.textContent = `GW ${gw}`;
+  listEl.innerHTML = '<div class="feed-empty"><span class="spinner"></span>Loading...</div>';
+  try {
+    const pairs = await adminFetch(`/api/admin-this-or-that?gw=${gw}`);
+    if (!pairs.length) { listEl.innerHTML = '<div class="feed-empty">No pairs for this GW yet.</div>'; return; }
+    listEl.innerHTML = pairs.map((p, i) => `
+      <div class="poll-admin-card" id="tot-pair-${p.id}">
+        <div class="poll-admin-body">
+          <div class="poll-admin-type">GW${p.gw} · Pair ${i + 1}</div>
+          <div class="poll-admin-question">${escHtml(p.player_a)} <span style="color:var(--muted);font-weight:400">vs</span> ${escHtml(p.player_b)}</div>
+        </div>
+        <button class="btn btn-red btn-sm" onclick="deleteTotPair('${p.id}')">Delete</button>
+      </div>
+    `).join('');
+  } catch(e) {
+    listEl.innerHTML = `<div class="feed-empty">⚠️ ${e.message}</div>`;
+  }
+}
+
+async function deleteTotPair(id) {
+  const card = document.getElementById(`tot-pair-${id}`);
+  const btn = card.querySelector('button');
+  btn.disabled = true; btn.textContent = 'Deleting...';
+  try {
+    await adminFetch('/api/admin-this-or-that', { method: 'DELETE', body: JSON.stringify({ id }) });
+    card.style.opacity = '0.4'; card.style.pointerEvents = 'none';
+    setTimeout(() => card.remove(), 500);
+  } catch(e) {
+    btn.disabled = false; btn.textContent = 'Delete';
+    alert('Error: ' + e.message);
+  }
+}
+
+// ── Section 3: Score Calculator ───────────────────────────
+let scoreData = null;
+let scorePayload = null;
+
+async function loadScoreData() {
+  const gw = parseInt(document.getElementById('score-gw').value);
+  const err = document.getElementById('score-error');
+  const btn = document.getElementById('score-load-btn');
+  err.style.display = 'none';
+
+  if (!gw || gw < 1 || gw > 38) { err.textContent = 'Enter a valid GW (1–38).'; err.style.display = 'block'; return; }
+
+  btn.disabled = true; btn.textContent = 'Loading...';
+  try {
+    scoreData = await adminFetch(`/api/admin-score-challenge?gw=${gw}`);
+    renderScoreForm(scoreData);
+    document.getElementById('score-form').style.display = 'block';
+    document.getElementById('score-preview-section').style.display = 'none';
+    document.getElementById('score-success').style.display = 'none';
+  } catch(e) {
+    err.textContent = e.message || 'Could not load data.'; err.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Load GW Data →';
+  }
+}
+
+function renderScoreForm(data) {
+  const ptsListEl = document.getElementById('score-player-pts-list');
+  if (!data.unique_game1_picks.length) {
+    ptsListEl.innerHTML = '<div style="color:var(--muted);font-size:13px;">No Game 1 submissions yet.</div>';
+  } else {
+    ptsListEl.innerHTML = data.unique_game1_picks.map(name => {
+      const safeId = CSS.escape(name);
+      return `<div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-size:13px;font-weight:600;flex:1;min-width:0;">${escHtml(name)}</div>
+        <input type="number" id="pts-${safeId}" data-player="${escHtml(name)}"
+          placeholder="GW pts" min="0" style="width:90px;flex-shrink:0;"/>
+      </div>`;
+    }).join('');
+  }
+
+  const totEl = document.getElementById('score-tot-pairs');
+  if (!data.pairs.length) {
+    totEl.innerHTML = '<div style="color:var(--muted);font-size:13px;">No ToT pairs set for this GW.</div>';
+  } else {
+    totEl.innerHTML = data.pairs.map((pair, i) => `
+      <div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;">Pair ${i + 1}: ${escHtml(pair.player_a)} vs ${escHtml(pair.player_b)}</div>
+        <div class="tot-result-group">
+          <label class="tot-result-label"><input type="radio" name="tot-result-${i}" value="A"/> ${escHtml(pair.player_a)} wins</label>
+          <label class="tot-result-label"><input type="radio" name="tot-result-${i}" value="TIE"/> Tie</label>
+          <label class="tot-result-label"><input type="radio" name="tot-result-${i}" value="B"/> ${escHtml(pair.player_b)} wins</label>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+function previewScores() {
+  const err = document.getElementById('score-error');
+  err.style.display = 'none';
+  if (!scoreData) { err.textContent = 'Load GW data first.'; err.style.display = 'block'; return; }
+
+  const gw = parseInt(document.getElementById('score-gw').value);
+  const topScorer = document.getElementById('score-top-scorer').value.trim();
+  const topPts = parseInt(document.getElementById('score-top-pts').value) || 0;
+  const gemWinner = document.getElementById('score-gem-winner').value.trim();
+
+  if (!topScorer) { err.textContent = 'Enter the actual top scorer name.'; err.style.display = 'block'; return; }
+  if (!topPts) { err.textContent = "Enter the top scorer's GW pts."; err.style.display = 'block'; return; }
+  if (!gemWinner) { err.textContent = 'Enter the actual hidden gem player name.'; err.style.display = 'block'; return; }
+
+  const totResults = scoreData.pairs.map((_, i) => {
+    const checked = document.querySelector(`input[name="tot-result-${i}"]:checked`);
+    return checked ? checked.value : null;
+  });
+  for (let i = 0; i < scoreData.pairs.length; i++) {
+    if (!totResults[i]) { err.textContent = `Select a result for ToT Pair ${i + 1}.`; err.style.display = 'block'; return; }
+  }
+
+  const playerPts = {};
+  document.querySelectorAll('#score-player-pts-list input[data-player]').forEach(inp => {
+    playerPts[inp.dataset.player] = parseInt(inp.value) || 0;
+  });
+
+  // Calculate per user
+  const byUser = {};
+  scoreData.entries.forEach(entry => {
+    const key = entry.fpl_id;
+    if (!byUser[key]) byUser[key] = { name: entry.manager_name, fpl_id: key, game1: null, game2: null, tot: [], total: 0 };
+    let score = 0;
+    if (entry.game_type === 'top_score') {
+      const pts = playerPts[entry.prediction] ?? 0;
+      score = topPts > 0 ? Math.round((pts / topPts) * 40) : 0;
+      byUser[key].game1 = { pred: entry.prediction, pts, score };
+    } else if (entry.game_type === 'hidden_gem') {
+      score = entry.prediction === gemWinner ? 30 : 0;
+      byUser[key].game2 = { pred: entry.prediction, score };
+    } else if (entry.game_type.startsWith('this_or_that_')) {
+      const pairIdx = parseInt(entry.game_type.split('_').pop()) - 1;
+      const result = totResults[pairIdx];
+      const pair = scoreData.pairs[pairIdx];
+      if (result === 'TIE') score = 10;
+      else if (pair && result === 'A' && entry.prediction === pair.player_a) score = 10;
+      else if (pair && result === 'B' && entry.prediction === pair.player_b) score = 10;
+      byUser[key].tot[pairIdx] = { pred: entry.prediction, score };
+    }
+    byUser[key].total += score;
+  });
+
+  const ranked = Object.values(byUser).sort((a, b) => b.total - a.total);
+  const medals = ['🥇', '🥈', '🥉'];
+  const previewEl = document.getElementById('score-preview-table');
+  if (!ranked.length) {
+    previewEl.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:14px;">No submissions to score.</div>';
+  } else {
+    previewEl.innerHTML = ranked.map((u, i) => {
+      const rank = i < 3 ? medals[i] : `<span class="lb-rank-num">${i + 1}</span>`;
+      const g1 = u.game1 ? `G1: ${u.game1.score}pts (${escHtml(u.game1.pred)})` : 'G1: —';
+      const g2 = u.game2 ? `G2: ${u.game2.score}pts (${escHtml(u.game2.pred)})` : 'G2: —';
+      const g3 = u.tot.length ? `G3: ${u.tot.map(t => t ? `${t.score}pts` : '—').join('/')}` : 'G3: —';
+      return `<div class="lb-row">
+        <div class="lb-rank">${rank}</div>
+        <div class="lb-name">${escHtml(u.name)}<div class="lb-name-sub">${g1} · ${g2} · ${g3}</div></div>
+        <div class="lb-score">${u.total} <span class="lb-score-label">pts</span></div>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('score-preview-badge').textContent = `GW ${gw}`;
+  document.getElementById('score-preview-section').style.display = 'block';
+  document.getElementById('score-success').style.display = 'none';
+
+  scorePayload = { gw, top_scorer: topScorer, top_scorer_pts: topPts, player_pts: playerPts, hidden_gem_winner: gemWinner, tot_results: totResults };
+}
+
+async function confirmScores() {
+  if (!scorePayload) return;
+  const btn = document.getElementById('score-confirm-btn');
+  const ok = document.getElementById('score-success');
+  const err = document.getElementById('score-error');
+  err.style.display = 'none'; ok.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Updating...';
+  try {
+    const result = await adminFetch('/api/admin-score-challenge', { method: 'POST', body: JSON.stringify(scorePayload) });
+    ok.textContent = `✓ Updated ${result.updated} entries for GW ${scorePayload.gw}.`;
+    ok.style.display = 'block';
+  } catch(e) {
+    err.textContent = e.message || 'Could not update scores.'; err.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Confirm & Update All Scores →';
+  }
 }
 </script>
 </body>
