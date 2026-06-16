@@ -371,7 +371,7 @@ async function createPoll() {
 
   btn.disabled = true; btn.textContent = 'Creating...';
   try {
-    await adminFetch('/api/admin-create-poll', {
+    await adminFetch('/api/admin?action=create-poll', {
       method: 'POST',
       body: JSON.stringify({ type, question, option_a, option_b, gw })
     });
@@ -424,7 +424,7 @@ async function closePoll(id) {
   const btn = card.querySelector('button');
   btn.disabled = true; btn.textContent = 'Closing...';
   try {
-    await adminFetch('/api/admin-close-poll', { method: 'POST', body: JSON.stringify({ id }) });
+    await adminFetch('/api/admin?action=close-poll', { method: 'POST', body: JSON.stringify({ id }) });
     card.style.opacity = '0.4';
     card.style.pointerEvents = 'none';
     btn.textContent = 'Closed';
@@ -515,8 +515,8 @@ async function addCaptainBrackets() {
   btn.disabled = true; btn.textContent = 'Saving...';
   try {
     await Promise.all([
-      adminFetch('/api/admin-captain-bracket', { method: 'POST', body: JSON.stringify({ gw, player_name: player1, slot: 1 }) }),
-      adminFetch('/api/admin-captain-bracket', { method: 'POST', body: JSON.stringify({ gw, player_name: player2, slot: 2 }) })
+      adminFetch('/api/admin?action=captain-bracket', { method: 'POST', body: JSON.stringify({ gw, player_name: player1, slot: 1 }) }),
+      adminFetch('/api/admin?action=captain-bracket', { method: 'POST', body: JSON.stringify({ gw, player_name: player2, slot: 2 }) })
     ]);
     ok.textContent = `✓ GW ${gw} bracket players set: ${player1} (Slot 1) · ${player2} (Slot 2)`;
     ok.style.display = 'block';
@@ -541,7 +541,7 @@ async function loadCaptainBrackets(gw) {
   badge.textContent = `GW ${gw}`;
   listEl.innerHTML = '<div class="feed-empty"><span class="spinner"></span>Loading...</div>';
   try {
-    const players = await adminFetch(`/api/admin-captain-bracket?gw=${gw}`);
+    const players = await adminFetch(`/api/admin?action=captain-bracket&gw=${gw}`);
     if (!players.length) { listEl.innerHTML = '<div class="feed-empty">No bracket players set for this GW.</div>'; return; }
     listEl.innerHTML = players.map(p => `
       <div class="poll-admin-card" id="cb-slot-${p.slot}">
@@ -562,7 +562,7 @@ async function deleteCaptainBracket(gw, slot) {
   const btn = card.querySelector('button');
   btn.disabled = true; btn.textContent = 'Deleting...';
   try {
-    await adminFetch('/api/admin-captain-bracket', { method: 'DELETE', body: JSON.stringify({ gw, slot }) });
+    await adminFetch('/api/admin?action=captain-bracket', { method: 'DELETE', body: JSON.stringify({ gw, slot }) });
     card.style.opacity = '0.4'; card.style.pointerEvents = 'none';
     setTimeout(() => card.remove(), 500);
   } catch(e) {
@@ -586,7 +586,7 @@ async function addTotPair() {
 
   btn.disabled = true; btn.textContent = 'Adding...';
   try {
-    await adminFetch('/api/admin-this-or-that', {
+    await adminFetch('/api/admin?action=this-or-that', {
       method: 'POST',
       body: JSON.stringify({ gw, player_a: playerA, player_b: playerB })
     });
@@ -613,7 +613,7 @@ async function loadTotPairs(gw) {
   badge.textContent = `GW ${gw}`;
   listEl.innerHTML = '<div class="feed-empty"><span class="spinner"></span>Loading...</div>';
   try {
-    const pairs = await adminFetch(`/api/admin-this-or-that?gw=${gw}`);
+    const pairs = await adminFetch(`/api/admin?action=this-or-that&gw=${gw}`);
     if (!pairs.length) { listEl.innerHTML = '<div class="feed-empty">No pairs for this GW yet.</div>'; return; }
     listEl.innerHTML = pairs.map((p, i) => `
       <div class="poll-admin-card" id="tot-pair-${p.id}">
@@ -634,7 +634,7 @@ async function deleteTotPair(id) {
   const btn = card.querySelector('button');
   btn.disabled = true; btn.textContent = 'Deleting...';
   try {
-    await adminFetch('/api/admin-this-or-that', { method: 'DELETE', body: JSON.stringify({ id }) });
+    await adminFetch('/api/admin?action=this-or-that', { method: 'DELETE', body: JSON.stringify({ id }) });
     card.style.opacity = '0.4'; card.style.pointerEvents = 'none';
     setTimeout(() => card.remove(), 500);
   } catch(e) {

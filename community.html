@@ -547,7 +547,7 @@ function votePoll(pollId, option, cardEl) {
   renderPollResults(cardEl, poll, option);
 
   // Server-side vote: writes with service key so counts are always accurate
-  fetch('/api/vote-poll', {
+  fetch('/api/admin?action=vote-poll', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ poll_id: pollId, voter_token: voterToken, voted_option: option }),
