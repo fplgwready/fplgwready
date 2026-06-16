@@ -455,7 +455,7 @@ async function loadChallengeStatus() {
 
   btn.disabled = true; btn.textContent = 'Loading...';
   try {
-    const data = await adminFetch(`/api/admin-challenge-status?gw=${gw}`);
+    const data = await adminFetch(`/api/challenge-status?gw=${gw}`);
     challengeStatusData = { gw, is_open: data.is_open };
     updateChallengeStatusUI(data.is_open);
   } catch(e) {
@@ -484,7 +484,7 @@ async function toggleChallengeStatus() {
   const newOpen = !challengeStatusData.is_open;
   btn.disabled = true; btn.textContent = 'Updating...';
   try {
-    await adminFetch('/api/admin-challenge-status', {
+    await adminFetch('/api/challenge-status', {
       method: 'POST',
       body: JSON.stringify({ gw: challengeStatusData.gw, is_open: newOpen })
     });
