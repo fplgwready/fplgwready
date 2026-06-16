@@ -66,8 +66,7 @@
       nav { padding: 14px 16px; }
       .nav-links { gap: 4px; overflow-x: auto; flex-wrap: nowrap; flex: 1; scrollbar-width: none; }
       .hero { margin-top: 48px; }
-      .features-grid { grid-template-columns: 1fr; }
-      .features-grid a[style*="span 2"] { grid-column: span 1; }
+      .features-grid a[style*="span 2"] { grid-column: span 2; }
       .input-row { flex-direction: column; }
       .countdown-strip { gap: 8px; }
       .countdown-block { min-width: 56px; padding: 12px 14px; }
@@ -80,7 +79,7 @@
   <a class="logo" href="/"><img src="/logo.jpeg" alt="" style="width:34px;height:34px;border-radius:8px;object-fit:cover;object-position:center 32%;flex-shrink:0;"/><span>FPL</span>GWReady</a>
   <div class="nav-links">
     <a class="nav-link" href="/team.html">My Team</a>
-    <a class="nav-link" href="/insight.html">FPLGWR Insights</a>
+    <a class="nav-link" href="/insight.html">Expert Insights</a>
     <a class="nav-link" href="/challenge.html">FPLGWR Challenge</a>
     <a class="nav-link" href="/community.html">Community</a>
     <a class="nav-link" href="/mini-league.html">Mini League</a>
@@ -100,7 +99,7 @@
     <input type="text" id="fpl-id" placeholder="e.g. 222758" maxlength="10"/>
     <button class="btn" onclick="goToTeam()">Analyze Team →</button>
   </div>
-  <p class="input-hint">Find your ID at <a href="https://fantasy.premierleague.com" target="_blank">fantasy.premierleague.com</a> → Points → check the URL</p>
+  <p class="input-hint">📍 Find your ID: <a href="https://fantasy.premierleague.com/a/team/my" target="_blank">fantasy.premierleague.com</a> → Points → the number in the URL</p>
   <div class="error-msg" id="error-msg">Please enter a valid FPL Team ID.</div>
 </div>
 
@@ -114,9 +113,9 @@
     <div class="feature-cta" style="color:var(--accent);">Analyze My Team →</div>
   </a>
   <a class="feature-card" href="/insight.html" style="grid-column: span 2; border-color: rgba(108,92,231,0.3); background: linear-gradient(135deg, rgba(108,92,231,0.06) 0%, rgba(26,111,255,0.03) 100%);">
-    <div class="feature-title"><span class="feature-icon">✨</span> FPLGWR Insights <span class="coming-tag">Premium</span></div>
+    <div class="feature-title"><span class="feature-icon">✨</span> Expert Insights <span class="coming-tag">Premium</span></div>
     <div class="feature-desc">Expert weekly analysis — captaincy picks, transfer recommendations, and must-start differentials every gameweek.</div>
-    <div class="feature-cta" style="color:var(--accent2);">Explore FPLGWR Insights →</div>
+    <div class="feature-cta" style="color:var(--accent2);">Explore Expert Insights →</div>
   </a>
   <a class="feature-card" href="/challenge.html" style="grid-column: span 2; border-color: rgba(196,127,0,0.3); background: linear-gradient(135deg, rgba(196,127,0,0.06) 0%, rgba(232,64,64,0.02) 100%);">
     <div class="feature-title"><span class="feature-icon">🏆</span> FPLGWR Challenge <span class="coming-tag" style="background:rgba(196,127,0,0.12);color:#C47F00;">Shopee Voucher Rp 50k 🛍️</span></div>

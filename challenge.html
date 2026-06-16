@@ -88,8 +88,9 @@
     .lb-row:last-child { border-bottom: none; }
     .lb-rank { font-size: 20px; min-width: 28px; text-align: center; flex-shrink: 0; }
     .lb-rank-num { font-size: 14px; font-weight: 800; color: var(--muted); }
-    .lb-name { flex: 1; font-size: 14px; font-weight: 700; }
-    .lb-score { font-size: 16px; font-weight: 800; color: var(--accent2); }
+    .lb-name { flex: 1; font-size: 14px; font-weight: 700; min-width: 0; }
+    .lb-name-sub { font-size: 11px; font-weight: 400; color: var(--muted); margin-top: 2px; }
+    .lb-score { font-size: 16px; font-weight: 800; color: var(--accent2); white-space: nowrap; }
     .lb-score-label { font-size: 11px; color: var(--muted); font-weight: 400; }
     .feed-loading { text-align: center; padding: 40px 0; color: var(--muted); font-size: 14px; }
     .feed-spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
@@ -112,7 +113,7 @@
   <div class="nav-links">
     <a class="nav-link" href="/">Home</a>
     <a class="nav-link" href="/team.html">My Team</a>
-    <a class="nav-link" href="/insight.html">FPLGWR Insights</a>
+    <a class="nav-link" href="/insight.html">Expert Insights</a>
     <a class="nav-link active" href="/challenge.html">FPLGWR Challenge</a>
     <a class="nav-link" href="/community.html">Community</a>
     <a class="nav-link" href="/mini-league.html">Mini League</a>
@@ -141,7 +142,7 @@
         </div>
       </div>
       <button class="btn" id="check-btn" onclick="verifyIdentity()">Check →</button>
-      <p class="input-hint">Find your ID at <a href="https://fantasy.premierleague.com" target="_blank">fantasy.premierleague.com</a> → Points → check the URL</p>
+      <p class="input-hint">📍 Find your ID: <a href="https://fantasy.premierleague.com/a/team/my" target="_blank">fantasy.premierleague.com</a> → Points → the number in the URL</p>
       <div class="error-msg" id="check-error"></div>
     </div>
     <div id="step-verified" style="display:none;">
@@ -183,6 +184,7 @@
         <div class="pts-badge">10 pts × 3</div>
       </div>
       <p class="game-desc">Three pairs, three different questions — read the label on each pair before picking.</p>
+      <p class="scoring-note">🤝 If it's a tie (both players score equal points), <strong>everyone gets 10 pts</strong> regardless of their pick.</p>
       <div id="tot-container">
         <div class="tot-coming">⏳ Loading pairs...</div>
       </div>
@@ -443,7 +445,7 @@ async function loadLeaderboard() {
 
   try {
     const entries = await Promise.race([
-      sbSelect('challenge_entries', { gw: `eq.${currentGW}`, select: 'fpl_id,manager_name,score', limit: 500 }),
+      sbSelect('challenge_entries', { gw: `eq.${currentGW}`, select: 'fpl_id,manager_name,score,created_at', order: 'created_at.asc', limit: 500 }),
       new Promise((_, rej) => setTimeout(() => rej(new Error('Leaderboard timeout')), 8000))
     ]);
 
@@ -454,24 +456,37 @@ async function loadLeaderboard() {
 
     const byUser = {};
     entries.forEach(e => {
-      if (!byUser[e.fpl_id]) byUser[e.fpl_id] = { manager_name: e.manager_name, total: 0 };
+      if (!byUser[e.fpl_id]) byUser[e.fpl_id] = { manager_name: e.manager_name, total: 0, earliest: e.created_at };
       byUser[e.fpl_id].total += (e.score || 0);
+      if (e.created_at < byUser[e.fpl_id].earliest) byUser[e.fpl_id].earliest = e.created_at;
     });
 
-    const ranked = Object.values(byUser).sort((a, b) => b.total - a.total).slice(0, 20);
+    const ranked = Object.values(byUser)
+      .sort((a, b) => b.total - a.total || new Date(a.earliest) - new Date(b.earliest))
+      .slice(0, 20);
     const medals = ['🥇', '🥈', '🥉'];
 
     const rowsHTML = ranked.map((u, i) => {
       const rank = i < 3
         ? `<span class="lb-rank">${medals[i]}</span>`
         : `<span class="lb-rank"><span class="lb-rank-num">${i + 1}</span></span>`;
-      return `<div class="lb-row">${rank}<div class="lb-name">${u.manager_name}</div><div class="lb-score">${u.total} <span class="lb-score-label">pts</span></div></div>`;
+      const timeLabel = u.earliest ? fmtTime(u.earliest) : '';
+      return `<div class="lb-row">${rank}<div class="lb-name">${u.manager_name}<div class="lb-name-sub">${timeLabel}</div></div><div class="lb-score">${u.total} <span class="lb-score-label">pts</span></div></div>`;
     }).join('');
 
     lb.innerHTML = `<div class="lb-card">${rowsHTML}</div>`;
   } catch(e) {
     lb.innerHTML = `<div class="feed-empty">⚠️ ${e.message}</div>`;
   }
+}
+
+function fmtTime(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const diff = (Date.now() - d) / 1000;
+  if (diff < 3600) return `Submitted ${Math.max(1, Math.floor(diff / 60))} min ago`;
+  if (diff < 86400) return `Submitted ${Math.floor(diff / 3600)} hr ago`;
+  return `Submitted ${d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} ${d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
 }
 
 // ── Boot ──────────────────────────────────────────────────
