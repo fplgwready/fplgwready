@@ -16,9 +16,9 @@ export default async function handler(req, res) {
     if (slug) {
       url = `${SB_URL}/rest/v1/gw_articles?slug=eq.${encodeURIComponent(slug)}&is_published=eq.true&select=*&limit=1`;
     } else if (gw) {
-      url = `${SB_URL}/rest/v1/gw_articles?gw=eq.${gw}&is_published=eq.true&select=id,gw,title,slug,cover_image,tags,preview,author,published_at&order=published_at.desc&limit=20`;
+      url = `${SB_URL}/rest/v1/gw_articles?gw=eq.${gw}&is_published=eq.true&select=id,gw,title,slug,cover_image,preview,author,published_at&order=published_at.desc&limit=20`;
     } else {
-      url = `${SB_URL}/rest/v1/gw_articles?is_published=eq.true&select=id,gw,title,slug,cover_image,tags,preview,author,published_at&order=published_at.desc&limit=50`;
+      url = `${SB_URL}/rest/v1/gw_articles?is_published=eq.true&select=id,gw,title,slug,cover_image,preview,author,published_at&order=published_at.desc&limit=50`;
     }
     const r = await fetch(url, { headers: base });
     if (!r.ok) return res.status(500).json({ error: 'Fetch failed' });
@@ -38,11 +38,11 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    const { gw, title, slug, cover_image, tags, preview, full_content, author, author_bio, is_published } = req.body || {};
+    const { gw, title, slug, cover_image, preview, full_content, author, author_bio, is_published } = req.body || {};
     if (!title || !slug || !gw) return res.status(400).json({ error: 'title, slug, gw required' });
     const article = {
       gw: parseInt(gw), title: title.trim(), slug: slug.trim(),
-      cover_image: (cover_image || '').trim(), tags: (tags || '').trim(),
+      cover_image: (cover_image || '').trim(),
       preview: (preview || '').trim(), full_content: (full_content || '').trim(),
       author: (author || '').trim(), author_bio: (author_bio || '').trim(),
       is_published: !!is_published,
