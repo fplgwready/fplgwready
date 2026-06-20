@@ -55,6 +55,12 @@
     .feed-empty{text-align:center;padding:40px 0;color:var(--muted);font-size:14px;background:var(--surface);border:1px dashed var(--border);border-radius:var(--radius)}
     @keyframes spin{to{transform:rotate(360deg)}}
     .spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px}
+    .cover-upload-wrap{display:flex;flex-direction:column;gap:10px}
+    .cover-preview{border-radius:10px;overflow:hidden;border:1px solid var(--border);max-width:280px}
+    .cover-preview img{width:100%;height:auto;display:block}
+    .cover-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .cover-upload-btn{cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+    .cover-status{font-size:13px;color:var(--muted)}
     @media(max-width:540px){nav{padding:14px 16px}.container{margin-top:24px}.form-grid{grid-template-columns:1fr}.form-grid .span2{grid-column:span 1}.admin-nav{padding:10px 16px;gap:4px}.admin-nav-link{padding:5px 12px;font-size:12px}}
   </style>
 </head>
@@ -91,7 +97,17 @@
         <div class="field-group"><label class="input-label" for="art-author">Author Name</label><input type="text" id="art-author" placeholder="e.g. Coach Ken"/></div>
         <div class="field-group span2"><label class="input-label" for="art-title">Title</label><input type="text" id="art-title" placeholder="e.g. GW38 Captain Picks — Who to Trust"/></div>
         <div class="field-group span2"><label class="input-label" for="art-slug">Slug (auto-generated)</label><input type="text" id="art-slug" placeholder="gw38-captain-picks-who-to-trust"/></div>
-        <div class="field-group span2"><label class="input-label" for="art-cover">Cover Image URL</label><input type="text" id="art-cover" placeholder="https://..."/></div>
+        <div class="field-group span2">
+          <label class="input-label">Cover Image</label>
+          <div class="cover-upload-wrap">
+            <div class="cover-preview" id="cover-preview" style="display:none;"><img id="cover-preview-img" src="" alt="Cover preview"/></div>
+            <div class="cover-actions">
+              <label class="btn btn-sm cover-upload-btn" id="cover-upload-label">Upload Image<input type="file" id="art-cover-file" accept="image/*" style="display:none;" onchange="handleCoverUpload(this)"/></label>
+              <span class="cover-status" id="cover-status"></span>
+            </div>
+            <input type="text" id="art-cover" placeholder="Or paste image URL manually..."/>
+          </div>
+        </div>
         <div class="field-group span2"><label class="input-label" for="art-tags">Tags (comma separated)</label><input type="text" id="art-tags" placeholder="e.g. Captain, Transfers, GW38"/></div>
         <div class="field-group span2"><label class="input-label" for="art-author-bio">Author Bio</label><input type="text" id="art-author-bio" placeholder="e.g. 10 years FPL veteran, OR 3,358 last season"/></div>
         <div class="field-group span2"><label class="input-label" for="art-preview">Preview (2 paragraphs — shown in listing)</label><textarea id="art-preview" rows="4" placeholder="Brief teaser shown on the article listing page..."></textarea></div>
@@ -131,6 +147,55 @@ const quill = new Quill('#art-editor', {
       ['blockquote', 'link', 'image']
     ]
   }
+});
+
+let sbUrl = '', sbAnonKey = '';
+(async () => {
+  try {
+    const r = await fetch('/api/supabase-config');
+    const cfg = await r.json();
+    sbUrl = cfg.url; sbAnonKey = cfg.key;
+  } catch(e) { console.warn('Could not load Supabase config for image uploads'); }
+})();
+
+async function handleCoverUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = document.getElementById('cover-status');
+  const label = document.getElementById('cover-upload-label');
+  if (!sbUrl || !sbAnonKey) { status.textContent = '⚠ Upload config unavailable'; status.style.color = 'var(--red)'; return; }
+  const ext = file.name.split('.').pop().toLowerCase();
+  const filename = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+  label.style.pointerEvents = 'none'; label.style.opacity = '0.5';
+  status.textContent = 'Uploading...'; status.style.color = 'var(--muted)';
+  try {
+    const res = await fetch(`${sbUrl}/storage/v1/object/article-images/${filename}`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${sbAnonKey}`, 'Content-Type': file.type },
+      body: file
+    });
+    if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.message || e.error || 'Upload failed'); }
+    const publicUrl = `${sbUrl}/storage/v1/object/public/article-images/${filename}`;
+    document.getElementById('art-cover').value = publicUrl;
+    showCoverPreview(publicUrl);
+    status.textContent = '✓ Uploaded'; status.style.color = 'var(--green)';
+  } catch(e) {
+    status.textContent = '⚠ ' + e.message; status.style.color = 'var(--red)';
+  } finally {
+    label.style.pointerEvents = ''; label.style.opacity = '';
+    input.value = '';
+  }
+}
+
+function showCoverPreview(url) {
+  const wrap = document.getElementById('cover-preview');
+  const img = document.getElementById('cover-preview-img');
+  if (url) { img.src = url; wrap.style.display = 'block'; }
+  else { img.src = ''; wrap.style.display = 'none'; }
+}
+
+document.getElementById('art-cover').addEventListener('input', e => {
+  showCoverPreview(e.target.value.trim());
 });
 
 function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -216,6 +281,8 @@ function clearArticleForm() {
   document.getElementById('art-preview').value = '';
   quill.setContents([]);
   document.getElementById('art-publish').checked = false;
+  showCoverPreview('');
+  document.getElementById('cover-status').textContent = '';
 }
 
 function cancelEditArticle() {
@@ -233,6 +300,7 @@ function editArticle(id) {
   document.getElementById('art-title').value = a.title || '';
   document.getElementById('art-slug').value = a.slug || '';
   document.getElementById('art-cover').value = a.cover_image || '';
+  showCoverPreview(a.cover_image || '');
   document.getElementById('art-tags').value = a.tags || '';
   document.getElementById('art-author').value = a.author || '';
   document.getElementById('art-author-bio').value = a.author_bio || '';
