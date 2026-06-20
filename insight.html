@@ -12,7 +12,14 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>FPLGWReady — Insights</title>
+  <meta name="description" id="meta-desc" content="Expert FPL analysis and insights every gameweek."/>
+  <meta property="og:title" id="og-title" content="FPLGWReady — Insights"/>
+  <meta property="og:description" id="og-desc" content="Expert FPL analysis and insights every gameweek."/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:url" id="og-url" content="https://fplgwready.vercel.app/insight.html"/>
+  <meta property="og:image" id="og-image" content=""/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -35,77 +42,134 @@
     .page-title { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
     .page-sub { color: var(--muted); font-size: 15px; margin-bottom: 36px; }
 
-    .insight-card {
+    /* Loading / empty */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
+    .feed-empty { text-align: center; padding: 40px 0; color: var(--muted); font-size: 14px; background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius); }
+
+    /* Article listing cards */
+    .article-card {
+      display: block;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 32px 32px 28px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 16px rgba(108,92,231,0.06);
-      position: relative;
       overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      text-decoration: none;
+      color: inherit;
+      margin-bottom: 16px;
     }
-    .insight-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--accent2), var(--accent));
+    .article-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(108,92,231,0.12);
+    }
+    .article-cover { width: 100%; height: 220px; object-fit: cover; display: block; }
+    .article-card-body { padding: 20px 24px 24px; }
+    .gw-badge {
+      display: inline-block; font-size: 11px; font-weight: 700;
+      padding: 3px 10px; border-radius: 100px;
+      background: rgba(26,111,255,0.1); color: var(--accent);
+      margin-bottom: 10px;
+    }
+    .article-card-title { font-size: 18px; font-weight: 800; line-height: 1.35; margin-bottom: 8px; }
+    .article-meta { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+    .article-preview { font-size: 14px; color: var(--muted); line-height: 1.7; }
+    .tag-list { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+    .tag-badge {
+      font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 100px;
+      background: var(--surface2); color: var(--muted); border: 1px solid var(--border);
     }
 
+    /* Premium cards (kept from original) */
+    .insight-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 32px 32px 28px; margin-bottom: 16px;
+      box-shadow: 0 2px 16px rgba(108,92,231,0.06); position: relative; overflow: hidden;
+    }
+    .insight-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent2), var(--accent)); }
     .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
     .card-badges { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    .badge-premium {
-      font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
-      padding: 3px 10px; border-radius: 100px;
-      background: linear-gradient(135deg, rgba(196,127,0,0.12), rgba(196,127,0,0.06));
-      color: var(--gold);
-      border: 1px solid rgba(196,127,0,0.25);
-    }
-    .badge-soon {
-      font-size: 11px; font-weight: 600;
-      padding: 3px 10px; border-radius: 100px;
-      background: var(--surface2);
-      color: var(--muted);
-      border: 1px solid var(--border);
-    }
-    .lock-icon {
-      width: 40px; height: 40px; border-radius: 10px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px;
-      flex-shrink: 0;
-    }
-
+    .badge-premium { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; padding: 3px 10px; border-radius: 100px; background: linear-gradient(135deg, rgba(196,127,0,0.12), rgba(196,127,0,0.06)); color: var(--gold); border: 1px solid rgba(196,127,0,0.25); }
+    .badge-soon { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 100px; background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+    .lock-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
     .card-title { font-size: 18px; font-weight: 800; margin-bottom: 10px; line-height: 1.35; }
     .card-desc { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 24px; }
-
-    .notify-btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 20px;
-      font-size: 14px; font-weight: 600;
-      color: var(--muted);
-      font-family: 'Inter', sans-serif;
-      cursor: default;
-      transition: border-color 0.15s, color 0.15s;
-    }
-    .notify-btn:hover {
-      border-color: var(--accent2);
-      color: var(--accent2);
-    }
+    .notify-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 20px; font-size: 14px; font-weight: 600; color: var(--muted); font-family: 'Inter', sans-serif; cursor: default; transition: border-color 0.15s, color 0.15s; }
+    .notify-btn:hover { border-color: var(--accent2); color: var(--accent2); }
     .notify-btn svg { opacity: 0.6; }
+
+    /* Article detail view */
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 14px; font-weight: 600; color: var(--accent);
+      text-decoration: none; margin-bottom: 24px;
+      transition: opacity 0.15s;
+    }
+    .back-btn:hover { opacity: 0.7; }
+    .detail-cover { width: 100%; max-height: 400px; object-fit: cover; border-radius: var(--radius); margin-bottom: 24px; display: block; }
+    .detail-title { font-size: 28px; font-weight: 800; line-height: 1.25; margin-bottom: 16px; }
+    .detail-author-block { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+    .author-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--accent2), var(--accent)); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 18px; flex-shrink: 0; }
+    .author-info { flex: 1; }
+    .author-name { font-size: 15px; font-weight: 700; }
+    .author-bio-text { font-size: 13px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+    .detail-date { font-size: 13px; color: var(--muted); flex-shrink: 0; }
+
+    .article-content { font-size: 15px; line-height: 1.85; color: var(--text); }
+    .article-content h2 { font-size: 20px; font-weight: 800; margin: 32px 0 12px; color: var(--text); }
+    .article-content h3 { font-size: 17px; font-weight: 700; margin: 24px 0 10px; color: var(--text); }
+    .article-content p { margin-bottom: 16px; }
+    .article-content ul, .article-content ol { margin-bottom: 16px; padding-left: 24px; }
+    .article-content li { margin-bottom: 6px; }
+    .article-content blockquote { border-left: 3px solid var(--accent2); padding: 12px 16px; color: var(--muted); font-style: italic; margin: 20px 0; background: var(--surface2); border-radius: 0 10px 10px 0; }
+    .article-content img { max-width: 100%; border-radius: 10px; margin: 16px 0; }
+    .article-content code { background: var(--surface2); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+    .article-content pre { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; overflow-x: auto; margin: 16px 0; }
+    .article-content pre code { background: none; padding: 0; }
+    .article-content strong { font-weight: 700; }
+    .article-content a { color: var(--accent); text-decoration: underline; }
+    .article-content table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+    .article-content th, .article-content td { padding: 10px 12px; border: 1px solid var(--border); text-align: left; }
+    .article-content th { background: var(--surface2); font-weight: 700; }
+
+    /* Ad slots */
+    .ad-slot { min-height: 90px; margin: 24px 0; border-radius: var(--radius); }
+
+    /* Premium banner */
+    .premium-banner {
+      background: linear-gradient(135deg, rgba(108,92,231,0.08), rgba(26,111,255,0.06));
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 24px 28px; margin: 40px 0;
+      font-size: 14px; line-height: 1.6; color: var(--muted); text-align: center;
+    }
+
+    /* Related articles */
+    .related-title { font-size: 18px; font-weight: 800; margin-bottom: 16px; }
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .related-card {
+      display: block; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden; text-decoration: none; color: inherit;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .related-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(108,92,231,0.1); }
+    .related-cover { width: 100%; height: 120px; object-fit: cover; display: block; }
+    .related-body { padding: 14px 16px; }
+    .related-card-title { font-size: 14px; font-weight: 700; line-height: 1.35; }
+    .related-card-meta { font-size: 12px; color: var(--muted); margin-top: 6px; }
 
     @media (max-width: 540px) {
       nav { padding: 14px 16px; }
       .nav-links { gap: 4px; overflow-x: auto; flex-wrap: nowrap; flex: 1; scrollbar-width: none; }
       .nav-link { padding: 5px 10px; font-size: 12px; }
       .container { margin-top: 32px; }
-      .insight-card { padding: 24px 20px 22px; }
-      .card-title { font-size: 16px; }
+      .article-cover { height: 180px; }
+      .article-card-body { padding: 16px 18px 20px; }
+      .article-card-title { font-size: 16px; }
+      .detail-title { font-size: 22px; }
+      .detail-cover { max-height: 260px; }
+      .related-grid { grid-template-columns: 1fr; }
+      .detail-author-block { flex-wrap: wrap; }
     }
     .nav-links::-webkit-scrollbar { display: none; }
   </style>
@@ -124,32 +188,188 @@
   </div>
 </nav>
 
-<div class="container">
-  <div class="page-title">Expert Insights ✨</div>
-  <p class="page-sub">Premium analysis and templates to give you an edge every gameweek.</p>
+<!-- ═══ Listing View ═══ -->
+<div id="listing-view" class="container">
+  <div class="page-title">Expert Insights</div>
+  <p class="page-sub">Free expert analysis and GW insights for every FPL manager.</p>
 
-  <!-- Card 1: Expert Article -->
-  <div class="insight-card">
-    <div class="card-top">
-      <div class="card-badges">
-        <span class="badge-premium">⭐ Premium</span>
-        <span class="badge-soon">Coming Soon</span>
+  <div id="articles-loading" style="text-align:center;padding:40px;color:var(--muted);">
+    <span class="spinner"></span> Loading articles...
+  </div>
+  <div id="articles-list"></div>
+
+  <!-- Premium Coming Soon card -->
+  <div id="premium-cards" style="margin-top:32px;">
+    <div class="insight-card">
+      <div class="card-top">
+        <div class="card-badges">
+          <span class="badge-premium">⭐ Premium</span>
+          <span class="badge-soon">Coming Soon</span>
+        </div>
+        <div class="lock-icon">🔒</div>
       </div>
-      <div class="lock-icon">🔒</div>
+      <div class="card-title">Weekly FPL Analysis by Our Expert</div>
+      <div class="card-desc">In-depth GW analysis written by a seasoned FPL manager with 10 years experience and an Overall Rank of 3,358 last season. Captaincy picks, transfer recommendations, and must-start differentials.</div>
+      <button class="notify-btn">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1a4 4 0 0 1 4 4v2.5l1 1.5H2l1-1.5V5a4 4 0 0 1 4-4zM5.5 11.5a1.5 1.5 0 0 0 3 0" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Notify Me
+      </button>
     </div>
-    <div class="card-title">Weekly FPL Analysis by Our Expert</div>
-    <div class="card-desc">In-depth GW analysis written by a seasoned FPL manager with 10 years experience and an Overall Rank of 3,358 last season. Captaincy picks, transfer recommendations, and must-start differentials.</div>
-    <button class="notify-btn">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1a4 4 0 0 1 4 4v2.5l1 1.5H2l1-1.5V5a4 4 0 0 1 4-4zM5.5 11.5a1.5 1.5 0 0 0 3 0" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Notify Me
-    </button>
+  </div>
+</div>
+
+<!-- ═══ Article Detail View ═══ -->
+<div id="article-view" class="container" style="display:none;">
+  <a href="/insight.html" class="back-btn">← Back to Insights</a>
+
+  <div id="ad-top" class="ad-slot"></div>
+
+  <div id="article-detail"></div>
+
+  <div id="ad-bottom" class="ad-slot"></div>
+
+  <div class="premium-banner">
+    ✨ Enjoying this analysis? Premium subscription coming soon — AI Team Analysis + exclusive GW insights for Rp15.000/month
   </div>
 
+  <div id="related-section" style="margin-top:40px;display:none;">
+    <div class="related-title">Related Articles</div>
+    <div id="related-articles" class="related-grid"></div>
+  </div>
 </div>
 
 <div style="text-align:center;padding:24px;font-size:11px;color:#6B63A8;border-top:1px solid rgba(108,92,231,0.1);margin-top:40px;">
   Data sourced from <a href="https://fantasy.premierleague.com" target="_blank" style="color:#1A6FFF;text-decoration:none;">FPL Official API</a>
   · Built by <strong>FPLGWReady</strong>
 </div>
+
+<script>
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function formatDate(d) {
+  if (!d) return '';
+  return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function getInitials(name) {
+  if (!name) return '?';
+  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+}
+
+const params = new URLSearchParams(window.location.search);
+const articleSlug = params.get('article');
+
+if (articleSlug) {
+  document.getElementById('listing-view').style.display = 'none';
+  document.getElementById('article-view').style.display = 'block';
+  loadArticle(articleSlug);
+} else {
+  loadArticles();
+}
+
+async function loadArticles() {
+  const loadingEl = document.getElementById('articles-loading');
+  const listEl = document.getElementById('articles-list');
+  try {
+    const res = await fetch('/api/admin-articles');
+    if (!res.ok) throw new Error('Fetch failed');
+    const articles = await res.json();
+    loadingEl.style.display = 'none';
+    if (!articles.length) {
+      listEl.innerHTML = '<div class="feed-empty">No articles published yet. Check back soon!</div>';
+      return;
+    }
+    listEl.innerHTML = articles.map(a => {
+      const tags = a.tags ? a.tags.split(',').map(t => t.trim()).filter(Boolean) : [];
+      return `<a class="article-card" href="/insight.html?article=${encodeURIComponent(a.slug)}">
+        ${a.cover_image ? `<img class="article-cover" src="${escHtml(a.cover_image)}" alt="" loading="lazy"/>` : ''}
+        <div class="article-card-body">
+          <span class="gw-badge">GW ${a.gw}</span>
+          <div class="article-card-title">${escHtml(a.title)}</div>
+          <div class="article-meta">${a.author ? `By ${escHtml(a.author)} · ` : ''}${formatDate(a.published_at)}</div>
+          <div class="article-preview">${escHtml(a.preview)}</div>
+          ${tags.length ? `<div class="tag-list">${tags.map(t => `<span class="tag-badge">${escHtml(t)}</span>`).join('')}</div>` : ''}
+        </div>
+      </a>`;
+    }).join('');
+  } catch (e) {
+    loadingEl.style.display = 'none';
+    listEl.innerHTML = '<div class="feed-empty">Could not load articles. Please try again later.</div>';
+  }
+}
+
+async function loadArticle(slug) {
+  const detailEl = document.getElementById('article-detail');
+  detailEl.innerHTML = '<div style="text-align:center;padding:60px;color:var(--muted);"><span class="spinner"></span> Loading article...</div>';
+  try {
+    const res = await fetch(`/api/admin-articles?slug=${encodeURIComponent(slug)}`);
+    if (!res.ok) throw new Error('Fetch failed');
+    const article = await res.json();
+    if (!article) {
+      detailEl.innerHTML = '<div class="feed-empty">Article not found.</div>';
+      return;
+    }
+    renderArticle(article);
+    loadRelated(article.gw, article.id);
+    updateSEO(article);
+  } catch (e) {
+    detailEl.innerHTML = '<div class="feed-empty">Could not load article. Please try again later.</div>';
+  }
+}
+
+function renderArticle(a) {
+  const detailEl = document.getElementById('article-detail');
+  const tags = a.tags ? a.tags.split(',').map(t => t.trim()).filter(Boolean) : [];
+  const contentHtml = typeof marked !== 'undefined' ? marked.parse(a.full_content || '') : escHtml(a.full_content || '');
+
+  detailEl.innerHTML = `
+    ${a.cover_image ? `<img class="detail-cover" src="${escHtml(a.cover_image)}" alt=""/>` : ''}
+    <span class="gw-badge" style="margin-bottom:14px;">GW ${a.gw}</span>
+    ${tags.length ? `<div class="tag-list" style="margin-bottom:14px;">${tags.map(t => `<span class="tag-badge">${escHtml(t)}</span>`).join('')}</div>` : ''}
+    <div class="detail-title">${escHtml(a.title)}</div>
+    <div class="detail-author-block">
+      <div class="author-avatar">${getInitials(a.author)}</div>
+      <div class="author-info">
+        <div class="author-name">${escHtml(a.author || 'FPLGWReady')}</div>
+        ${a.author_bio ? `<div class="author-bio-text">${escHtml(a.author_bio)}</div>` : ''}
+      </div>
+      <div class="detail-date">${formatDate(a.published_at)}</div>
+    </div>
+    <div class="article-content">${contentHtml}</div>
+  `;
+}
+
+function updateSEO(a) {
+  document.title = `${a.title} — FPLGWReady Insights`;
+  document.getElementById('meta-desc').setAttribute('content', a.preview || '');
+  document.getElementById('og-title').setAttribute('content', a.title);
+  document.getElementById('og-desc').setAttribute('content', a.preview || '');
+  document.getElementById('og-url').setAttribute('content', `https://fplgwready.vercel.app/insight.html?article=${encodeURIComponent(a.slug)}`);
+  if (a.cover_image) document.getElementById('og-image').setAttribute('content', a.cover_image);
+}
+
+async function loadRelated(gw, currentId) {
+  try {
+    const res = await fetch(`/api/admin-articles?gw=${gw}`);
+    if (!res.ok) return;
+    const articles = await res.json();
+    const related = articles.filter(a => a.id !== currentId).slice(0, 4);
+    if (!related.length) return;
+
+    const section = document.getElementById('related-section');
+    const grid = document.getElementById('related-articles');
+    section.style.display = 'block';
+    grid.innerHTML = related.map(a => `
+      <a class="related-card" href="/insight.html?article=${encodeURIComponent(a.slug)}">
+        ${a.cover_image ? `<img class="related-cover" src="${escHtml(a.cover_image)}" alt="" loading="lazy"/>` : '<div class="related-cover" style="background:var(--surface2);"></div>'}
+        <div class="related-body">
+          <div class="related-card-title">${escHtml(a.title)}</div>
+          <div class="related-card-meta">GW ${a.gw} · ${formatDate(a.published_at)}</div>
+        </div>
+      </a>
+    `).join('');
+  } catch (e) {}
+}
+</script>
 </body>
 </html>

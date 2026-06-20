@@ -33,8 +33,9 @@
     .page-sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 16px; box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
     .input-label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 8px; display: block; }
-    input[type="text"], input[type="password"], input[type="number"], select { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 14px; color: var(--text); font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; width: 100%; }
-    input:focus, select:focus { border-color: var(--accent); }
+    input[type="text"], input[type="password"], input[type="number"], select, textarea { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 14px; color: var(--text); font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; width: 100%; }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+    textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
     input::placeholder { color: var(--muted); opacity: 0.7; }
     select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B63A8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
     .field-group { display: flex; flex-direction: column; gap: 6px; }
@@ -121,7 +122,7 @@
 <div id="admin-content">
   <div class="container">
     <div class="page-title">FPLGWR Admin Panel</div>
-    <p class="page-sub">Manage polls, challenge status, game pairs, and scoring.</p>
+    <p class="page-sub">Manage polls, challenge status, game pairs, scoring, and articles.</p>
 
     <div class="card">
       <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Create New Poll</div>
@@ -305,6 +306,65 @@
       <div class="success-msg" id="score-success" style="margin-top:12px;"></div>
     </div>
 
+    <!-- ── Section 4: Article Editor ── -->
+    <div class="section-title" style="margin-top:40px;">Article Editor <span class="section-badge">Insights</span></div>
+    <div class="card">
+      <div style="font-size:15px;font-weight:700;margin-bottom:16px;" id="art-form-title">New Article</div>
+      <div class="form-grid">
+        <div class="field-group">
+          <label class="input-label" for="art-gw">Gameweek</label>
+          <input type="number" id="art-gw" placeholder="e.g. 38" min="1" max="38"/>
+        </div>
+        <div class="field-group">
+          <label class="input-label" for="art-author">Author Name</label>
+          <input type="text" id="art-author" placeholder="e.g. Coach Ken"/>
+        </div>
+        <div class="field-group span2">
+          <label class="input-label" for="art-title">Title</label>
+          <input type="text" id="art-title" placeholder="e.g. GW38 Captain Picks — Who to Trust"/>
+        </div>
+        <div class="field-group span2">
+          <label class="input-label" for="art-slug">Slug (auto-generated)</label>
+          <input type="text" id="art-slug" placeholder="gw38-captain-picks-who-to-trust"/>
+        </div>
+        <div class="field-group span2">
+          <label class="input-label" for="art-cover">Cover Image URL</label>
+          <input type="text" id="art-cover" placeholder="https://..."/>
+        </div>
+        <div class="field-group span2">
+          <label class="input-label" for="art-tags">Tags (comma separated)</label>
+          <input type="text" id="art-tags" placeholder="e.g. Captain, Transfers, GW38"/>
+        </div>
+        <div class="field-group span2">
+          <label class="input-label" for="art-author-bio">Author Bio</label>
+          <input type="text" id="art-author-bio" placeholder="e.g. 10 years FPL veteran, OR 3,358 last season"/>
+        </div>
+        <div class="field-group span2">
+          <label class="input-label" for="art-preview">Preview (2 paragraphs — shown in listing)</label>
+          <textarea id="art-preview" rows="4" placeholder="Brief teaser shown on the article listing page..."></textarea>
+        </div>
+        <div class="field-group span2">
+          <label class="input-label" for="art-content">Full Content (Markdown supported)</label>
+          <textarea id="art-content" rows="12" placeholder="## Your Heading&#10;&#10;Full article content here. Markdown is supported — headers, bold, lists, links, images, blockquotes, etc."></textarea>
+        </div>
+        <div class="field-group span2" style="flex-direction:row;align-items:center;gap:10px;">
+          <input type="checkbox" id="art-publish" style="width:auto;"/>
+          <label for="art-publish" style="font-size:14px;font-weight:600;cursor:pointer;">Publish immediately</label>
+        </div>
+        <div class="span2" style="display:flex;gap:10px;">
+          <button class="btn btn-full" id="art-submit-btn" onclick="submitArticle()">Create Article →</button>
+          <button class="btn btn-full" id="art-cancel-btn" onclick="cancelEditArticle()" style="display:none;background:var(--muted);">Cancel</button>
+        </div>
+      </div>
+      <div class="error-msg" id="art-error"></div>
+      <div class="success-msg" id="art-success"></div>
+    </div>
+
+    <div class="section-title">All Articles <span class="section-badge" id="art-count">—</span></div>
+    <div id="art-list" class="poll-list">
+      <div class="feed-empty">Loading articles...</div>
+    </div>
+
   </div>
 </div>
 
@@ -349,7 +409,7 @@ async function initAdmin(pw) {
   sessionStorage.setItem('admin_pw', password);
   document.getElementById('gate').style.display = 'none';
   document.getElementById('admin-content').style.display = 'block';
-  await loadPolls();
+  await Promise.all([loadPolls(), loadArticles()]);
 }
 
 if (sessionStorage.getItem('admin_pw')) initAdmin();
@@ -823,6 +883,161 @@ async function confirmScores() {
     err.textContent = e.message || 'Could not update scores.'; err.style.display = 'block';
   } finally {
     btn.disabled = false; btn.textContent = 'Confirm & Update All Scores →';
+  }
+}
+
+// ── Section 4: Article Editor ────────────────────────────
+let articlesData = [];
+let editingArticleId = null;
+
+document.getElementById('art-title').addEventListener('input', e => {
+  if (!editingArticleId) {
+    document.getElementById('art-slug').value = e.target.value.toLowerCase().trim()
+      .replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+  }
+});
+
+async function submitArticle() {
+  const gw = parseInt(document.getElementById('art-gw').value);
+  const title = document.getElementById('art-title').value.trim();
+  const slug = document.getElementById('art-slug').value.trim();
+  const cover_image = document.getElementById('art-cover').value.trim();
+  const tags = document.getElementById('art-tags').value.trim();
+  const author = document.getElementById('art-author').value.trim();
+  const author_bio = document.getElementById('art-author-bio').value.trim();
+  const preview = document.getElementById('art-preview').value.trim();
+  const full_content = document.getElementById('art-content').value;
+  const is_published = document.getElementById('art-publish').checked;
+  const err = document.getElementById('art-error');
+  const ok = document.getElementById('art-success');
+  const btn = document.getElementById('art-submit-btn');
+  err.style.display = 'none'; ok.style.display = 'none';
+
+  if (!gw || gw < 1 || gw > 38) { err.textContent = 'Enter a valid GW (1–38).'; err.style.display = 'block'; return; }
+  if (!title) { err.textContent = 'Title is required.'; err.style.display = 'block'; return; }
+  if (!slug) { err.textContent = 'Slug is required.'; err.style.display = 'block'; return; }
+
+  btn.disabled = true; btn.textContent = editingArticleId ? 'Updating...' : 'Creating...';
+  try {
+    if (editingArticleId) {
+      await adminFetch('/api/admin-articles', {
+        method: 'PATCH',
+        body: JSON.stringify({ id: editingArticleId, gw, title, slug, cover_image, tags, author, author_bio, preview, full_content, is_published })
+      });
+      ok.textContent = `✓ Article updated: ${title}`;
+    } else {
+      await adminFetch('/api/admin-articles', {
+        method: 'POST',
+        body: JSON.stringify({ gw, title, slug, cover_image, tags, author, author_bio, preview, full_content, is_published })
+      });
+      ok.textContent = `✓ Article created: ${title}`;
+    }
+    ok.style.display = 'block';
+    cancelEditArticle();
+    loadArticles();
+  } catch(e) {
+    err.textContent = e.message || 'Could not save article.'; err.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = editingArticleId ? 'Update Article →' : 'Create Article →';
+  }
+}
+
+function clearArticleForm() {
+  ['art-gw', 'art-title', 'art-slug', 'art-cover', 'art-tags', 'art-author', 'art-author-bio'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('art-preview').value = '';
+  document.getElementById('art-content').value = '';
+  document.getElementById('art-publish').checked = false;
+}
+
+function cancelEditArticle() {
+  editingArticleId = null;
+  clearArticleForm();
+  document.getElementById('art-form-title').textContent = 'New Article';
+  document.getElementById('art-submit-btn').textContent = 'Create Article →';
+  document.getElementById('art-cancel-btn').style.display = 'none';
+}
+
+function editArticle(id) {
+  const a = articlesData.find(x => x.id === id);
+  if (!a) return;
+  editingArticleId = id;
+  document.getElementById('art-gw').value = a.gw || '';
+  document.getElementById('art-title').value = a.title || '';
+  document.getElementById('art-slug').value = a.slug || '';
+  document.getElementById('art-cover').value = a.cover_image || '';
+  document.getElementById('art-tags').value = a.tags || '';
+  document.getElementById('art-author').value = a.author || '';
+  document.getElementById('art-author-bio').value = a.author_bio || '';
+  document.getElementById('art-preview').value = a.preview || '';
+  document.getElementById('art-content').value = a.full_content || '';
+  document.getElementById('art-publish').checked = !!a.is_published;
+  document.getElementById('art-form-title').textContent = 'Edit Article';
+  document.getElementById('art-submit-btn').textContent = 'Update Article →';
+  document.getElementById('art-cancel-btn').style.display = 'block';
+  document.getElementById('art-error').style.display = 'none';
+  document.getElementById('art-success').style.display = 'none';
+  document.getElementById('art-form-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function loadArticles() {
+  const listEl = document.getElementById('art-list');
+  const countEl = document.getElementById('art-count');
+  listEl.innerHTML = '<div class="feed-empty"><span class="spinner"></span>Loading...</div>';
+  try {
+    articlesData = await adminFetch('/api/admin-articles');
+    countEl.textContent = `${articlesData.length} total`;
+    if (!articlesData.length) {
+      listEl.innerHTML = '<div class="feed-empty">No articles yet.</div>';
+      return;
+    }
+    listEl.innerHTML = articlesData.map(a => `
+      <div class="poll-admin-card" id="art-${a.id}">
+        <div class="poll-admin-body">
+          <div class="poll-admin-type">GW${a.gw} · ${a.is_published ? '<span style="color:var(--green);">Published</span>' : '<span style="color:var(--muted);">Draft</span>'}</div>
+          <div class="poll-admin-question">${escHtml(a.title)}</div>
+          <div class="poll-admin-options">${a.slug} ${a.tags ? '· ' + escHtml(a.tags) : ''}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+          <button class="btn btn-sm" onclick="editArticle('${a.id}')">Edit</button>
+          <button class="btn btn-sm ${a.is_published ? 'btn-red' : 'btn-green'}" onclick="toggleArticlePublish('${a.id}', ${!a.is_published})">${a.is_published ? 'Unpublish' : 'Publish'}</button>
+          <button class="btn btn-red btn-sm" onclick="deleteArticle('${a.id}')">Delete</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    listEl.innerHTML = `<div class="feed-empty">⚠️ ${e.message}</div>`;
+  }
+}
+
+async function toggleArticlePublish(id, newState) {
+  const card = document.getElementById(`art-${id}`);
+  const btns = card.querySelectorAll('button');
+  btns.forEach(b => b.disabled = true);
+  try {
+    await adminFetch('/api/admin-articles', {
+      method: 'PATCH',
+      body: JSON.stringify({ id, is_published: newState, published_at: newState ? new Date().toISOString() : null })
+    });
+    loadArticles();
+  } catch(e) {
+    alert('Error: ' + e.message);
+    btns.forEach(b => b.disabled = false);
+  }
+}
+
+async function deleteArticle(id) {
+  if (!confirm('Delete this article permanently?')) return;
+  const card = document.getElementById(`art-${id}`);
+  const btns = card.querySelectorAll('button');
+  btns.forEach(b => b.disabled = true);
+  try {
+    await adminFetch('/api/admin-articles', { method: 'DELETE', body: JSON.stringify({ id }) });
+    card.style.opacity = '0.4'; card.style.pointerEvents = 'none';
+    setTimeout(() => { card.remove(); loadArticles(); }, 500);
+  } catch(e) {
+    alert('Error: ' + e.message);
+    btns.forEach(b => b.disabled = false);
   }
 }
 </script>
