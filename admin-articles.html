@@ -171,7 +171,7 @@ async function handleCoverUpload(input) {
   try {
     const res = await fetch(`${sbUrl}/storage/v1/object/article-images/${filename}`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${sbAnonKey}`, 'Content-Type': file.type },
+      headers: { apikey: sbAnonKey, Authorization: `Bearer ${sbAnonKey}`, 'Content-Type': file.type },
       body: file
     });
     if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.message || e.error || 'Upload failed'); }
