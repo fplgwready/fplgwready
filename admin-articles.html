@@ -6,7 +6,12 @@
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>FPLGWReady — Admin Articles</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet"/>
   <style>
+    .ql-toolbar.ql-snow{border:1px solid var(--border);border-radius:10px 10px 0 0;background:var(--surface2);font-family:'Inter',sans-serif}
+    .ql-container.ql-snow{border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;font-family:'Inter',sans-serif;font-size:14px;min-height:280px;background:#fff}
+    .ql-editor{min-height:280px;line-height:1.7;color:var(--text)}
+    .ql-editor.ql-blank::before{color:var(--muted);opacity:0.7;font-style:normal}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{--bg:#F8F9FF;--surface:#FFFFFF;--surface2:#F0F2FF;--accent:#1A6FFF;--accent2:#6C5CE7;--text:#1A1535;--muted:#6B63A8;--border:rgba(108,92,231,0.15);--radius:16px;--green:#00976B;--red:#E84040}
     body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
@@ -90,7 +95,10 @@
         <div class="field-group span2"><label class="input-label" for="art-tags">Tags (comma separated)</label><input type="text" id="art-tags" placeholder="e.g. Captain, Transfers, GW38"/></div>
         <div class="field-group span2"><label class="input-label" for="art-author-bio">Author Bio</label><input type="text" id="art-author-bio" placeholder="e.g. 10 years FPL veteran, OR 3,358 last season"/></div>
         <div class="field-group span2"><label class="input-label" for="art-preview">Preview (2 paragraphs — shown in listing)</label><textarea id="art-preview" rows="4" placeholder="Brief teaser shown on the article listing page..."></textarea></div>
-        <div class="field-group span2"><label class="input-label" for="art-content">Full Content (Markdown supported)</label><textarea id="art-content" rows="12" placeholder="## Your Heading&#10;&#10;Full article content here. Markdown is supported — headers, bold, lists, links, images, blockquotes, etc."></textarea></div>
+        <div class="field-group span2">
+          <label class="input-label">Full Content</label>
+          <div id="art-editor"></div>
+        </div>
         <div class="field-group span2" style="flex-direction:row;align-items:center;gap:10px;">
           <input type="checkbox" id="art-publish" style="width:auto;"/>
           <label for="art-publish" style="font-size:14px;font-weight:600;cursor:pointer;">Publish immediately</label>
@@ -109,7 +117,22 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 <script>
+const quill = new Quill('#art-editor', {
+  theme: 'snow',
+  placeholder: 'Write your article here...',
+  modules: {
+    toolbar: [
+      [{ header: [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline'],
+      [{ color: [] }],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      ['blockquote', 'link', 'image']
+    ]
+  }
+});
+
 function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 async function checkPassword() {
@@ -165,7 +188,7 @@ async function submitArticle() {
   const author = document.getElementById('art-author').value.trim();
   const author_bio = document.getElementById('art-author-bio').value.trim();
   const preview = document.getElementById('art-preview').value.trim();
-  const full_content = document.getElementById('art-content').value;
+  const full_content = quill.root.innerHTML;
   const is_published = document.getElementById('art-publish').checked;
   const err = document.getElementById('art-error');
   const ok = document.getElementById('art-success');
@@ -190,7 +213,8 @@ async function submitArticle() {
 
 function clearArticleForm() {
   ['art-gw','art-title','art-slug','art-cover','art-tags','art-author','art-author-bio'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('art-preview').value = ''; document.getElementById('art-content').value = '';
+  document.getElementById('art-preview').value = '';
+  quill.setContents([]);
   document.getElementById('art-publish').checked = false;
 }
 
@@ -213,7 +237,7 @@ function editArticle(id) {
   document.getElementById('art-author').value = a.author || '';
   document.getElementById('art-author-bio').value = a.author_bio || '';
   document.getElementById('art-preview').value = a.preview || '';
-  document.getElementById('art-content').value = a.full_content || '';
+  quill.root.innerHTML = a.full_content || '';
   document.getElementById('art-publish').checked = !!a.is_published;
   document.getElementById('art-form-title').textContent = 'Edit Article';
   document.getElementById('art-submit-btn').textContent = 'Update Article →';
