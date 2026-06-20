@@ -1,110 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-TKD64XPYQ5"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-TKD64XPYQ5');
-  </script>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-TKD64XPYQ5');</script>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>FPLGWReady — Admin</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #F8F9FF; --surface: #FFFFFF; --surface2: #F0F2FF;
-      --accent: #1A6FFF; --accent2: #6C5CE7; --text: #1A1535;
-      --muted: #6B63A8; --border: rgba(108,92,231,0.15); --radius: 16px;
-      --green: #00976B; --red: #E84040;
-    }
-    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; overflow-x: hidden; }
-    nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; border-bottom: 1px solid var(--border); background: rgba(248,249,255,0.92); backdrop-filter: blur(12px); }
-    .logo { font-weight: 800; font-size: 22px; letter-spacing: -0.5px; text-decoration: none; color: var(--text); display: flex; align-items: center; gap: 10px; }
-    .logo span { color: var(--accent2); }
-    .nav-right { display: flex; gap: 8px; align-items: center; }
-    .nav-link { background: var(--surface2); border: 1px solid var(--border); padding: 6px 14px; border-radius: 100px; font-size: 13px; color: var(--muted); text-decoration: none; }
-    .admin-badge { font-size: 11px; background: rgba(232,64,64,0.1); color: var(--red); padding: 4px 10px; border-radius: 100px; font-weight: 700; }
-    .container { max-width: 720px; margin: 40px auto; padding: 0 24px 80px; }
-    .page-title { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
-    .page-sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 16px; box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
-    .input-label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 8px; display: block; }
-    input[type="text"], input[type="password"], input[type="number"], select, textarea { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 14px; color: var(--text); font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; width: 100%; }
-    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
-    textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
-    input::placeholder { color: var(--muted); opacity: 0.7; }
-    select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B63A8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
-    .field-group { display: flex; flex-direction: column; gap: 6px; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
-    .form-grid .span2 { grid-column: span 2; }
-    .btn { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 12px 22px; font-size: 15px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }
-    .btn:hover { opacity: 0.88; }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-full { width: 100%; }
-    .btn-red { background: var(--red); }
-    .btn-sm { padding: 7px 14px; font-size: 13px; border-radius: 8px; }
-    .error-msg { background: rgba(220,50,50,0.08); border: 1px solid rgba(220,50,50,0.2); color: #CC3333; border-radius: 10px; padding: 12px 16px; font-size: 14px; margin-top: 12px; display: none; }
-    .success-msg { background: rgba(0,151,107,0.08); border: 1px solid rgba(0,151,107,0.2); color: var(--green); border-radius: 10px; padding: 12px 16px; font-size: 14px; margin-top: 12px; display: none; }
-    .section-title { font-size: 16px; font-weight: 700; margin: 28px 0 12px; display: flex; align-items: center; gap: 8px; }
-    .section-badge { font-size: 11px; padding: 2px 9px; border-radius: 100px; background: rgba(26,111,255,0.1); color: var(--accent); font-weight: 600; }
-    /* Password gate */
-    #gate { display: block; }
-    #admin-content { display: none; }
-    .gate-card { max-width: 400px; margin: 80px auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; box-shadow: 0 2px 16px rgba(108,92,231,0.08); text-align: center; }
-    .gate-icon { font-size: 40px; margin-bottom: 16px; }
-    .gate-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
-    .gate-sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
-    /* Poll admin list */
-    .poll-admin-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; display: flex; align-items: flex-start; gap: 12px; }
-    .poll-admin-body { flex: 1; min-width: 0; }
-    .poll-admin-type { font-size: 11px; font-weight: 700; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-    .poll-admin-question { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
-    .poll-admin-options { font-size: 13px; color: var(--muted); }
-    .poll-admin-votes { display: flex; gap: 16px; margin-top: 8px; }
-    .vote-stat { font-size: 12px; font-weight: 700; }
-    .vote-stat-a { color: var(--accent); }
-    .vote-stat-b { color: var(--accent2); }
-    .vote-stat-label { font-weight: 400; color: var(--muted); }
-    .poll-list { display: flex; flex-direction: column; gap: 10px; }
-    .feed-empty { text-align: center; padding: 40px 0; color: var(--muted); font-size: 14px; background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius); }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
-    .btn-green { background: var(--green); }
-    .lb-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-    .lb-row { display: flex; align-items: center; gap: 12px; padding: 11px 18px; border-bottom: 1px solid var(--border); }
-    .lb-row:last-child { border-bottom: none; }
-    .lb-rank { font-size: 18px; min-width: 26px; text-align: center; flex-shrink: 0; }
-    .lb-rank-num { font-size: 13px; font-weight: 800; color: var(--muted); }
-    .lb-name { flex: 1; font-size: 13px; font-weight: 700; min-width: 0; }
-    .lb-name-sub { font-size: 11px; font-weight: 400; color: var(--muted); margin-top: 2px; }
-    .lb-score { font-size: 15px; font-weight: 800; color: var(--accent2); white-space: nowrap; }
-    .lb-score-label { font-size: 11px; color: var(--muted); font-weight: 400; }
-    .tot-result-group { display: flex; gap: 10px; flex-wrap: wrap; }
-    .tot-result-label { display: flex; align-items: center; gap: 5px; font-size: 13px; cursor: pointer; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; transition: border-color 0.15s; }
-    .tot-result-label:hover { border-color: var(--accent2); }
-    .tot-result-label input[type="radio"] { accent-color: var(--accent); }
-    @media (max-width: 540px) {
-      nav { padding: 14px 16px; }
-      .container { margin-top: 24px; }
-      .form-grid { grid-template-columns: 1fr; }
-      .form-grid .span2 { grid-column: span 1; }
-    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#F8F9FF;--surface:#FFFFFF;--surface2:#F0F2FF;--accent:#1A6FFF;--accent2:#6C5CE7;--text:#1A1535;--muted:#6B63A8;--border:rgba(108,92,231,0.15);--radius:16px;--green:#00976B;--red:#E84040}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
+    nav{display:flex;align-items:center;justify-content:space-between;padding:20px 40px;border-bottom:1px solid var(--border);background:rgba(248,249,255,0.92);backdrop-filter:blur(12px)}
+    .logo{font-weight:800;font-size:22px;letter-spacing:-0.5px;text-decoration:none;color:var(--text);display:flex;align-items:center;gap:10px}.logo span{color:var(--accent2)}
+    .nav-right{display:flex;gap:8px;align-items:center}
+    .nav-link{background:var(--surface2);border:1px solid var(--border);padding:6px 14px;border-radius:100px;font-size:13px;color:var(--muted);text-decoration:none}
+    .admin-badge{font-size:11px;background:rgba(232,64,64,0.1);color:var(--red);padding:4px 10px;border-radius:100px;font-weight:700}
+    .admin-nav{display:flex;gap:6px;padding:14px 24px;background:var(--surface);border-bottom:1px solid var(--border);justify-content:center;flex-wrap:wrap}
+    .admin-nav-link{padding:6px 16px;border-radius:100px;font-size:13px;font-weight:600;color:var(--muted);text-decoration:none;border:1px solid transparent;transition:all 0.15s}
+    .admin-nav-link:hover{color:var(--text);border-color:var(--border)}
+    .admin-nav-link.active{color:var(--accent);border-color:var(--accent);background:rgba(26,111,255,0.06)}
+    .container{max-width:720px;margin:40px auto;padding:0 24px 80px}
+    .page-title{font-size:26px;font-weight:800;margin-bottom:6px}
+    .page-sub{color:var(--muted);font-size:14px;margin-bottom:28px}
+    input[type="password"]{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:14px;color:var(--text);font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s;width:100%}
+    input:focus{border-color:var(--accent)}
+    input::placeholder{color:var(--muted);opacity:0.7}
+    .field-group{display:flex;flex-direction:column;gap:6px}
+    .btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:12px 22px;font-size:15px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:opacity 0.2s;white-space:nowrap}
+    .btn:hover{opacity:0.88}.btn:disabled{opacity:0.4;cursor:not-allowed}.btn-full{width:100%}
+    .error-msg{background:rgba(220,50,50,0.08);border:1px solid rgba(220,50,50,0.2);color:#CC3333;border-radius:10px;padding:12px 16px;font-size:14px;margin-top:12px;display:none}
+    #gate{display:block}#admin-content{display:none}
+    .gate-card{max-width:400px;margin:80px auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px;box-shadow:0 2px 16px rgba(108,92,231,0.08);text-align:center}
+    .gate-icon{font-size:40px;margin-bottom:16px}.gate-title{font-size:20px;font-weight:800;margin-bottom:6px}.gate-sub{font-size:14px;color:var(--muted);margin-bottom:20px}
+    .hub-card{display:block;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:14px;text-decoration:none;color:inherit;transition:transform 0.15s,box-shadow 0.15s;position:relative;overflow:hidden}
+    .hub-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent2),var(--accent));opacity:0;transition:opacity 0.15s}
+    .hub-card:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(108,92,231,0.1)}
+    .hub-card:hover::before{opacity:1}
+    .hub-icon{font-size:32px;margin-bottom:12px}
+    .hub-title{font-size:18px;font-weight:800;margin-bottom:6px}
+    .hub-desc{font-size:14px;color:var(--muted);line-height:1.5}
+    @media(max-width:540px){nav{padding:14px 16px}.container{margin-top:24px}.admin-nav{padding:10px 16px;gap:4px}.admin-nav-link{padding:5px 12px;font-size:12px}}
   </style>
 </head>
 <body>
 <nav>
   <a class="logo" href="/"><img src="/logo.jpeg" alt="" style="width:34px;height:34px;border-radius:8px;object-fit:cover;object-position:center 32%;flex-shrink:0;"/><span>FPL</span>GWReady</a>
-  <div class="nav-right">
-    <span class="admin-badge">Admin</span>
-    <a class="nav-link" href="/community.html">Community</a>
-  </div>
+  <div class="nav-right"><span class="admin-badge">Admin</span><a class="nav-link" href="/community.html">Community</a></div>
 </nav>
 
-<!-- Password gate -->
 <div id="gate">
   <div class="gate-card">
     <div class="gate-icon">🔐</div>
@@ -118,928 +61,62 @@
   </div>
 </div>
 
-<!-- Admin content -->
 <div id="admin-content">
+  <div class="admin-nav">
+    <a href="/admin.html" class="admin-nav-link active">Dashboard</a>
+    <a href="/admin-polls.html" class="admin-nav-link">Polls</a>
+    <a href="/admin-challenge.html" class="admin-nav-link">Challenge</a>
+    <a href="/admin-articles.html" class="admin-nav-link">Articles</a>
+  </div>
   <div class="container">
     <div class="page-title">FPLGWR Admin Panel</div>
-    <p class="page-sub">Manage polls, challenge status, game pairs, scoring, and articles.</p>
+    <p class="page-sub">Select a section to manage.</p>
 
-    <div class="card">
-      <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Create New Poll</div>
-      <div class="form-grid">
-        <div class="field-group">
-          <label class="input-label" for="poll-gw">Gameweek</label>
-          <input type="number" id="poll-gw" placeholder="e.g. 38" min="1" max="38"/>
-        </div>
-        <div class="field-group">
-          <label class="input-label" for="poll-type">Type</label>
-          <select id="poll-type">
-            <option value="captain">👑 Captain?</option>
-            <option value="bench">🪑 Bench?</option>
-            <option value="transfer">🔄 Transfer?</option>
-            <option value="custom">💡 Custom</option>
-          </select>
-        </div>
-        <div class="field-group span2">
-          <label class="input-label" for="poll-question">Question *</label>
-          <input type="text" id="poll-question" placeholder="e.g. Who should be captain vs Arsenal?"/>
-        </div>
-        <div class="field-group">
-          <label class="input-label" for="poll-a">Option A *</label>
-          <input type="text" id="poll-a" placeholder="e.g. Salah"/>
-        </div>
-        <div class="field-group">
-          <label class="input-label" for="poll-b">Option B *</label>
-          <input type="text" id="poll-b" placeholder="e.g. Haaland"/>
-        </div>
-        <div class="span2">
-          <button class="btn btn-full" id="create-btn" onclick="createPoll()">Create Poll →</button>
-        </div>
-      </div>
-      <div class="error-msg" id="create-error"></div>
-      <div class="success-msg" id="create-success"></div>
-    </div>
+    <a class="hub-card" href="/admin-polls.html">
+      <div class="hub-icon">📊</div>
+      <div class="hub-title">GW Dilemmas</div>
+      <div class="hub-desc">Create and manage community polls — captain picks, bench dilemmas, transfer debates.</div>
+    </a>
 
-    <div class="section-title">Active Polls <span class="section-badge" id="poll-count">Loading...</span></div>
-    <div id="poll-list" class="poll-list">
-      <div class="feed-empty"><span class="spinner"></span>Loading polls...</div>
-    </div>
+    <a class="hub-card" href="/admin-challenge.html">
+      <div class="hub-icon">🎯</div>
+      <div class="hub-title">Challenge Management</div>
+      <div class="hub-desc">Toggle submission status, set captain brackets, manage This or That pairs, and calculate GW scores.</div>
+    </a>
 
-    <!-- ── Section 1: Challenge Status ── -->
-    <div class="section-title" style="margin-top:40px;">Challenge Status <span class="section-badge">Open / Close</span></div>
-    <div class="card">
-      <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Toggle submission window per GW</div>
-      <div class="form-grid">
-        <div class="field-group">
-          <label class="input-label" for="cfg-gw">Gameweek</label>
-          <input type="number" id="cfg-gw" placeholder="e.g. 38" min="1" max="38"/>
-        </div>
-        <div class="field-group" style="justify-content:flex-end;">
-          <label class="input-label">Current Status</label>
-          <div id="cfg-status-display" style="font-size:16px;font-weight:800;color:var(--muted);padding-top:4px;">—</div>
-        </div>
-        <div>
-          <button class="btn btn-full" id="cfg-load-btn" onclick="loadChallengeStatus()">Load Status →</button>
-        </div>
-        <div>
-          <button class="btn btn-full" id="cfg-toggle-btn" onclick="toggleChallengeStatus()" style="display:none;">Toggle →</button>
-        </div>
-      </div>
-      <div class="error-msg" id="cfg-error"></div>
-      <div class="success-msg" id="cfg-success"></div>
-    </div>
-
-    <!-- ── Section 1b: Captain Bracket Manager ── -->
-    <div class="section-title" style="margin-top:40px;">Captain Bracket Manager <span class="section-badge">Bracket Config</span></div>
-    <div class="card">
-      <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Set the 2 bracket players for a GW</div>
-      <div class="form-grid">
-        <div class="field-group">
-          <label class="input-label" for="cb-gw">Gameweek</label>
-          <input type="number" id="cb-gw" placeholder="e.g. 38" min="1" max="38"/>
-        </div>
-        <div style="display:flex;align-items:flex-end;">
-          <button class="btn btn-full" onclick="loadCaptainBrackets(parseInt(document.getElementById('cb-gw').value))">Load Brackets →</button>
-        </div>
-        <div class="field-group">
-          <label class="input-label" for="cb-player1">Player 1 (Slot 1)</label>
-          <input type="text" id="cb-player1" placeholder="e.g. Salah"/>
-        </div>
-        <div class="field-group">
-          <label class="input-label" for="cb-player2">Player 2 (Slot 2)</label>
-          <input type="text" id="cb-player2" placeholder="e.g. Haaland"/>
-        </div>
-        <div class="span2">
-          <button class="btn btn-full" id="cb-add-btn" onclick="addCaptainBrackets()">Set Players →</button>
-        </div>
-      </div>
-      <div class="error-msg" id="cb-error"></div>
-      <div class="success-msg" id="cb-success"></div>
-    </div>
-    <div class="section-title">Active Bracket Players <span class="section-badge" id="cb-gw-badge">—</span></div>
-    <div id="cb-list" class="poll-list">
-      <div class="feed-empty">Enter a GW above and click Load Brackets.</div>
-    </div>
-
-    <!-- ── Section 2: This or That Pairs ── -->
-    <div class="section-title" style="margin-top:40px;">This or That Pairs <span class="section-badge">Pair Manager</span></div>
-    <div class="card">
-      <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Add New Pair</div>
-      <div class="form-grid">
-        <div class="field-group">
-          <label class="input-label" for="tot-gw">Gameweek</label>
-          <input type="number" id="tot-gw" placeholder="e.g. 38" min="1" max="38"/>
-        </div>
-        <div style="display:flex;align-items:flex-end;">
-          <button class="btn btn-full" onclick="loadTotPairs(parseInt(document.getElementById('tot-gw').value))">Load Pairs →</button>
-        </div>
-        <div class="field-group">
-          <label class="input-label" for="tot-player-a">Player A</label>
-          <input type="text" id="tot-player-a" placeholder="e.g. Salah"/>
-        </div>
-        <div class="field-group">
-          <label class="input-label" for="tot-player-b">Player B</label>
-          <input type="text" id="tot-player-b" placeholder="e.g. Haaland"/>
-        </div>
-        <div class="span2">
-          <button class="btn btn-full" id="tot-add-btn" onclick="addTotPair()">Add Pair →</button>
-        </div>
-      </div>
-      <div class="error-msg" id="tot-error"></div>
-      <div class="success-msg" id="tot-success"></div>
-    </div>
-    <div class="section-title">GW Pairs <span class="section-badge" id="tot-pairs-gw-badge">—</span></div>
-    <div id="tot-pairs-list" class="poll-list">
-      <div class="feed-empty">Enter a GW above and click Load Pairs.</div>
-    </div>
-
-    <!-- ── Section 3: Score Calculator ── -->
-    <div class="section-title" style="margin-top:40px;">Score Calculator <span class="section-badge">GW Scoring</span></div>
-    <div class="card">
-      <div class="form-grid" style="margin-bottom:0;">
-        <div class="field-group">
-          <label class="input-label" for="score-gw">Gameweek</label>
-          <input type="number" id="score-gw" placeholder="e.g. 38" min="1" max="38"/>
-        </div>
-        <div style="display:flex;align-items:flex-end;">
-          <button class="btn btn-full" id="score-load-btn" onclick="loadScoreData()">Load GW Data →</button>
-        </div>
-      </div>
-
-      <div id="score-form" style="display:none;margin-top:24px;">
-        <div style="border-top:1px solid var(--border);padding-top:20px;margin-bottom:20px;">
-          <div style="font-size:13px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">Game 1 — Top Scorer (40 pts)</div>
-          <div class="form-grid" style="margin-top:0;margin-bottom:12px;">
-            <div class="field-group">
-              <label class="input-label">Actual Top Scorer</label>
-              <input type="text" id="score-top-scorer" placeholder="e.g. Haaland"/>
-            </div>
-            <div class="field-group">
-              <label class="input-label">Their GW Pts</label>
-              <input type="number" id="score-top-pts" placeholder="e.g. 20" min="0"/>
-            </div>
-          </div>
-          <label class="input-label">Actual GW Pts per Predicted Player</label>
-          <div id="score-player-pts-list" style="display:flex;flex-direction:column;gap:8px;margin-top:8px;"></div>
-        </div>
-
-        <div style="border-top:1px solid var(--border);padding-top:20px;margin-bottom:20px;">
-          <div style="font-size:13px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">Game 2 — Captain Score Bracket (15 pts × 2)</div>
-          <label class="input-label">Actual GW Pts per Bracket Player</label>
-          <div id="score-captain-bracket-list" style="display:flex;flex-direction:column;gap:8px;margin-top:8px;"></div>
-        </div>
-
-        <div style="border-top:1px solid var(--border);padding-top:20px;margin-bottom:20px;">
-          <div style="font-size:13px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">Game 3 — This or That (10 pts × 3)</div>
-          <div id="score-tot-pairs" style="display:flex;flex-direction:column;gap:14px;"></div>
-        </div>
-
-        <button class="btn btn-full" onclick="previewScores()">Preview Scores →</button>
-      </div>
-      <div class="error-msg" id="score-error"></div>
-    </div>
-
-    <div id="score-preview-section" style="display:none;margin-top:8px;">
-      <div class="section-title">Score Preview <span class="section-badge" id="score-preview-badge">GW —</span></div>
-      <div id="score-preview-table" class="lb-card" style="margin-bottom:14px;"></div>
-      <button class="btn btn-green btn-full" id="score-confirm-btn" onclick="confirmScores()">Confirm &amp; Update All Scores →</button>
-      <div class="success-msg" id="score-success" style="margin-top:12px;"></div>
-    </div>
-
-    <!-- ── Section 4: Article Editor ── -->
-    <div class="section-title" style="margin-top:40px;">Article Editor <span class="section-badge">Insights</span></div>
-    <div class="card">
-      <div style="font-size:15px;font-weight:700;margin-bottom:16px;" id="art-form-title">New Article</div>
-      <div class="form-grid">
-        <div class="field-group">
-          <label class="input-label" for="art-gw">Gameweek</label>
-          <input type="number" id="art-gw" placeholder="e.g. 38" min="1" max="38"/>
-        </div>
-        <div class="field-group">
-          <label class="input-label" for="art-author">Author Name</label>
-          <input type="text" id="art-author" placeholder="e.g. Coach Ken"/>
-        </div>
-        <div class="field-group span2">
-          <label class="input-label" for="art-title">Title</label>
-          <input type="text" id="art-title" placeholder="e.g. GW38 Captain Picks — Who to Trust"/>
-        </div>
-        <div class="field-group span2">
-          <label class="input-label" for="art-slug">Slug (auto-generated)</label>
-          <input type="text" id="art-slug" placeholder="gw38-captain-picks-who-to-trust"/>
-        </div>
-        <div class="field-group span2">
-          <label class="input-label" for="art-cover">Cover Image URL</label>
-          <input type="text" id="art-cover" placeholder="https://..."/>
-        </div>
-        <div class="field-group span2">
-          <label class="input-label" for="art-tags">Tags (comma separated)</label>
-          <input type="text" id="art-tags" placeholder="e.g. Captain, Transfers, GW38"/>
-        </div>
-        <div class="field-group span2">
-          <label class="input-label" for="art-author-bio">Author Bio</label>
-          <input type="text" id="art-author-bio" placeholder="e.g. 10 years FPL veteran, OR 3,358 last season"/>
-        </div>
-        <div class="field-group span2">
-          <label class="input-label" for="art-preview">Preview (2 paragraphs — shown in listing)</label>
-          <textarea id="art-preview" rows="4" placeholder="Brief teaser shown on the article listing page..."></textarea>
-        </div>
-        <div class="field-group span2">
-          <label class="input-label" for="art-content">Full Content (Markdown supported)</label>
-          <textarea id="art-content" rows="12" placeholder="## Your Heading&#10;&#10;Full article content here. Markdown is supported — headers, bold, lists, links, images, blockquotes, etc."></textarea>
-        </div>
-        <div class="field-group span2" style="flex-direction:row;align-items:center;gap:10px;">
-          <input type="checkbox" id="art-publish" style="width:auto;"/>
-          <label for="art-publish" style="font-size:14px;font-weight:600;cursor:pointer;">Publish immediately</label>
-        </div>
-        <div class="span2" style="display:flex;gap:10px;">
-          <button class="btn btn-full" id="art-submit-btn" onclick="submitArticle()">Create Article →</button>
-          <button class="btn btn-full" id="art-cancel-btn" onclick="cancelEditArticle()" style="display:none;background:var(--muted);">Cancel</button>
-        </div>
-      </div>
-      <div class="error-msg" id="art-error"></div>
-      <div class="success-msg" id="art-success"></div>
-    </div>
-
-    <div class="section-title">All Articles <span class="section-badge" id="art-count">—</span></div>
-    <div id="art-list" class="poll-list">
-      <div class="feed-empty">Loading articles...</div>
-    </div>
-
+    <a class="hub-card" href="/admin-articles.html">
+      <div class="hub-icon">📝</div>
+      <div class="hub-title">Article Editor</div>
+      <div class="hub-desc">Write, edit, and publish Expert Insight articles with markdown support.</div>
+    </a>
   </div>
 </div>
 
 <script>
-const TYPE_LABEL = { captain: '👑 Captain?', bench: '🪑 Bench?', transfer: '🔄 Transfer?', custom: '💡 Custom' };
-
 async function checkPassword() {
   const pw = document.getElementById('gate-pw').value.trim();
   const err = document.getElementById('gate-error');
   const btn = document.querySelector('#gate .btn');
   if (!pw) return;
-  err.style.display = 'none';
-  btn.disabled = true; btn.textContent = 'Checking...';
-  try {
-    await initAdmin(pw);
-  } catch(e) {
+  err.style.display = 'none'; btn.disabled = true; btn.textContent = 'Checking...';
+  try { await initAdmin(pw); } catch(e) {
     err.textContent = e.message === '401' ? 'Incorrect password.' : (e.message || 'Could not connect.');
-    err.style.display = 'block';
-    btn.disabled = false; btn.textContent = 'Enter →';
+    err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Enter →';
   }
 }
-
 document.getElementById('gate-pw').addEventListener('keydown', e => { if (e.key === 'Enter') checkPassword(); });
-
-async function adminFetch(path, options = {}) {
-  const pw = sessionStorage.getItem('admin_pw');
-  const res = await fetch(path, {
-    ...options,
-    headers: { 'x-admin-password': pw, 'Content-Type': 'application/json', ...(options.headers || {}) }
-  });
-  if (res.status === 401) throw new Error('401');
-  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || `Request failed: ${res.status}`); }
-  return res.json();
-}
 
 async function initAdmin(pw) {
   const password = pw || sessionStorage.getItem('admin_pw');
   if (!password) return;
   const res = await fetch('/api/supabase-admin-config', { headers: { 'x-admin-password': password } });
   if (res.status === 401) throw new Error('401');
-  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || 'Auth failed'); }
+  if (!res.ok) throw new Error('Auth failed');
   sessionStorage.setItem('admin_pw', password);
   document.getElementById('gate').style.display = 'none';
   document.getElementById('admin-content').style.display = 'block';
-  await Promise.all([loadPolls(), loadArticles()]);
 }
-
 if (sessionStorage.getItem('admin_pw')) initAdmin();
-
-async function createPoll() {
-  const gw = parseInt(document.getElementById('poll-gw').value);
-  const type = document.getElementById('poll-type').value;
-  const question = document.getElementById('poll-question').value.trim();
-  const option_a = document.getElementById('poll-a').value.trim();
-  const option_b = document.getElementById('poll-b').value.trim();
-  const err = document.getElementById('create-error');
-  const ok = document.getElementById('create-success');
-  const btn = document.getElementById('create-btn');
-  err.style.display = 'none'; ok.style.display = 'none';
-
-  if (!gw || gw < 1 || gw > 38) { err.textContent = 'Please enter a valid GW (1–38).'; err.style.display = 'block'; return; }
-  if (!question) { err.textContent = 'Question is required.'; err.style.display = 'block'; return; }
-  if (!option_a || !option_b) { err.textContent = 'Both options are required.'; err.style.display = 'block'; return; }
-
-  btn.disabled = true; btn.textContent = 'Creating...';
-  try {
-    await adminFetch('/api/admin?action=create-poll', {
-      method: 'POST',
-      body: JSON.stringify({ type, question, option_a, option_b, gw })
-    });
-    ok.textContent = '✓ Poll created!';
-    ok.style.display = 'block';
-    document.getElementById('poll-question').value = '';
-    document.getElementById('poll-a').value = '';
-    document.getElementById('poll-b').value = '';
-  } catch(e) {
-    err.textContent = e.message || 'Could not create poll.';
-    err.style.display = 'block';
-  } finally {
-    btn.disabled = false; btn.textContent = 'Create Poll →';
-  }
-  loadPolls().catch(() => {});
-}
-
-async function loadPolls() {
-  const listEl = document.getElementById('poll-list');
-  const countEl = document.getElementById('poll-count');
-  try {
-    const polls = await adminFetch('/api/admin-polls');
-    countEl.textContent = `${polls.length} active`;
-    if (!polls.length) {
-      listEl.innerHTML = '<div class="feed-empty">No active polls.</div>';
-      return;
-    }
-    listEl.innerHTML = polls.map(p => `
-      <div class="poll-admin-card" id="padmin-${p.id}">
-        <div class="poll-admin-body">
-          <div class="poll-admin-type">GW${p.gw} · ${TYPE_LABEL[p.type] || p.type}</div>
-          <div class="poll-admin-question">${escHtml(p.question)}</div>
-          <div class="poll-admin-options">A: ${escHtml(p.option_a)} &nbsp;·&nbsp; B: ${escHtml(p.option_b)}</div>
-          <div class="poll-admin-votes">
-            <span class="vote-stat vote-stat-a">${p.votes_a} <span class="vote-stat-label">votes A</span></span>
-            <span class="vote-stat vote-stat-b">${p.votes_b} <span class="vote-stat-label">votes B</span></span>
-            <span class="vote-stat" style="color:var(--muted)">${p.votes_a + p.votes_b} <span class="vote-stat-label">total</span></span>
-          </div>
-        </div>
-        <button class="btn btn-red btn-sm" onclick="closePoll('${p.id}')">Close Poll</button>
-      </div>
-    `).join('');
-  } catch(e) {
-    listEl.innerHTML = `<div class="feed-empty">⚠️ ${e.message}</div>`;
-  }
-}
-
-async function closePoll(id) {
-  const card = document.getElementById(`padmin-${id}`);
-  const btn = card.querySelector('button');
-  btn.disabled = true; btn.textContent = 'Closing...';
-  try {
-    await adminFetch('/api/admin?action=close-poll', { method: 'POST', body: JSON.stringify({ id }) });
-    card.style.opacity = '0.4';
-    card.style.pointerEvents = 'none';
-    btn.textContent = 'Closed';
-    document.getElementById('poll-count').textContent =
-      `${document.querySelectorAll('[id^="padmin-"]').length - 1} active`;
-    setTimeout(() => { card.remove(); }, 800);
-  } catch(e) {
-    btn.disabled = false; btn.textContent = 'Close Poll';
-    alert('Error: ' + e.message);
-  }
-}
-
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ── Section 1: Challenge Status ───────────────────────────
-let challengeStatusData = null;
-
-async function loadChallengeStatus() {
-  const gw = parseInt(document.getElementById('cfg-gw').value);
-  const err = document.getElementById('cfg-error');
-  const ok = document.getElementById('cfg-success');
-  const btn = document.getElementById('cfg-load-btn');
-  err.style.display = 'none'; ok.style.display = 'none';
-
-  if (!gw || gw < 1 || gw > 38) { err.textContent = 'Enter a valid GW (1–38).'; err.style.display = 'block'; return; }
-
-  btn.disabled = true; btn.textContent = 'Loading...';
-  try {
-    const data = await adminFetch(`/api/challenge-status?gw=${gw}`);
-    challengeStatusData = { gw, is_open: data.is_open };
-    updateChallengeStatusUI(data.is_open);
-  } catch(e) {
-    err.textContent = e.message || 'Could not load status.'; err.style.display = 'block';
-  } finally {
-    btn.disabled = false; btn.textContent = 'Load Status →';
-  }
-}
-
-function updateChallengeStatusUI(is_open) {
-  const displayEl = document.getElementById('cfg-status-display');
-  const toggleBtn = document.getElementById('cfg-toggle-btn');
-  displayEl.textContent = is_open ? '🟢 Open' : '🔴 Closed';
-  displayEl.style.color = is_open ? 'var(--green)' : 'var(--red)';
-  toggleBtn.style.display = 'block';
-  toggleBtn.textContent = is_open ? 'Close Submissions ×' : 'Open Submissions ✓';
-  toggleBtn.className = `btn btn-full ${is_open ? 'btn-red' : 'btn-green'}`;
-}
-
-async function toggleChallengeStatus() {
-  if (!challengeStatusData) return;
-  const btn = document.getElementById('cfg-toggle-btn');
-  const err = document.getElementById('cfg-error');
-  const ok = document.getElementById('cfg-success');
-  err.style.display = 'none'; ok.style.display = 'none';
-  const newOpen = !challengeStatusData.is_open;
-  btn.disabled = true; btn.textContent = 'Updating...';
-  try {
-    await adminFetch('/api/challenge-status', {
-      method: 'POST',
-      body: JSON.stringify({ gw: challengeStatusData.gw, is_open: newOpen })
-    });
-    challengeStatusData.is_open = newOpen;
-    updateChallengeStatusUI(newOpen);
-    ok.textContent = `✓ GW ${challengeStatusData.gw} submissions are now ${newOpen ? 'OPEN' : 'CLOSED'}.`;
-    ok.style.display = 'block';
-  } catch(e) {
-    err.textContent = e.message || 'Could not update status.'; err.style.display = 'block';
-    btn.disabled = false;
-    updateChallengeStatusUI(challengeStatusData.is_open);
-  }
-}
-
-// ── Section 1b: Captain Bracket Manager ──────────────────
-async function addCaptainBrackets() {
-  const gw = parseInt(document.getElementById('cb-gw').value);
-  const player1 = document.getElementById('cb-player1').value.trim();
-  const player2 = document.getElementById('cb-player2').value.trim();
-  const err = document.getElementById('cb-error');
-  const ok = document.getElementById('cb-success');
-  const btn = document.getElementById('cb-add-btn');
-  err.style.display = 'none'; ok.style.display = 'none';
-
-  if (!gw || gw < 1 || gw > 38) { err.textContent = 'Enter a valid GW (1–38).'; err.style.display = 'block'; return; }
-  if (!player1 || !player2) { err.textContent = 'Both player names are required.'; err.style.display = 'block'; return; }
-
-  btn.disabled = true; btn.textContent = 'Saving...';
-  try {
-    await Promise.all([
-      adminFetch('/api/admin?action=captain-bracket', { method: 'POST', body: JSON.stringify({ gw, player_name: player1, slot: 1 }) }),
-      adminFetch('/api/admin?action=captain-bracket', { method: 'POST', body: JSON.stringify({ gw, player_name: player2, slot: 2 }) })
-    ]);
-    ok.textContent = `✓ GW ${gw} bracket players set: ${player1} (Slot 1) · ${player2} (Slot 2)`;
-    ok.style.display = 'block';
-    document.getElementById('cb-player1').value = '';
-    document.getElementById('cb-player2').value = '';
-    loadCaptainBrackets(gw);
-  } catch(e) {
-    err.textContent = e.message || 'Could not save players.'; err.style.display = 'block';
-  } finally {
-    btn.disabled = false; btn.textContent = 'Set Players →';
-  }
-}
-
-async function loadCaptainBrackets(gw) {
-  const listEl = document.getElementById('cb-list');
-  const badge = document.getElementById('cb-gw-badge');
-  if (!gw || gw < 1 || gw > 38) {
-    document.getElementById('cb-error').textContent = 'Enter a valid GW (1–38).';
-    document.getElementById('cb-error').style.display = 'block';
-    return;
-  }
-  badge.textContent = `GW ${gw}`;
-  listEl.innerHTML = '<div class="feed-empty"><span class="spinner"></span>Loading...</div>';
-  try {
-    const players = await adminFetch(`/api/admin?action=captain-bracket&gw=${gw}`);
-    if (!players.length) { listEl.innerHTML = '<div class="feed-empty">No bracket players set for this GW.</div>'; return; }
-    listEl.innerHTML = players.map(p => `
-      <div class="poll-admin-card" id="cb-slot-${p.slot}">
-        <div class="poll-admin-body">
-          <div class="poll-admin-type">GW${p.gw} · Slot ${p.slot}</div>
-          <div class="poll-admin-question">${escHtml(p.player_name)}</div>
-        </div>
-        <button class="btn btn-red btn-sm" onclick="deleteCaptainBracket(${p.gw}, ${p.slot})">Delete</button>
-      </div>
-    `).join('');
-  } catch(e) {
-    listEl.innerHTML = `<div class="feed-empty">⚠️ ${e.message}</div>`;
-  }
-}
-
-async function deleteCaptainBracket(gw, slot) {
-  const card = document.getElementById(`cb-slot-${slot}`);
-  const btn = card.querySelector('button');
-  btn.disabled = true; btn.textContent = 'Deleting...';
-  try {
-    await adminFetch('/api/admin?action=captain-bracket', { method: 'DELETE', body: JSON.stringify({ gw, slot }) });
-    card.style.opacity = '0.4'; card.style.pointerEvents = 'none';
-    setTimeout(() => card.remove(), 500);
-  } catch(e) {
-    btn.disabled = false; btn.textContent = 'Delete';
-    alert('Error: ' + e.message);
-  }
-}
-
-// ── Section 2: This or That Pairs ────────────────────────
-async function addTotPair() {
-  const gw = parseInt(document.getElementById('tot-gw').value);
-  const playerA = document.getElementById('tot-player-a').value.trim();
-  const playerB = document.getElementById('tot-player-b').value.trim();
-  const err = document.getElementById('tot-error');
-  const ok = document.getElementById('tot-success');
-  const btn = document.getElementById('tot-add-btn');
-  err.style.display = 'none'; ok.style.display = 'none';
-
-  if (!gw || gw < 1 || gw > 38) { err.textContent = 'Enter a valid GW (1–38).'; err.style.display = 'block'; return; }
-  if (!playerA || !playerB) { err.textContent = 'Both player names are required.'; err.style.display = 'block'; return; }
-
-  btn.disabled = true; btn.textContent = 'Adding...';
-  try {
-    await adminFetch('/api/admin?action=this-or-that', {
-      method: 'POST',
-      body: JSON.stringify({ gw, player_a: playerA, player_b: playerB })
-    });
-    ok.textContent = `✓ Pair added for GW ${gw}: ${playerA} vs ${playerB}`;
-    ok.style.display = 'block';
-    document.getElementById('tot-player-a').value = '';
-    document.getElementById('tot-player-b').value = '';
-    loadTotPairs(gw);
-  } catch(e) {
-    err.textContent = e.message || 'Could not add pair.'; err.style.display = 'block';
-  } finally {
-    btn.disabled = false; btn.textContent = 'Add Pair →';
-  }
-}
-
-async function loadTotPairs(gw) {
-  const listEl = document.getElementById('tot-pairs-list');
-  const badge = document.getElementById('tot-pairs-gw-badge');
-  if (!gw || gw < 1 || gw > 38) {
-    document.getElementById('tot-error').textContent = 'Enter a valid GW (1–38).';
-    document.getElementById('tot-error').style.display = 'block';
-    return;
-  }
-  badge.textContent = `GW ${gw}`;
-  listEl.innerHTML = '<div class="feed-empty"><span class="spinner"></span>Loading...</div>';
-  try {
-    const pairs = await adminFetch(`/api/admin?action=this-or-that&gw=${gw}`);
-    if (!pairs.length) { listEl.innerHTML = '<div class="feed-empty">No pairs for this GW yet.</div>'; return; }
-    listEl.innerHTML = pairs.map((p, i) => `
-      <div class="poll-admin-card" id="tot-pair-${p.id}">
-        <div class="poll-admin-body">
-          <div class="poll-admin-type">GW${p.gw} · Pair ${i + 1}</div>
-          <div class="poll-admin-question">${escHtml(p.player_a)} <span style="color:var(--muted);font-weight:400">vs</span> ${escHtml(p.player_b)}</div>
-        </div>
-        <button class="btn btn-red btn-sm" onclick="deleteTotPair('${p.id}')">Delete</button>
-      </div>
-    `).join('');
-  } catch(e) {
-    listEl.innerHTML = `<div class="feed-empty">⚠️ ${e.message}</div>`;
-  }
-}
-
-async function deleteTotPair(id) {
-  const card = document.getElementById(`tot-pair-${id}`);
-  const btn = card.querySelector('button');
-  btn.disabled = true; btn.textContent = 'Deleting...';
-  try {
-    await adminFetch('/api/admin?action=this-or-that', { method: 'DELETE', body: JSON.stringify({ id }) });
-    card.style.opacity = '0.4'; card.style.pointerEvents = 'none';
-    setTimeout(() => card.remove(), 500);
-  } catch(e) {
-    btn.disabled = false; btn.textContent = 'Delete';
-    alert('Error: ' + e.message);
-  }
-}
-
-// ── Section 3: Score Calculator ───────────────────────────
-let scoreData = null;
-let scorePayload = null;
-
-async function loadScoreData() {
-  const gw = parseInt(document.getElementById('score-gw').value);
-  const err = document.getElementById('score-error');
-  const btn = document.getElementById('score-load-btn');
-  err.style.display = 'none';
-
-  if (!gw || gw < 1 || gw > 38) { err.textContent = 'Enter a valid GW (1–38).'; err.style.display = 'block'; return; }
-
-  btn.disabled = true; btn.textContent = 'Loading...';
-  try {
-    scoreData = await adminFetch(`/api/admin-score-challenge?gw=${gw}`);
-    renderScoreForm(scoreData);
-    document.getElementById('score-form').style.display = 'block';
-    document.getElementById('score-preview-section').style.display = 'none';
-    document.getElementById('score-success').style.display = 'none';
-  } catch(e) {
-    err.textContent = e.message || 'Could not load data.'; err.style.display = 'block';
-  } finally {
-    btn.disabled = false; btn.textContent = 'Load GW Data →';
-  }
-}
-
-function getBracket(pts) {
-  if (pts >= 13) return '13+';
-  if (pts >= 9) return '9-12';
-  if (pts >= 5) return '5-8';
-  return '1-4';
-}
-
-function renderScoreForm(data) {
-  const ptsListEl = document.getElementById('score-player-pts-list');
-  if (!data.unique_game1_picks.length) {
-    ptsListEl.innerHTML = '<div style="color:var(--muted);font-size:13px;">No Game 1 submissions yet.</div>';
-  } else {
-    ptsListEl.innerHTML = data.unique_game1_picks.map(name => {
-      const safeId = CSS.escape(name);
-      return `<div style="display:flex;align-items:center;gap:10px;">
-        <div style="font-size:13px;font-weight:600;flex:1;min-width:0;">${escHtml(name)}</div>
-        <input type="number" id="pts-${safeId}" data-player="${escHtml(name)}"
-          placeholder="GW pts" min="0" style="width:90px;flex-shrink:0;"/>
-      </div>`;
-    }).join('');
-  }
-
-  const bracketListEl = document.getElementById('score-captain-bracket-list');
-  if (!data.captain_brackets || !data.captain_brackets.length) {
-    bracketListEl.innerHTML = '<div style="color:var(--muted);font-size:13px;">No captain bracket players set for this GW.</div>';
-  } else {
-    bracketListEl.innerHTML = data.captain_brackets.map(cb => `
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div style="font-size:13px;font-weight:600;flex:1;min-width:0;">Slot ${cb.slot}: ${escHtml(cb.player_name)}</div>
-        <input type="number" data-bracket-player="${escHtml(cb.player_name)}"
-          placeholder="GW pts" min="0" style="width:90px;flex-shrink:0;"/>
-      </div>
-    `).join('');
-  }
-
-  const totEl = document.getElementById('score-tot-pairs');
-  if (!data.pairs.length) {
-    totEl.innerHTML = '<div style="color:var(--muted);font-size:13px;">No ToT pairs set for this GW.</div>';
-  } else {
-    totEl.innerHTML = data.pairs.map((pair, i) => `
-      <div>
-        <div style="font-size:13px;font-weight:700;margin-bottom:8px;">Pair ${i + 1}: ${escHtml(pair.player_a)} vs ${escHtml(pair.player_b)}</div>
-        <div class="tot-result-group">
-          <label class="tot-result-label"><input type="radio" name="tot-result-${i}" value="A"/> ${escHtml(pair.player_a)} wins</label>
-          <label class="tot-result-label"><input type="radio" name="tot-result-${i}" value="TIE"/> Tie</label>
-          <label class="tot-result-label"><input type="radio" name="tot-result-${i}" value="B"/> ${escHtml(pair.player_b)} wins</label>
-        </div>
-      </div>
-    `).join('');
-  }
-}
-
-function previewScores() {
-  const err = document.getElementById('score-error');
-  err.style.display = 'none';
-  if (!scoreData) { err.textContent = 'Load GW data first.'; err.style.display = 'block'; return; }
-
-  const gw = parseInt(document.getElementById('score-gw').value);
-  const topScorer = document.getElementById('score-top-scorer').value.trim();
-  const topPts = parseInt(document.getElementById('score-top-pts').value) || 0;
-
-  if (!topScorer) { err.textContent = 'Enter the actual top scorer name.'; err.style.display = 'block'; return; }
-  if (!topPts) { err.textContent = "Enter the top scorer's GW pts."; err.style.display = 'block'; return; }
-
-  const totResults = scoreData.pairs.map((_, i) => {
-    const checked = document.querySelector(`input[name="tot-result-${i}"]:checked`);
-    return checked ? checked.value : null;
-  });
-  for (let i = 0; i < scoreData.pairs.length; i++) {
-    if (!totResults[i]) { err.textContent = `Select a result for ToT Pair ${i + 1}.`; err.style.display = 'block'; return; }
-  }
-
-  const playerPts = {};
-  document.querySelectorAll('#score-player-pts-list input[data-player]').forEach(inp => {
-    playerPts[inp.dataset.player] = parseInt(inp.value) || 0;
-  });
-
-  const captainPts = {};
-  document.querySelectorAll('#score-captain-bracket-list input[data-bracket-player]').forEach(inp => {
-    captainPts[inp.dataset.bracketPlayer] = parseInt(inp.value) || 0;
-  });
-
-  // Calculate per user
-  const byUser = {};
-  scoreData.entries.forEach(entry => {
-    const key = entry.fpl_id;
-    if (!byUser[key]) byUser[key] = { name: entry.manager_name, fpl_id: key, game1: null, captain: [], tot: [], total: 0 };
-    let score = 0;
-    if (entry.game_type === 'top_score') {
-      const pts = playerPts[entry.prediction] ?? 0;
-      score = topPts > 0 ? Math.round((pts / topPts) * 40) : 0;
-      byUser[key].game1 = { pred: entry.prediction, pts, score };
-    } else if (entry.game_type.startsWith('captain_bracket_')) {
-      const slotIdx = parseInt(entry.game_type.split('_').pop()) - 1;
-      const bracketPlayer = (scoreData.captain_brackets || [])[slotIdx];
-      if (bracketPlayer) {
-        const actualPts = captainPts[bracketPlayer.player_name] ?? 0;
-        const correct = getBracket(actualPts);
-        score = entry.prediction === correct ? 15 : 0;
-        byUser[key].captain[slotIdx] = { pred: entry.prediction, correct, score };
-      }
-    } else if (entry.game_type.startsWith('this_or_that_')) {
-      const pairIdx = parseInt(entry.game_type.split('_').pop()) - 1;
-      const result = totResults[pairIdx];
-      const pair = scoreData.pairs[pairIdx];
-      if (result === 'TIE') score = 10;
-      else if (pair && result === 'A' && entry.prediction === pair.player_a) score = 10;
-      else if (pair && result === 'B' && entry.prediction === pair.player_b) score = 10;
-      byUser[key].tot[pairIdx] = { pred: entry.prediction, score };
-    }
-    byUser[key].total += score;
-  });
-
-  const ranked = Object.values(byUser).sort((a, b) => b.total - a.total);
-  const medals = ['🥇', '🥈', '🥉'];
-  const previewEl = document.getElementById('score-preview-table');
-  if (!ranked.length) {
-    previewEl.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:14px;">No submissions to score.</div>';
-  } else {
-    previewEl.innerHTML = ranked.map((u, i) => {
-      const rank = i < 3 ? medals[i] : `<span class="lb-rank-num">${i + 1}</span>`;
-      const g1 = u.game1 ? `G1: ${u.game1.score}pts (${escHtml(u.game1.pred)})` : 'G1: —';
-      const g2 = u.captain.length ? `G2: ${u.captain.map(c => c ? `${c.score}pts(${escHtml(c.pred)}→${c.correct})` : '—').join('+')}` : 'G2: —';
-      const g3 = u.tot.length ? `G3: ${u.tot.map(t => t ? `${t.score}pts` : '—').join('/')}` : 'G3: —';
-      return `<div class="lb-row">
-        <div class="lb-rank">${rank}</div>
-        <div class="lb-name">${escHtml(u.name)}<div class="lb-name-sub">${g1} · ${g2} · ${g3}</div></div>
-        <div class="lb-score">${u.total} <span class="lb-score-label">pts</span></div>
-      </div>`;
-    }).join('');
-  }
-
-  document.getElementById('score-preview-badge').textContent = `GW ${gw}`;
-  document.getElementById('score-preview-section').style.display = 'block';
-  document.getElementById('score-success').style.display = 'none';
-
-  scorePayload = { gw, top_scorer_pts: topPts, player_pts: playerPts, captain_pts: captainPts, tot_results: totResults };
-}
-
-async function confirmScores() {
-  if (!scorePayload) return;
-  const btn = document.getElementById('score-confirm-btn');
-  const ok = document.getElementById('score-success');
-  const err = document.getElementById('score-error');
-  err.style.display = 'none'; ok.style.display = 'none';
-  btn.disabled = true; btn.textContent = 'Updating...';
-  try {
-    const result = await adminFetch('/api/admin-score-challenge', { method: 'POST', body: JSON.stringify(scorePayload) });
-    ok.textContent = `✓ Updated ${result.updated} entries for GW ${scorePayload.gw}.`;
-    ok.style.display = 'block';
-  } catch(e) {
-    err.textContent = e.message || 'Could not update scores.'; err.style.display = 'block';
-  } finally {
-    btn.disabled = false; btn.textContent = 'Confirm & Update All Scores →';
-  }
-}
-
-// ── Section 4: Article Editor ────────────────────────────
-let articlesData = [];
-let editingArticleId = null;
-
-document.getElementById('art-title').addEventListener('input', e => {
-  if (!editingArticleId) {
-    document.getElementById('art-slug').value = e.target.value.toLowerCase().trim()
-      .replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
-  }
-});
-
-async function submitArticle() {
-  const gw = parseInt(document.getElementById('art-gw').value);
-  const title = document.getElementById('art-title').value.trim();
-  const slug = document.getElementById('art-slug').value.trim();
-  const cover_image = document.getElementById('art-cover').value.trim();
-  const tags = document.getElementById('art-tags').value.trim();
-  const author = document.getElementById('art-author').value.trim();
-  const author_bio = document.getElementById('art-author-bio').value.trim();
-  const preview = document.getElementById('art-preview').value.trim();
-  const full_content = document.getElementById('art-content').value;
-  const is_published = document.getElementById('art-publish').checked;
-  const err = document.getElementById('art-error');
-  const ok = document.getElementById('art-success');
-  const btn = document.getElementById('art-submit-btn');
-  err.style.display = 'none'; ok.style.display = 'none';
-
-  if (!gw || gw < 1 || gw > 38) { err.textContent = 'Enter a valid GW (1–38).'; err.style.display = 'block'; return; }
-  if (!title) { err.textContent = 'Title is required.'; err.style.display = 'block'; return; }
-  if (!slug) { err.textContent = 'Slug is required.'; err.style.display = 'block'; return; }
-
-  btn.disabled = true; btn.textContent = editingArticleId ? 'Updating...' : 'Creating...';
-  try {
-    if (editingArticleId) {
-      await adminFetch('/api/admin-articles', {
-        method: 'PATCH',
-        body: JSON.stringify({ id: editingArticleId, gw, title, slug, cover_image, tags, author, author_bio, preview, full_content, is_published })
-      });
-      ok.textContent = `✓ Article updated: ${title}`;
-    } else {
-      await adminFetch('/api/admin-articles', {
-        method: 'POST',
-        body: JSON.stringify({ gw, title, slug, cover_image, tags, author, author_bio, preview, full_content, is_published })
-      });
-      ok.textContent = `✓ Article created: ${title}`;
-    }
-    ok.style.display = 'block';
-    cancelEditArticle();
-    loadArticles();
-  } catch(e) {
-    err.textContent = e.message || 'Could not save article.'; err.style.display = 'block';
-  } finally {
-    btn.disabled = false;
-    btn.textContent = editingArticleId ? 'Update Article →' : 'Create Article →';
-  }
-}
-
-function clearArticleForm() {
-  ['art-gw', 'art-title', 'art-slug', 'art-cover', 'art-tags', 'art-author', 'art-author-bio'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('art-preview').value = '';
-  document.getElementById('art-content').value = '';
-  document.getElementById('art-publish').checked = false;
-}
-
-function cancelEditArticle() {
-  editingArticleId = null;
-  clearArticleForm();
-  document.getElementById('art-form-title').textContent = 'New Article';
-  document.getElementById('art-submit-btn').textContent = 'Create Article →';
-  document.getElementById('art-cancel-btn').style.display = 'none';
-}
-
-function editArticle(id) {
-  const a = articlesData.find(x => x.id === id);
-  if (!a) return;
-  editingArticleId = id;
-  document.getElementById('art-gw').value = a.gw || '';
-  document.getElementById('art-title').value = a.title || '';
-  document.getElementById('art-slug').value = a.slug || '';
-  document.getElementById('art-cover').value = a.cover_image || '';
-  document.getElementById('art-tags').value = a.tags || '';
-  document.getElementById('art-author').value = a.author || '';
-  document.getElementById('art-author-bio').value = a.author_bio || '';
-  document.getElementById('art-preview').value = a.preview || '';
-  document.getElementById('art-content').value = a.full_content || '';
-  document.getElementById('art-publish').checked = !!a.is_published;
-  document.getElementById('art-form-title').textContent = 'Edit Article';
-  document.getElementById('art-submit-btn').textContent = 'Update Article →';
-  document.getElementById('art-cancel-btn').style.display = 'block';
-  document.getElementById('art-error').style.display = 'none';
-  document.getElementById('art-success').style.display = 'none';
-  document.getElementById('art-form-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-async function loadArticles() {
-  const listEl = document.getElementById('art-list');
-  const countEl = document.getElementById('art-count');
-  listEl.innerHTML = '<div class="feed-empty"><span class="spinner"></span>Loading...</div>';
-  try {
-    articlesData = await adminFetch('/api/admin-articles');
-    countEl.textContent = `${articlesData.length} total`;
-    if (!articlesData.length) {
-      listEl.innerHTML = '<div class="feed-empty">No articles yet.</div>';
-      return;
-    }
-    listEl.innerHTML = articlesData.map(a => `
-      <div class="poll-admin-card" id="art-${a.id}">
-        <div class="poll-admin-body">
-          <div class="poll-admin-type">GW${a.gw} · ${a.is_published ? '<span style="color:var(--green);">Published</span>' : '<span style="color:var(--muted);">Draft</span>'}</div>
-          <div class="poll-admin-question">${escHtml(a.title)}</div>
-          <div class="poll-admin-options">${a.slug} ${a.tags ? '· ' + escHtml(a.tags) : ''}</div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
-          <button class="btn btn-sm" onclick="editArticle('${a.id}')">Edit</button>
-          <button class="btn btn-sm ${a.is_published ? 'btn-red' : 'btn-green'}" onclick="toggleArticlePublish('${a.id}', ${!a.is_published})">${a.is_published ? 'Unpublish' : 'Publish'}</button>
-          <button class="btn btn-red btn-sm" onclick="deleteArticle('${a.id}')">Delete</button>
-        </div>
-      </div>
-    `).join('');
-  } catch(e) {
-    listEl.innerHTML = `<div class="feed-empty">⚠️ ${e.message}</div>`;
-  }
-}
-
-async function toggleArticlePublish(id, newState) {
-  const card = document.getElementById(`art-${id}`);
-  const btns = card.querySelectorAll('button');
-  btns.forEach(b => b.disabled = true);
-  try {
-    await adminFetch('/api/admin-articles', {
-      method: 'PATCH',
-      body: JSON.stringify({ id, is_published: newState, published_at: newState ? new Date().toISOString() : null })
-    });
-    loadArticles();
-  } catch(e) {
-    alert('Error: ' + e.message);
-    btns.forEach(b => b.disabled = false);
-  }
-}
-
-async function deleteArticle(id) {
-  if (!confirm('Delete this article permanently?')) return;
-  const card = document.getElementById(`art-${id}`);
-  const btns = card.querySelectorAll('button');
-  btns.forEach(b => b.disabled = true);
-  try {
-    await adminFetch('/api/admin-articles', { method: 'DELETE', body: JSON.stringify({ id }) });
-    card.style.opacity = '0.4'; card.style.pointerEvents = 'none';
-    setTimeout(() => { card.remove(); loadArticles(); }, 500);
-  } catch(e) {
-    alert('Error: ' + e.message);
-    btns.forEach(b => b.disabled = false);
-  }
-}
 </script>
 </body>
 </html>

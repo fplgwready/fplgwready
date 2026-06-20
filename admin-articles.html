@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-TKD64XPYQ5"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-TKD64XPYQ5');</script>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FPLGWReady — Admin Articles</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#F8F9FF;--surface:#FFFFFF;--surface2:#F0F2FF;--accent:#1A6FFF;--accent2:#6C5CE7;--text:#1A1535;--muted:#6B63A8;--border:rgba(108,92,231,0.15);--radius:16px;--green:#00976B;--red:#E84040}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
+    nav{display:flex;align-items:center;justify-content:space-between;padding:20px 40px;border-bottom:1px solid var(--border);background:rgba(248,249,255,0.92);backdrop-filter:blur(12px)}
+    .logo{font-weight:800;font-size:22px;letter-spacing:-0.5px;text-decoration:none;color:var(--text);display:flex;align-items:center;gap:10px}.logo span{color:var(--accent2)}
+    .nav-right{display:flex;gap:8px;align-items:center}
+    .nav-link{background:var(--surface2);border:1px solid var(--border);padding:6px 14px;border-radius:100px;font-size:13px;color:var(--muted);text-decoration:none}
+    .admin-badge{font-size:11px;background:rgba(232,64,64,0.1);color:var(--red);padding:4px 10px;border-radius:100px;font-weight:700}
+    .admin-nav{display:flex;gap:6px;padding:14px 24px;background:var(--surface);border-bottom:1px solid var(--border);justify-content:center;flex-wrap:wrap}
+    .admin-nav-link{padding:6px 16px;border-radius:100px;font-size:13px;font-weight:600;color:var(--muted);text-decoration:none;border:1px solid transparent;transition:all 0.15s}
+    .admin-nav-link:hover{color:var(--text);border-color:var(--border)}
+    .admin-nav-link.active{color:var(--accent);border-color:var(--accent);background:rgba(26,111,255,0.06)}
+    .container{max-width:720px;margin:40px auto;padding:0 24px 80px}
+    .page-title{font-size:26px;font-weight:800;margin-bottom:6px}
+    .page-sub{color:var(--muted);font-size:14px;margin-bottom:28px}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px 28px;margin-bottom:16px;box-shadow:0 1px 8px rgba(108,92,231,0.05)}
+    .input-label{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px;display:block}
+    input[type="text"],input[type="password"],input[type="number"],select,textarea{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:14px;color:var(--text);font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s;width:100%}
+    input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+    textarea{resize:vertical;min-height:100px;line-height:1.6}
+    input::placeholder{color:var(--muted);opacity:0.7}
+    .field-group{display:flex;flex-direction:column;gap:6px}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+    .form-grid .span2{grid-column:span 2}
+    .btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:12px 22px;font-size:15px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:opacity 0.2s;white-space:nowrap}
+    .btn:hover{opacity:0.88}.btn:disabled{opacity:0.4;cursor:not-allowed}
+    .btn-full{width:100%}.btn-red{background:var(--red)}.btn-green{background:var(--green)}.btn-sm{padding:7px 14px;font-size:13px;border-radius:8px}
+    .error-msg{background:rgba(220,50,50,0.08);border:1px solid rgba(220,50,50,0.2);color:#CC3333;border-radius:10px;padding:12px 16px;font-size:14px;margin-top:12px;display:none}
+    .success-msg{background:rgba(0,151,107,0.08);border:1px solid rgba(0,151,107,0.2);color:var(--green);border-radius:10px;padding:12px 16px;font-size:14px;margin-top:12px;display:none}
+    .section-title{font-size:16px;font-weight:700;margin:28px 0 12px;display:flex;align-items:center;gap:8px}
+    .section-badge{font-size:11px;padding:2px 9px;border-radius:100px;background:rgba(26,111,255,0.1);color:var(--accent);font-weight:600}
+    #gate{display:block}#admin-content{display:none}
+    .gate-card{max-width:400px;margin:80px auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px;box-shadow:0 2px 16px rgba(108,92,231,0.08);text-align:center}
+    .gate-icon{font-size:40px;margin-bottom:16px}.gate-title{font-size:20px;font-weight:800;margin-bottom:6px}.gate-sub{font-size:14px;color:var(--muted);margin-bottom:20px}
+    .poll-admin-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;align-items:flex-start;gap:12px}
+    .poll-admin-body{flex:1;min-width:0}
+    .poll-admin-type{font-size:11px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+    .poll-admin-question{font-size:14px;font-weight:700;margin-bottom:6px}
+    .poll-admin-options{font-size:13px;color:var(--muted)}
+    .poll-list{display:flex;flex-direction:column;gap:10px}
+    .feed-empty{text-align:center;padding:40px 0;color:var(--muted);font-size:14px;background:var(--surface);border:1px dashed var(--border);border-radius:var(--radius)}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px}
+    @media(max-width:540px){nav{padding:14px 16px}.container{margin-top:24px}.form-grid{grid-template-columns:1fr}.form-grid .span2{grid-column:span 1}.admin-nav{padding:10px 16px;gap:4px}.admin-nav-link{padding:5px 12px;font-size:12px}}
+  </style>
+</head>
+<body>
+<nav>
+  <a class="logo" href="/"><img src="/logo.jpeg" alt="" style="width:34px;height:34px;border-radius:8px;object-fit:cover;object-position:center 32%;flex-shrink:0;"/><span>FPL</span>GWReady</a>
+  <div class="nav-right"><span class="admin-badge">Admin</span><a class="nav-link" href="/community.html">Community</a></div>
+</nav>
+
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-icon">🔐</div><div class="gate-title">Admin Access</div><div class="gate-sub">Enter the admin password to continue.</div>
+    <div class="field-group" style="text-align:left;margin-bottom:14px;"><input type="password" id="gate-pw" placeholder="Password" autocomplete="current-password"/></div>
+    <button class="btn btn-full" onclick="checkPassword()">Enter →</button>
+    <div class="error-msg" id="gate-error">Incorrect password.</div>
+  </div>
+</div>
+
+<div id="admin-content">
+  <div class="admin-nav">
+    <a href="/admin.html" class="admin-nav-link">Dashboard</a>
+    <a href="/admin-polls.html" class="admin-nav-link">Polls</a>
+    <a href="/admin-challenge.html" class="admin-nav-link">Challenge</a>
+    <a href="/admin-articles.html" class="admin-nav-link active">Articles</a>
+  </div>
+  <div class="container">
+    <div class="page-title">Article Editor</div>
+    <p class="page-sub">Write and publish insight articles.</p>
+
+    <div class="card">
+      <div style="font-size:15px;font-weight:700;margin-bottom:16px;" id="art-form-title">New Article</div>
+      <div class="form-grid">
+        <div class="field-group"><label class="input-label" for="art-gw">Gameweek</label><input type="number" id="art-gw" placeholder="e.g. 38" min="1" max="38"/></div>
+        <div class="field-group"><label class="input-label" for="art-author">Author Name</label><input type="text" id="art-author" placeholder="e.g. Coach Ken"/></div>
+        <div class="field-group span2"><label class="input-label" for="art-title">Title</label><input type="text" id="art-title" placeholder="e.g. GW38 Captain Picks — Who to Trust"/></div>
+        <div class="field-group span2"><label class="input-label" for="art-slug">Slug (auto-generated)</label><input type="text" id="art-slug" placeholder="gw38-captain-picks-who-to-trust"/></div>
+        <div class="field-group span2"><label class="input-label" for="art-cover">Cover Image URL</label><input type="text" id="art-cover" placeholder="https://..."/></div>
+        <div class="field-group span2"><label class="input-label" for="art-tags">Tags (comma separated)</label><input type="text" id="art-tags" placeholder="e.g. Captain, Transfers, GW38"/></div>
+        <div class="field-group span2"><label class="input-label" for="art-author-bio">Author Bio</label><input type="text" id="art-author-bio" placeholder="e.g. 10 years FPL veteran, OR 3,358 last season"/></div>
+        <div class="field-group span2"><label class="input-label" for="art-preview">Preview (2 paragraphs — shown in listing)</label><textarea id="art-preview" rows="4" placeholder="Brief teaser shown on the article listing page..."></textarea></div>
+        <div class="field-group span2"><label class="input-label" for="art-content">Full Content (Markdown supported)</label><textarea id="art-content" rows="12" placeholder="## Your Heading&#10;&#10;Full article content here. Markdown is supported — headers, bold, lists, links, images, blockquotes, etc."></textarea></div>
+        <div class="field-group span2" style="flex-direction:row;align-items:center;gap:10px;">
+          <input type="checkbox" id="art-publish" style="width:auto;"/>
+          <label for="art-publish" style="font-size:14px;font-weight:600;cursor:pointer;">Publish immediately</label>
+        </div>
+        <div class="span2" style="display:flex;gap:10px;">
+          <button class="btn btn-full" id="art-submit-btn" onclick="submitArticle()">Create Article →</button>
+          <button class="btn btn-full" id="art-cancel-btn" onclick="cancelEditArticle()" style="display:none;background:var(--muted);">Cancel</button>
+        </div>
+      </div>
+      <div class="error-msg" id="art-error"></div>
+      <div class="success-msg" id="art-success"></div>
+    </div>
+
+    <div class="section-title">All Articles <span class="section-badge" id="art-count">—</span></div>
+    <div id="art-list" class="poll-list"><div class="feed-empty">Loading articles...</div></div>
+  </div>
+</div>
+
+<script>
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+async function checkPassword() {
+  const pw = document.getElementById('gate-pw').value.trim();
+  const err = document.getElementById('gate-error');
+  const btn = document.querySelector('#gate .btn');
+  if (!pw) return;
+  err.style.display = 'none'; btn.disabled = true; btn.textContent = 'Checking...';
+  try { await initAdmin(pw); } catch(e) {
+    err.textContent = e.message === '401' ? 'Incorrect password.' : (e.message || 'Could not connect.');
+    err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Enter →';
+  }
+}
+document.getElementById('gate-pw').addEventListener('keydown', e => { if (e.key === 'Enter') checkPassword(); });
+
+async function adminFetch(path, options = {}) {
+  const pw = sessionStorage.getItem('admin_pw');
+  const res = await fetch(path, { ...options, headers: { 'x-admin-password': pw, 'Content-Type': 'application/json', ...(options.headers || {}) } });
+  if (res.status === 401) throw new Error('401');
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || `Request failed: ${res.status}`); }
+  return res.json();
+}
+
+async function initAdmin(pw) {
+  const password = pw || sessionStorage.getItem('admin_pw');
+  if (!password) return;
+  const res = await fetch('/api/supabase-admin-config', { headers: { 'x-admin-password': password } });
+  if (res.status === 401) throw new Error('401');
+  if (!res.ok) throw new Error('Auth failed');
+  sessionStorage.setItem('admin_pw', password);
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('admin-content').style.display = 'block';
+  await loadArticles();
+}
+if (sessionStorage.getItem('admin_pw')) initAdmin();
+
+let articlesData = [];
+let editingArticleId = null;
+
+document.getElementById('art-title').addEventListener('input', e => {
+  if (!editingArticleId) {
+    document.getElementById('art-slug').value = e.target.value.toLowerCase().trim()
+      .replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+  }
+});
+
+async function submitArticle() {
+  const gw = parseInt(document.getElementById('art-gw').value);
+  const title = document.getElementById('art-title').value.trim();
+  const slug = document.getElementById('art-slug').value.trim();
+  const cover_image = document.getElementById('art-cover').value.trim();
+  const tags = document.getElementById('art-tags').value.trim();
+  const author = document.getElementById('art-author').value.trim();
+  const author_bio = document.getElementById('art-author-bio').value.trim();
+  const preview = document.getElementById('art-preview').value.trim();
+  const full_content = document.getElementById('art-content').value;
+  const is_published = document.getElementById('art-publish').checked;
+  const err = document.getElementById('art-error');
+  const ok = document.getElementById('art-success');
+  const btn = document.getElementById('art-submit-btn');
+  err.style.display = 'none'; ok.style.display = 'none';
+  if (!gw || gw < 1 || gw > 38) { err.textContent = 'Enter a valid GW (1–38).'; err.style.display = 'block'; return; }
+  if (!title) { err.textContent = 'Title is required.'; err.style.display = 'block'; return; }
+  if (!slug) { err.textContent = 'Slug is required.'; err.style.display = 'block'; return; }
+  btn.disabled = true; btn.textContent = editingArticleId ? 'Updating...' : 'Creating...';
+  try {
+    if (editingArticleId) {
+      await adminFetch('/api/admin-articles', { method: 'PATCH', body: JSON.stringify({ id: editingArticleId, gw, title, slug, cover_image, tags, author, author_bio, preview, full_content, is_published }) });
+      ok.textContent = `✓ Article updated: ${title}`;
+    } else {
+      await adminFetch('/api/admin-articles', { method: 'POST', body: JSON.stringify({ gw, title, slug, cover_image, tags, author, author_bio, preview, full_content, is_published }) });
+      ok.textContent = `✓ Article created: ${title}`;
+    }
+    ok.style.display = 'block'; cancelEditArticle(); loadArticles();
+  } catch(e) { err.textContent = e.message || 'Could not save article.'; err.style.display = 'block'; }
+  finally { btn.disabled = false; btn.textContent = editingArticleId ? 'Update Article →' : 'Create Article →'; }
+}
+
+function clearArticleForm() {
+  ['art-gw','art-title','art-slug','art-cover','art-tags','art-author','art-author-bio'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('art-preview').value = ''; document.getElementById('art-content').value = '';
+  document.getElementById('art-publish').checked = false;
+}
+
+function cancelEditArticle() {
+  editingArticleId = null; clearArticleForm();
+  document.getElementById('art-form-title').textContent = 'New Article';
+  document.getElementById('art-submit-btn').textContent = 'Create Article →';
+  document.getElementById('art-cancel-btn').style.display = 'none';
+}
+
+function editArticle(id) {
+  const a = articlesData.find(x => x.id === id);
+  if (!a) return;
+  editingArticleId = id;
+  document.getElementById('art-gw').value = a.gw || '';
+  document.getElementById('art-title').value = a.title || '';
+  document.getElementById('art-slug').value = a.slug || '';
+  document.getElementById('art-cover').value = a.cover_image || '';
+  document.getElementById('art-tags').value = a.tags || '';
+  document.getElementById('art-author').value = a.author || '';
+  document.getElementById('art-author-bio').value = a.author_bio || '';
+  document.getElementById('art-preview').value = a.preview || '';
+  document.getElementById('art-content').value = a.full_content || '';
+  document.getElementById('art-publish').checked = !!a.is_published;
+  document.getElementById('art-form-title').textContent = 'Edit Article';
+  document.getElementById('art-submit-btn').textContent = 'Update Article →';
+  document.getElementById('art-cancel-btn').style.display = 'block';
+  document.getElementById('art-error').style.display = 'none';
+  document.getElementById('art-success').style.display = 'none';
+  document.getElementById('art-form-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function loadArticles() {
+  const listEl = document.getElementById('art-list');
+  const countEl = document.getElementById('art-count');
+  listEl.innerHTML = '<div class="feed-empty"><span class="spinner"></span>Loading...</div>';
+  try {
+    articlesData = await adminFetch('/api/admin-articles');
+    countEl.textContent = `${articlesData.length} total`;
+    if (!articlesData.length) { listEl.innerHTML = '<div class="feed-empty">No articles yet.</div>'; return; }
+    listEl.innerHTML = articlesData.map(a => `
+      <div class="poll-admin-card" id="art-${a.id}">
+        <div class="poll-admin-body">
+          <div class="poll-admin-type">GW${a.gw} · ${a.is_published ? '<span style="color:var(--green);">Published</span>' : '<span style="color:var(--muted);">Draft</span>'}</div>
+          <div class="poll-admin-question">${escHtml(a.title)}</div>
+          <div class="poll-admin-options">${a.slug} ${a.tags ? '· ' + escHtml(a.tags) : ''}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+          <button class="btn btn-sm" onclick="editArticle('${a.id}')">Edit</button>
+          <button class="btn btn-sm ${a.is_published ? 'btn-red' : 'btn-green'}" onclick="toggleArticlePublish('${a.id}', ${!a.is_published})">${a.is_published ? 'Unpublish' : 'Publish'}</button>
+          <button class="btn btn-red btn-sm" onclick="deleteArticle('${a.id}')">Delete</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) { listEl.innerHTML = `<div class="feed-empty">⚠️ ${e.message}</div>`; }
+}
+
+async function toggleArticlePublish(id, newState) {
+  const card = document.getElementById(`art-${id}`);
+  const btns = card.querySelectorAll('button');
+  btns.forEach(b => b.disabled = true);
+  try { await adminFetch('/api/admin-articles', { method: 'PATCH', body: JSON.stringify({ id, is_published: newState, published_at: newState ? new Date().toISOString() : null }) }); loadArticles(); }
+  catch(e) { alert('Error: ' + e.message); btns.forEach(b => b.disabled = false); }
+}
+
+async function deleteArticle(id) {
+  if (!confirm('Delete this article permanently?')) return;
+  const card = document.getElementById(`art-${id}`);
+  const btns = card.querySelectorAll('button');
+  btns.forEach(b => b.disabled = true);
+  try { await adminFetch('/api/admin-articles', { method: 'DELETE', body: JSON.stringify({ id }) }); card.style.opacity = '0.4'; card.style.pointerEvents = 'none'; setTimeout(() => { card.remove(); loadArticles(); }, 500); }
+  catch(e) { alert('Error: ' + e.message); btns.forEach(b => b.disabled = false); }
+}
+</script>
+</body>
+</html>
