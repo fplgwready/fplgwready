@@ -63,7 +63,7 @@
       transform: translateY(-2px);
       box-shadow: 0 8px 24px rgba(108,92,231,0.12);
     }
-    .article-cover { width: 100%; height: 220px; object-fit: cover; display: block; }
+    .article-cover { width: 100%; height: 160px; object-fit: cover; display: block; }
     .article-card-body { padding: 20px 24px 24px; }
     .gw-badge {
       display: inline-block; font-size: 11px; font-weight: 700;
@@ -101,7 +101,7 @@
       transition: opacity 0.15s;
     }
     .back-btn:hover { opacity: 0.7; }
-    .detail-cover { width: 100%; max-height: 400px; object-fit: cover; border-radius: var(--radius); margin-bottom: 24px; display: block; }
+    .detail-cover { width: 100%; max-height: 300px; object-fit: cover; border-radius: var(--radius); margin-bottom: 24px; display: block; }
     .detail-title { font-size: 28px; font-weight: 800; line-height: 1.25; margin-bottom: 16px; }
     .detail-author-block { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
     .author-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--accent2), var(--accent)); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 18px; flex-shrink: 0; }
@@ -130,13 +130,6 @@
     /* Ad slots */
     .ad-slot { min-height: 90px; margin: 24px 0; border-radius: var(--radius); }
 
-    /* Premium banner */
-    .premium-banner {
-      background: linear-gradient(135deg, rgba(108,92,231,0.08), rgba(26,111,255,0.06));
-      border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 24px 28px; margin: 40px 0;
-      font-size: 14px; line-height: 1.6; color: var(--muted); text-align: center;
-    }
 
     /* Related articles */
     .related-title { font-size: 18px; font-weight: 800; margin-bottom: 16px; }
@@ -157,7 +150,7 @@
       .nav-links { gap: 4px; overflow-x: auto; flex-wrap: nowrap; flex: 1; scrollbar-width: none; }
       .nav-link { padding: 5px 10px; font-size: 12px; }
       .container { margin-top: 32px; }
-      .article-cover { height: 180px; }
+      .article-cover { height: 130px; }
       .article-card-body { padding: 16px 18px 20px; }
       .article-card-title { font-size: 16px; }
       .detail-title { font-size: 22px; }
@@ -222,9 +215,6 @@
 
   <div id="ad-bottom" class="ad-slot"></div>
 
-  <div class="premium-banner">
-    ✨ Enjoying this analysis? Premium subscription coming soon — AI Team Analysis + exclusive GW insights for Rp15.000/month
-  </div>
 
   <div id="related-section" style="margin-top:40px;display:none;">
     <div class="related-title">Related Articles</div>
