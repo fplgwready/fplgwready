@@ -33,7 +33,7 @@
     .form-grid .span2{grid-column:span 2}
     .btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:12px 22px;font-size:15px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:opacity 0.2s;white-space:nowrap}
     .btn:hover{opacity:0.88}.btn:disabled{opacity:0.4;cursor:not-allowed}
-    .btn-full{width:100%}.btn-red{background:var(--red)}.btn-sm{padding:7px 14px;font-size:13px;border-radius:8px}
+    .btn-full{width:100%}.btn-red{background:var(--red)}.btn-green{background:var(--green)}.btn-sm{padding:7px 14px;font-size:13px;border-radius:8px}
     .error-msg{background:rgba(220,50,50,0.08);border:1px solid rgba(220,50,50,0.2);color:#CC3333;border-radius:10px;padding:12px 16px;font-size:14px;margin-top:12px;display:none}
     .success-msg{background:rgba(0,151,107,0.08);border:1px solid rgba(0,151,107,0.2);color:var(--green);border-radius:10px;padding:12px 16px;font-size:14px;margin-top:12px;display:none}
     .section-title{font-size:16px;font-weight:700;margin:28px 0 12px;display:flex;align-items:center;gap:8px}
@@ -84,6 +84,18 @@
   <div class="container">
     <div class="page-title">GW Dilemmas</div>
     <p class="page-sub">Create and manage community polls.</p>
+
+    <div class="section-title">Captain Vote Status <span class="section-badge">Open / Close</span></div>
+    <div class="card">
+      <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Toggle captain pick submissions per GW</div>
+      <div class="form-grid">
+        <div class="field-group"><label class="input-label" for="cvs-gw">Gameweek</label><input type="number" id="cvs-gw" placeholder="e.g. 38" min="1" max="38"/></div>
+        <div class="field-group" style="justify-content:flex-end;"><label class="input-label">Current Status</label><div id="cvs-status-display" style="font-size:16px;font-weight:800;color:var(--muted);padding-top:4px;">—</div></div>
+        <div><button class="btn btn-full" id="cvs-load-btn" onclick="loadCaptainVoteStatus()">Load Status →</button></div>
+        <div><button class="btn btn-full" id="cvs-toggle-btn" onclick="toggleCaptainVoteStatus()" style="display:none;">Toggle →</button></div>
+      </div>
+      <div class="error-msg" id="cvs-error"></div><div class="success-msg" id="cvs-success"></div>
+    </div>
 
     <div class="card">
       <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Create New Poll</div>
@@ -165,6 +177,52 @@ async function initAdmin(pw) {
   await loadPolls();
 }
 if (sessionStorage.getItem('admin_pw')) initAdmin();
+
+// ── Captain Vote Status ──────────────────────────────────
+let captainVoteStatusData = null;
+
+async function loadCaptainVoteStatus() {
+  const gw = parseInt(document.getElementById('cvs-gw').value);
+  const err = document.getElementById('cvs-error');
+  const ok = document.getElementById('cvs-success');
+  const btn = document.getElementById('cvs-load-btn');
+  err.style.display = 'none'; ok.style.display = 'none';
+  if (!gw || gw < 1 || gw > 38) { err.textContent = 'Enter a valid GW (1–38).'; err.style.display = 'block'; return; }
+  btn.disabled = true; btn.textContent = 'Loading...';
+  try {
+    const data = await adminFetch(`/api/community-status?gw=${gw}`);
+    captainVoteStatusData = { gw, is_open: data.is_open };
+    updateCaptainVoteStatusUI(data.is_open);
+  } catch(e) { err.textContent = e.message || 'Could not load status.'; err.style.display = 'block'; }
+  finally { btn.disabled = false; btn.textContent = 'Load Status →'; }
+}
+
+function updateCaptainVoteStatusUI(is_open) {
+  const d = document.getElementById('cvs-status-display');
+  const t = document.getElementById('cvs-toggle-btn');
+  d.textContent = is_open ? '🟢 Open' : '🔴 Closed';
+  d.style.color = is_open ? 'var(--green)' : 'var(--red)';
+  t.style.display = 'block';
+  t.textContent = is_open ? 'Close Submissions ×' : 'Open Submissions ✓';
+  t.className = `btn btn-full ${is_open ? 'btn-red' : 'btn-green'}`;
+}
+
+async function toggleCaptainVoteStatus() {
+  if (!captainVoteStatusData) return;
+  const btn = document.getElementById('cvs-toggle-btn');
+  const err = document.getElementById('cvs-error');
+  const ok = document.getElementById('cvs-success');
+  err.style.display = 'none'; ok.style.display = 'none';
+  const newOpen = !captainVoteStatusData.is_open;
+  btn.disabled = true; btn.textContent = 'Updating...';
+  try {
+    await adminFetch('/api/community-status', { method: 'POST', body: JSON.stringify({ gw: captainVoteStatusData.gw, is_open: newOpen }) });
+    captainVoteStatusData.is_open = newOpen;
+    updateCaptainVoteStatusUI(newOpen);
+    ok.textContent = `✓ GW ${captainVoteStatusData.gw} captain vote is now ${newOpen ? 'OPEN' : 'CLOSED'}.`;
+    ok.style.display = 'block';
+  } catch(e) { err.textContent = e.message || 'Could not update status.'; err.style.display = 'block'; btn.disabled = false; updateCaptainVoteStatusUI(captainVoteStatusData.is_open); }
+}
 
 async function createPoll() {
   const gw = parseInt(document.getElementById('poll-gw').value);

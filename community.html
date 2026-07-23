@@ -150,8 +150,14 @@
       <div class="init-spinner"></div> Loading players...
     </div>
 
+    <div id="submission-closed" style="display:none;text-align:center;padding:20px 0 8px;">
+      <div style="font-size:36px;margin-bottom:10px;">⏰</div>
+      <div style="font-size:18px;font-weight:800;margin-bottom:6px;">Captain Vote Closed</div>
+      <div style="font-size:13px;color:var(--muted);">Submissions for this gameweek are closed — check the community results below!</div>
+    </div>
+
     <!-- Step 1: Enter FPL ID -->
-    <div id="step-id">
+    <div id="step-id" style="display:none;">
       <label class="input-label" for="fpl-id">Your FPL Team ID</label>
       <div class="input-row">
         <input type="text" id="fpl-id" placeholder="e.g. 222758" maxlength="10"/>
@@ -575,9 +581,15 @@ function escPoll(s) {
   let bootstrapErr = null;
   try { initBootstrap(); } catch(e) { bootstrapErr = e.message; }
 
-  const [supabaseErr] = await Promise.all([
-    initSupabase().then(() => null).catch(e => e.message)
+  const [supabaseResult, statusResult] = await Promise.allSettled([
+    initSupabase(),
+    fetch(`/api/community-status?gw=${currentGW}`)
+      .then(r => r.ok ? r.json() : { is_open: true })
+      .catch(() => ({ is_open: true }))
   ]);
+
+  const supabaseErr = supabaseResult.status === 'rejected' ? supabaseResult.reason.message : null;
+  const is_open = statusResult.status === 'fulfilled' ? statusResult.value.is_open !== false : true;
 
   if (supabaseErr) {
     document.getElementById('feed').innerHTML =
@@ -585,6 +597,12 @@ function escPoll(s) {
   }
   if (bootstrapErr) {
     document.getElementById('init-loading').innerHTML = `⚠️ ${bootstrapErr}`;
+  }
+
+  if (!is_open) {
+    document.getElementById('submission-closed').style.display = 'block';
+  } else {
+    document.getElementById('step-id').style.display = 'block';
   }
 
   document.getElementById('fpl-id').addEventListener('keydown', e => { if (e.key === 'Enter') fetchManagerInfo(); });
