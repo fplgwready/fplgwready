@@ -287,9 +287,6 @@ async function sbInsert(table, data) {
 
 // ── Player dropdowns ──────────────────────────────────────
 function initPlayers() {
-  currentGW = PLAYERS_DATA.gw;
-  document.getElementById('gw-badge').textContent = `GW ${currentGW}`;
-
   const players = PLAYERS_DATA.players; // already sorted by xP desc
 
   // Game 1: all players, xP desc
@@ -553,7 +550,7 @@ function fmtTime(iso) {
 
 // ── Boot ──────────────────────────────────────────────────
 (async () => {
-  initPlayers(); // sets currentGW synchronously
+  initPlayers();
 
   const savedId = localStorage.getItem('fpl_id');
   const savedEmail = localStorage.getItem('challenge_email');
@@ -565,13 +562,16 @@ function fmtTime(iso) {
 
   const [supabaseResult, statusResult] = await Promise.allSettled([
     initSupabase(),
-    fetch(`/api/challenge-status?gw=${currentGW}`)
-      .then(r => r.ok ? r.json() : { is_open: true })
-      .catch(() => ({ is_open: true }))
+    fetch('/api/challenge-status?current=1')
+      .then(r => r.ok ? r.json() : { gw: PLAYERS_DATA.gw, is_open: true })
+      .catch(() => ({ gw: PLAYERS_DATA.gw, is_open: true }))
   ]);
 
   const supabaseErr = supabaseResult.status === 'rejected' ? supabaseResult.reason.message : null;
-  const is_open = statusResult.status === 'fulfilled' ? statusResult.value.is_open !== false : true;
+  const current = statusResult.status === 'fulfilled' ? statusResult.value : { gw: PLAYERS_DATA.gw, is_open: true };
+  currentGW = current.gw;
+  document.getElementById('gw-badge').textContent = `GW ${currentGW}`;
+  const is_open = current.is_open !== false;
 
   document.getElementById('init-loading').style.display = 'none';
 

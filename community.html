@@ -272,7 +272,6 @@ async function sbPatch(table, filter, data) {
 
 // ── Bootstrap / player dropdown ───────────────────────────
 function initBootstrap() {
-  currentGW = PLAYERS_DATA.gw;
   buildDropdowns(PLAYERS_DATA.players);
 }
 
@@ -583,13 +582,16 @@ function escPoll(s) {
 
   const [supabaseResult, statusResult] = await Promise.allSettled([
     initSupabase(),
-    fetch(`/api/community-status?gw=${currentGW}`)
-      .then(r => r.ok ? r.json() : { is_open: true })
-      .catch(() => ({ is_open: true }))
+    fetch('/api/community-status?current=1')
+      .then(r => r.ok ? r.json() : { gw: PLAYERS_DATA.gw, is_open: true })
+      .catch(() => ({ gw: PLAYERS_DATA.gw, is_open: true }))
   ]);
 
   const supabaseErr = supabaseResult.status === 'rejected' ? supabaseResult.reason.message : null;
-  const is_open = statusResult.status === 'fulfilled' ? statusResult.value.is_open !== false : true;
+  const current = statusResult.status === 'fulfilled' ? statusResult.value : { gw: PLAYERS_DATA.gw, is_open: true };
+  currentGW = current.gw;
+  document.getElementById('gw-badge').textContent = `GW ${currentGW}`;
+  const is_open = current.is_open !== false;
 
   if (supabaseErr) {
     document.getElementById('feed').innerHTML =

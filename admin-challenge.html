@@ -88,12 +88,13 @@
     <p class="page-sub">Status toggle, captain brackets, This or That pairs, and score calculator.</p>
 
     <!-- Challenge Status -->
-    <div class="section-title">Challenge Status <span class="section-badge">Open / Close</span></div>
+    <div class="section-title">Challenge Status <span class="section-badge">Shown GW · Open / Close</span></div>
     <div class="card">
-      <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Toggle submission window per GW</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Choose which GW is shown in the app, and whether it's open for submissions</div>
       <div class="form-grid">
         <div class="field-group"><label class="input-label" for="cfg-gw">Gameweek</label><select id="cfg-gw" onchange="loadChallengeStatus()"></select></div>
         <div class="field-group" style="justify-content:flex-end;"><label class="input-label">Current Status</label><div id="cfg-status-display" style="font-size:16px;font-weight:800;color:var(--muted);padding-top:4px;">—</div></div>
+        <div><button class="btn btn-full" id="cfg-current-btn" onclick="setCurrentGW()">⭐ Set as Shown GW</button></div>
         <div><button class="btn btn-full" id="cfg-toggle-btn" onclick="toggleChallengeStatus()" style="display:none;">Toggle →</button></div>
       </div>
       <div class="error-msg" id="cfg-error"></div><div class="success-msg" id="cfg-success"></div>
@@ -197,15 +198,14 @@ async function adminFetch(path, options = {}) {
 
 async function detectCurrentGW() {
   try {
-    const boot = await fetch('/api/fpl?endpoint=bootstrap-static/').then(r => r.json());
-    const events = boot.events || [];
-    return (events.find(e => e.is_current) || events.find(e => e.is_next) || events.find(e => !e.finished) || {}).id || 1;
+    const data = await fetch('/api/challenge-status?current=1').then(r => r.json());
+    return data.gw || 1;
   } catch(e) { return 1; }
 }
 
 function populateGwSelect(selectEl, currentGw) {
   selectEl.innerHTML = Array.from({ length: 38 }, (_, i) => i + 1)
-    .map(gw => `<option value="${gw}" ${gw === currentGw ? 'selected' : ''}>GW ${gw}${gw === currentGw ? ' (current)' : ''}</option>`)
+    .map(gw => `<option value="${gw}" ${gw === currentGw ? 'selected' : ''}>GW ${gw}${gw === currentGw ? ' (shown now)' : ''}</option>`)
     .join('');
 }
 
@@ -235,19 +235,22 @@ async function loadChallengeStatus() {
   document.getElementById('cfg-status-display').textContent = 'Loading...';
   try {
     const data = await adminFetch(`/api/challenge-status?gw=${gw}`);
-    challengeStatusData = { gw, is_open: data.is_open };
-    updateChallengeStatusUI(data.is_open);
+    challengeStatusData = { gw, is_open: data.is_open, is_current: data.is_current };
+    updateChallengeStatusUI(data.is_open, data.is_current);
   } catch(e) { err.textContent = e.message || 'Could not load status.'; err.style.display = 'block'; }
 }
 
-function updateChallengeStatusUI(is_open) {
+function updateChallengeStatusUI(is_open, is_current) {
   const d = document.getElementById('cfg-status-display');
   const t = document.getElementById('cfg-toggle-btn');
-  d.textContent = is_open ? '🟢 Open' : '🔴 Closed';
+  const c = document.getElementById('cfg-current-btn');
+  d.textContent = `${is_open ? '🟢 Open' : '🔴 Closed'}${is_current ? ' · ⭐ Shown in app' : ''}`;
   d.style.color = is_open ? 'var(--green)' : 'var(--red)';
   t.style.display = 'block';
   t.textContent = is_open ? 'Close Submissions ×' : 'Open Submissions ✓';
   t.className = `btn btn-full ${is_open ? 'btn-red' : 'btn-green'}`;
+  c.disabled = !!is_current;
+  c.textContent = is_current ? '⭐ Currently Shown' : '⭐ Set as Shown GW';
 }
 
 async function toggleChallengeStatus() {
@@ -261,10 +264,25 @@ async function toggleChallengeStatus() {
   try {
     await adminFetch('/api/challenge-status', { method: 'POST', body: JSON.stringify({ gw: challengeStatusData.gw, is_open: newOpen }) });
     challengeStatusData.is_open = newOpen;
-    updateChallengeStatusUI(newOpen);
+    updateChallengeStatusUI(newOpen, challengeStatusData.is_current);
     ok.textContent = `✓ GW ${challengeStatusData.gw} submissions are now ${newOpen ? 'OPEN' : 'CLOSED'}.`;
     ok.style.display = 'block';
-  } catch(e) { err.textContent = e.message || 'Could not update status.'; err.style.display = 'block'; btn.disabled = false; updateChallengeStatusUI(challengeStatusData.is_open); }
+  } catch(e) { err.textContent = e.message || 'Could not update status.'; err.style.display = 'block'; btn.disabled = false; updateChallengeStatusUI(challengeStatusData.is_open, challengeStatusData.is_current); }
+}
+
+async function setCurrentGW() {
+  const gw = parseInt(document.getElementById('cfg-gw').value);
+  const err = document.getElementById('cfg-error');
+  const ok = document.getElementById('cfg-success');
+  const btn = document.getElementById('cfg-current-btn');
+  err.style.display = 'none'; ok.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Updating...';
+  try {
+    await adminFetch('/api/challenge-status', { method: 'POST', body: JSON.stringify({ gw, is_current: true }) });
+    ok.textContent = `✓ GW ${gw} is now the gameweek shown in the app.`; ok.style.display = 'block';
+    populateGwSelect(document.getElementById('cfg-gw'), gw);
+    await loadChallengeStatus();
+  } catch(e) { err.textContent = e.message || 'Could not update.'; err.style.display = 'block'; btn.disabled = false; btn.textContent = '⭐ Set as Shown GW'; }
 }
 
 // ── Captain Bracket Manager ──────────────────────────────
