@@ -92,9 +92,8 @@
     <div class="card">
       <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Toggle submission window per GW</div>
       <div class="form-grid">
-        <div class="field-group"><label class="input-label" for="cfg-gw">Gameweek</label><input type="number" id="cfg-gw" placeholder="e.g. 38" min="1" max="38"/></div>
+        <div class="field-group"><label class="input-label" for="cfg-gw">Gameweek</label><select id="cfg-gw" onchange="loadChallengeStatus()"></select></div>
         <div class="field-group" style="justify-content:flex-end;"><label class="input-label">Current Status</label><div id="cfg-status-display" style="font-size:16px;font-weight:800;color:var(--muted);padding-top:4px;">—</div></div>
-        <div><button class="btn btn-full" id="cfg-load-btn" onclick="loadChallengeStatus()">Load Status →</button></div>
         <div><button class="btn btn-full" id="cfg-toggle-btn" onclick="toggleChallengeStatus()" style="display:none;">Toggle →</button></div>
       </div>
       <div class="error-msg" id="cfg-error"></div><div class="success-msg" id="cfg-success"></div>
@@ -196,6 +195,20 @@ async function adminFetch(path, options = {}) {
   return res.json();
 }
 
+async function detectCurrentGW() {
+  try {
+    const boot = await fetch('/api/fpl?endpoint=bootstrap-static/').then(r => r.json());
+    const events = boot.events || [];
+    return (events.find(e => e.is_current) || events.find(e => e.is_next) || events.find(e => !e.finished) || {}).id || 1;
+  } catch(e) { return 1; }
+}
+
+function populateGwSelect(selectEl, currentGw) {
+  selectEl.innerHTML = Array.from({ length: 38 }, (_, i) => i + 1)
+    .map(gw => `<option value="${gw}" ${gw === currentGw ? 'selected' : ''}>GW ${gw}${gw === currentGw ? ' (current)' : ''}</option>`)
+    .join('');
+}
+
 async function initAdmin(pw) {
   const password = pw || sessionStorage.getItem('admin_pw');
   if (!password) return;
@@ -205,6 +218,9 @@ async function initAdmin(pw) {
   sessionStorage.setItem('admin_pw', password);
   document.getElementById('gate').style.display = 'none';
   document.getElementById('admin-content').style.display = 'block';
+  const currentGw = await detectCurrentGW();
+  populateGwSelect(document.getElementById('cfg-gw'), currentGw);
+  await loadChallengeStatus();
 }
 if (sessionStorage.getItem('admin_pw')) initAdmin();
 
@@ -215,16 +231,13 @@ async function loadChallengeStatus() {
   const gw = parseInt(document.getElementById('cfg-gw').value);
   const err = document.getElementById('cfg-error');
   const ok = document.getElementById('cfg-success');
-  const btn = document.getElementById('cfg-load-btn');
   err.style.display = 'none'; ok.style.display = 'none';
-  if (!gw || gw < 1 || gw > 38) { err.textContent = 'Enter a valid GW (1–38).'; err.style.display = 'block'; return; }
-  btn.disabled = true; btn.textContent = 'Loading...';
+  document.getElementById('cfg-status-display').textContent = 'Loading...';
   try {
     const data = await adminFetch(`/api/challenge-status?gw=${gw}`);
     challengeStatusData = { gw, is_open: data.is_open };
     updateChallengeStatusUI(data.is_open);
   } catch(e) { err.textContent = e.message || 'Could not load status.'; err.style.display = 'block'; }
-  finally { btn.disabled = false; btn.textContent = 'Load Status →'; }
 }
 
 function updateChallengeStatusUI(is_open) {

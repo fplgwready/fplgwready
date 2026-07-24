@@ -89,9 +89,8 @@
     <div class="card">
       <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Toggle captain pick submissions per GW</div>
       <div class="form-grid">
-        <div class="field-group"><label class="input-label" for="cvs-gw">Gameweek</label><input type="number" id="cvs-gw" placeholder="e.g. 38" min="1" max="38"/></div>
+        <div class="field-group"><label class="input-label" for="cvs-gw">Gameweek</label><select id="cvs-gw" onchange="loadCaptainVoteStatus()"></select></div>
         <div class="field-group" style="justify-content:flex-end;"><label class="input-label">Current Status</label><div id="cvs-status-display" style="font-size:16px;font-weight:800;color:var(--muted);padding-top:4px;">—</div></div>
-        <div><button class="btn btn-full" id="cvs-load-btn" onclick="loadCaptainVoteStatus()">Load Status →</button></div>
         <div><button class="btn btn-full" id="cvs-toggle-btn" onclick="toggleCaptainVoteStatus()" style="display:none;">Toggle →</button></div>
       </div>
       <div class="error-msg" id="cvs-error"></div><div class="success-msg" id="cvs-success"></div>
@@ -165,6 +164,20 @@ async function adminFetch(path, options = {}) {
   return res.json();
 }
 
+async function detectCurrentGW() {
+  try {
+    const boot = await fetch('/api/fpl?endpoint=bootstrap-static/').then(r => r.json());
+    const events = boot.events || [];
+    return (events.find(e => e.is_current) || events.find(e => e.is_next) || events.find(e => !e.finished) || {}).id || 1;
+  } catch(e) { return 1; }
+}
+
+function populateGwSelect(selectEl, currentGw) {
+  selectEl.innerHTML = Array.from({ length: 38 }, (_, i) => i + 1)
+    .map(gw => `<option value="${gw}" ${gw === currentGw ? 'selected' : ''}>GW ${gw}${gw === currentGw ? ' (current)' : ''}</option>`)
+    .join('');
+}
+
 async function initAdmin(pw) {
   const password = pw || sessionStorage.getItem('admin_pw');
   if (!password) return;
@@ -174,7 +187,9 @@ async function initAdmin(pw) {
   sessionStorage.setItem('admin_pw', password);
   document.getElementById('gate').style.display = 'none';
   document.getElementById('admin-content').style.display = 'block';
-  await loadPolls();
+  const currentGw = await detectCurrentGW();
+  populateGwSelect(document.getElementById('cvs-gw'), currentGw);
+  await Promise.all([loadCaptainVoteStatus(), loadPolls()]);
 }
 if (sessionStorage.getItem('admin_pw')) initAdmin();
 
@@ -185,16 +200,13 @@ async function loadCaptainVoteStatus() {
   const gw = parseInt(document.getElementById('cvs-gw').value);
   const err = document.getElementById('cvs-error');
   const ok = document.getElementById('cvs-success');
-  const btn = document.getElementById('cvs-load-btn');
   err.style.display = 'none'; ok.style.display = 'none';
-  if (!gw || gw < 1 || gw > 38) { err.textContent = 'Enter a valid GW (1–38).'; err.style.display = 'block'; return; }
-  btn.disabled = true; btn.textContent = 'Loading...';
+  document.getElementById('cvs-status-display').textContent = 'Loading...';
   try {
     const data = await adminFetch(`/api/community-status?gw=${gw}`);
     captainVoteStatusData = { gw, is_open: data.is_open };
     updateCaptainVoteStatusUI(data.is_open);
   } catch(e) { err.textContent = e.message || 'Could not load status.'; err.style.display = 'block'; }
-  finally { btn.disabled = false; btn.textContent = 'Load Status →'; }
 }
 
 function updateCaptainVoteStatusUI(is_open) {

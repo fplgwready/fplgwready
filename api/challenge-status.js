@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     if (!pw || pw !== process.env.ADMIN_PASSWORD) return res.status(401).json({ error: 'Unauthorized' });
     const { gw, is_open } = req.body || {};
     if (!gw) return res.status(400).json({ error: 'gw required' });
-    const r = await fetch(`${SB_URL}/rest/v1/challenge_config`, {
+    const r = await fetch(`${SB_URL}/rest/v1/challenge_config?on_conflict=gw`, {
       method: 'POST',
       headers: { ...base, Prefer: 'resolution=merge-duplicates,return=representation' },
       body: JSON.stringify({ gw: parseInt(gw), is_open: !!is_open })
