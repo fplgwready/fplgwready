@@ -12,7 +12,7 @@ gw = next((e['id'] for e in events if e['is_current']), None) \
   or next((e['id'] for e in events if e['is_next']), None) \
   or max((e['id'] for e in events if e['finished']), default=38)
 players = [
-    {'n': p['web_name'], 't': team_map.get(p['team'], ''), 'p': p['element_type'], 'c': p['now_cost'], 'x': float(p['ep_this'] or 0)}
+    {'n': p['web_name'], 't': team_map.get(p['team'], ''), 'p': p['element_type'], 'c': p['now_cost'], 'x': float(p['ep_this'] if p['ep_this'] is not None else (p['ep_next'] or 0))}
     for p in data['elements'] if p['status'] != 'u'
 ]
 players.sort(key=lambda p: p['x'], reverse=True)
