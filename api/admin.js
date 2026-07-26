@@ -82,17 +82,20 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       const { gw } = req.query;
       if (!gw) return res.status(400).json({ error: 'gw required' });
-      const r = await fetch(`${SB_URL}/rest/v1/this_or_that?gw=eq.${gw}&order=id.asc&limit=20`, { headers: base });
+      const r = await fetch(`${SB_URL}/rest/v1/this_or_that?gw=eq.${gw}&order=pair_num.asc.nullslast,id.asc&limit=20`, { headers: base });
       if (!r.ok) return res.status(500).json({ error: 'Fetch failed' });
       return res.json(await r.json());
     }
     if (req.method === 'POST') {
       const { gw, player_a, player_b } = req.body || {};
       if (!gw || !player_a || !player_b) return res.status(400).json({ error: 'gw, player_a, player_b required' });
+      const existingRes = await fetch(`${SB_URL}/rest/v1/this_or_that?gw=eq.${parseInt(gw)}&select=pair_num&order=pair_num.desc.nullslast&limit=1`, { headers: base });
+      const existing = existingRes.ok ? await existingRes.json() : [];
+      const pair_num = (existing[0]?.pair_num || 0) + 1;
       const r = await fetch(`${SB_URL}/rest/v1/this_or_that`, {
         method: 'POST',
         headers: { ...base, Prefer: 'return=representation' },
-        body: JSON.stringify({ gw: parseInt(gw), player_a: player_a.trim(), player_b: player_b.trim() }),
+        body: JSON.stringify({ gw: parseInt(gw), player_a: player_a.trim(), player_b: player_b.trim(), pair_num }),
       });
       if (!r.ok) { const e = await r.json().catch(() => ({})); return res.status(500).json({ error: e.message || 'Insert failed' }); }
       const rows = await r.json();
