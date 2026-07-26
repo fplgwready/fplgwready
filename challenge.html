@@ -212,6 +212,11 @@
   <!-- Already submitted / post-submit -->
   <div id="step-done" style="display:none;">
     <div class="success-msg" id="done-msg" style="display:block;"></div>
+    <div id="my-breakdown" style="display:none;">
+      <div class="section-title" style="font-size:14px;margin-bottom:4px;">Your Scoring Breakdown</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Scores show 0 until GW results are confirmed by admin.</p>
+      <div class="lb-card" id="breakdown-list"></div>
+    </div>
   </div>
 
   <!-- Prize banner (always visible) -->
@@ -407,7 +412,7 @@ async function verifyIdentity() {
   try {
     const [entry, existing] = await Promise.all([
       fetch(`/api/fpl?endpoint=entry/${id}/`).then(r => { if (!r.ok) throw new Error('FPL Team not found.'); return r.json(); }),
-      SB_KEY ? sbSelect('challenge_entries', { fpl_id: `eq.${id}`, gw: `eq.${currentGW}`, game_type: 'eq.top_score', select: 'id', limit: 1 }) : Promise.resolve([])
+      SB_KEY ? sbSelect('challenge_entries', { fpl_id: `eq.${id}`, gw: `eq.${currentGW}`, select: 'game_type,prediction,score' }) : Promise.resolve([])
     ]);
 
     managerData = { id, name: `${entry.player_first_name} ${entry.player_last_name}`, team: entry.name };
@@ -424,6 +429,7 @@ async function verifyIdentity() {
     if (existing?.length > 0) {
       document.getElementById('done-msg').textContent = `${managerData.name} has already submitted their challenge for GW ${currentGW}. No re-submissions allowed!`;
       document.getElementById('step-done').style.display = 'block';
+      renderBreakdown(existing);
     } else {
       document.getElementById('step-games').style.display = 'block';
     }
@@ -432,6 +438,33 @@ async function verifyIdentity() {
     err.style.display = 'block';
   }
   btn.disabled = false; btn.textContent = 'Check →';
+}
+
+function renderBreakdown(entries) {
+  const wrap = document.getElementById('my-breakdown');
+  const list = document.getElementById('breakdown-list');
+
+  const rowsHTML = entries.map(e => {
+    let label, maxPts;
+    if (e.game_type === 'top_score') {
+      label = `🥅 Top Scorer — ${e.prediction}`; maxPts = 40;
+    } else if (e.game_type.startsWith('captain_bracket_')) {
+      const slot = parseInt(e.game_type.split('_').pop()) - 1;
+      const bp = captainBrackets[slot];
+      label = `👑 Captain Bracket — ${bp ? bp.player_name : `Slot ${slot + 1}`}: ${e.prediction}`; maxPts = 15;
+    } else if (e.game_type.startsWith('this_or_that_')) {
+      const idx = parseInt(e.game_type.split('_').pop()) - 1;
+      const pair = thisOrThatPairs[idx];
+      label = `⚔️ This or That${pair ? ` — ${pair.player_a} vs ${pair.player_b}` : ''}: ${e.prediction}`; maxPts = 10;
+    } else {
+      label = e.game_type; maxPts = null;
+    }
+    return `<div class="lb-row"><div class="lb-name">${label}</div><div class="lb-score">${e.score ?? 0}${maxPts ? `/${maxPts}` : ''} <span class="lb-score-label">pts</span></div></div>`;
+  }).join('');
+
+  const total = entries.reduce((sum, e) => sum + (e.score || 0), 0);
+  list.innerHTML = rowsHTML + `<div class="lb-row" style="font-weight:800;"><div class="lb-name">Total</div><div class="lb-score">${total} <span class="lb-score-label">pts</span></div></div>`;
+  wrap.style.display = 'block';
 }
 
 // ── Submit ────────────────────────────────────────────────
