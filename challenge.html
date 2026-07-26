@@ -304,7 +304,7 @@ function initPlayers() {
 // ── This or That ──────────────────────────────────────────
 async function loadThisOrThat() {
   try {
-    const pairs = await sbSelect('this_or_that', { gw: `eq.${currentGW}`, order: 'id.asc', limit: 3 });
+    const pairs = await sbSelect('this_or_that', { gw: `eq.${currentGW}`, order: 'pair_num.asc.nullslast,id.asc', limit: 3 });
     thisOrThatPairs = pairs || [];
   } catch(e) {
     thisOrThatPairs = [];

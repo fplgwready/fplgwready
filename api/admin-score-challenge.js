@@ -19,7 +19,7 @@ export default async function handler(req, res) {
 
     const [entriesRes, pairsRes, bracketsRes] = await Promise.all([
       fetch(`${SB_URL}/rest/v1/challenge_entries?gw=eq.${gw}&select=*&order=created_at.asc&limit=2000`, { headers: base }),
-      fetch(`${SB_URL}/rest/v1/this_or_that?gw=eq.${gw}&order=id.asc&limit=3`, { headers: base }),
+      fetch(`${SB_URL}/rest/v1/this_or_that?gw=eq.${gw}&order=pair_num.asc.nullslast,id.asc&limit=3`, { headers: base }),
       fetch(`${SB_URL}/rest/v1/captain_brackets?gw=eq.${gw}&order=slot.asc&limit=2`, { headers: base })
     ]);
 
@@ -38,7 +38,7 @@ export default async function handler(req, res) {
 
     const [entriesRes, pairsRes, bracketsRes] = await Promise.all([
       fetch(`${SB_URL}/rest/v1/challenge_entries?gw=eq.${gw}&select=id,game_type,prediction&limit=2000`, { headers: base }),
-      fetch(`${SB_URL}/rest/v1/this_or_that?gw=eq.${gw}&order=id.asc&limit=3`, { headers: base }),
+      fetch(`${SB_URL}/rest/v1/this_or_that?gw=eq.${gw}&order=pair_num.asc.nullslast,id.asc&limit=3`, { headers: base }),
       fetch(`${SB_URL}/rest/v1/captain_brackets?gw=eq.${gw}&order=slot.asc&limit=2`, { headers: base })
     ]);
 
