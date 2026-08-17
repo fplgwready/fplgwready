@@ -147,6 +147,7 @@ async function loadFeedback() {
         <div class="fb-body">
           <div class="fb-meta">${timeAgo(f.created_at)}${f.page ? ('<span class="fb-page">' + escHtml(f.page) + '</span>') : ''}</div>
           <div class="fb-message">${escHtml(f.message)}</div>
+          <div style="font-size:10px;color:var(--muted);opacity:0.7;margin-top:6px;font-family:monospace;">raw created_at: ${escHtml(f.created_at)} &nbsp;|&nbsp; your browser now: ${escHtml(new Date().toISOString())}</div>
         </div>
         <button class="btn btn-red btn-sm" onclick="deleteFeedback('${f.id}')">Delete</button>
       </div>
