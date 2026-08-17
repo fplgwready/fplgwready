@@ -499,15 +499,20 @@ async function submitChallenge() {
 
   btn.disabled = true; btn.textContent = 'Submitting...';
   try {
+    // Stamp created_at explicitly in unambiguous UTC instead of relying on
+    // the DB's `now()` default, whose serialized offset depends on the
+    // Postgres session timezone and was showing submissions as several
+    // hours old immediately after they were made.
+    const submittedAt = new Date().toISOString();
     const rows = [
-      { fpl_id: managerData.id, manager_name: managerData.name, email, gw: currentGW, game_type: 'top_score', prediction: game1Pick, score: 0 },
+      { fpl_id: managerData.id, manager_name: managerData.name, email, gw: currentGW, game_type: 'top_score', prediction: game1Pick, score: 0, created_at: submittedAt },
       ...captainBrackets.map((_, i) => ({
         fpl_id: managerData.id, manager_name: managerData.name, email, gw: currentGW,
-        game_type: `captain_bracket_${i + 1}`, prediction: bracketSelections[i], score: 0
+        game_type: `captain_bracket_${i + 1}`, prediction: bracketSelections[i], score: 0, created_at: submittedAt
       })),
       ...thisOrThatPairs.map((_, i) => totSelections[i] ? {
         fpl_id: managerData.id, manager_name: managerData.name, email, gw: currentGW,
-        game_type: `this_or_that_${i + 1}`, prediction: totSelections[i], score: 0
+        game_type: `this_or_that_${i + 1}`, prediction: totSelections[i], score: 0, created_at: submittedAt
       } : null).filter(Boolean)
     ];
 
@@ -575,8 +580,12 @@ async function loadLeaderboard() {
 
 function fmtTime(iso) {
   if (!iso) return '';
-  const d = new Date(iso);
-  const diff = (Date.now() - d) / 1000;
+  // Force UTC if the string has no explicit zone/offset, so this can't be
+  // misread as local time by the browser (see submitChallenge()).
+  let s = iso;
+  if (typeof s === 'string' && !/[zZ]|[+-]\d\d:?\d\d$/.test(s)) s += 'Z';
+  const d = new Date(s);
+  const diff = Math.max(0, (Date.now() - d) / 1000);
   if (diff < 3600) return `Submitted ${Math.max(1, Math.floor(diff / 60))} min ago`;
   if (diff < 86400) return `Submitted ${Math.floor(diff / 3600)} hr ago`;
   return `Submitted ${d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} ${d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
