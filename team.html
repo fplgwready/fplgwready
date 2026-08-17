@@ -555,7 +555,7 @@ if (params.get('id')) {
   Data sourced from <a href="https://fantasy.premierleague.com" target="_blank" style="color:#1A6FFF;text-decoration:none;">FPL Official API</a>
   · Built by <strong>FPLGWReady</strong>
 </div>
-<button id="fb-widget-btn" onclick="toggleFeedbackWidget(true)" title="Send Feedback" aria-label="Send Feedback">💬</button>
+<button id="fb-widget-btn" onclick="toggleFeedbackWidget(true)" title="Send Feedback" aria-label="Send Feedback"><span id="fb-widget-btn-icon">💬</span><span id="fb-widget-btn-label">Give Feedback</span></button>
 <div id="fb-widget-overlay" onclick="if(event.target===this)toggleFeedbackWidget(false)">
   <div id="fb-widget-card">
     <div id="fb-widget-title">Send Feedback</div>
@@ -569,7 +569,8 @@ if (params.get('id')) {
   </div>
 </div>
 <style>
-  #fb-widget-btn{position:fixed;bottom:22px;right:22px;width:52px;height:52px;border-radius:50%;background:var(--accent,#1A6FFF);color:#fff;border:none;font-size:22px;line-height:1;cursor:pointer;box-shadow:0 4px 16px rgba(26,111,255,0.35);z-index:9998;display:flex;align-items:center;justify-content:center;transition:transform .15s;font-family:inherit}
+  #fb-widget-btn{position:fixed;bottom:22px;right:22px;height:52px;padding:0 20px 0 16px;border-radius:100px;background:var(--accent,#1A6FFF);color:#fff;border:none;font-size:20px;line-height:1;cursor:pointer;box-shadow:0 4px 16px rgba(26,111,255,0.35);z-index:9998;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s;font-family:'Inter',sans-serif}
+  #fb-widget-btn-label{font-size:14px;font-weight:700;white-space:nowrap}
   #fb-widget-btn:hover{transform:scale(1.06)}
   #fb-widget-overlay{position:fixed;inset:0;background:rgba(26,21,53,0.45);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px}
   #fb-widget-overlay.open{display:flex}
@@ -584,7 +585,7 @@ if (params.get('id')) {
   .fb-btn-send{background:var(--accent,#1A6FFF);color:#fff}
   .fb-btn-send:disabled{opacity:.5;cursor:not-allowed}
   #fb-widget-msg{font-size:12px;margin-top:8px;display:none}
-  @media(max-width:480px){#fb-widget-btn{width:46px;height:46px;bottom:16px;right:16px;font-size:19px}}
+  @media(max-width:480px){#fb-widget-btn{height:46px;padding:0 16px 0 13px;bottom:16px;right:16px;font-size:17px}#fb-widget-btn-label{font-size:13px}}
 </style>
 <script>
   function toggleFeedbackWidget(open) {
