@@ -18,7 +18,11 @@ export default async function handler(req, res) {
     const r = await fetch(`${SB_URL}/rest/v1/site_feedback`, {
       method: 'POST',
       headers: { ...base, Prefer: 'return=minimal' },
-      body: JSON.stringify({ message: trimmed, page: (page || '').slice(0, 300) })
+      // Stamp created_at explicitly in unambiguous UTC (ISO 8601 with Z) instead
+      // of relying on the DB's `now()` default, whose serialized offset depends
+      // on the Postgres session timezone and was showing up shifted by the
+      // project's local offset (e.g. UTC+7 for Indonesia-based sessions).
+      body: JSON.stringify({ message: trimmed, page: (page || '').slice(0, 300), created_at: new Date().toISOString() })
     });
     if (!r.ok) { const e = await r.json().catch(() => ({})); return res.status(500).json({ error: e.message || 'Insert failed' }); }
     return res.status(200).json({ ok: true });
