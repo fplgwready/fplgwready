@@ -4,7 +4,7 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-TKD64XPYQ5"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-TKD64XPYQ5');</script>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FPLGWReady — Admin</title>
+  <title>FPLGWReady — Admin Feedback</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -27,18 +27,23 @@
     input::placeholder{color:var(--muted);opacity:0.7}
     .field-group{display:flex;flex-direction:column;gap:6px}
     .btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:12px 22px;font-size:15px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:opacity 0.2s;white-space:nowrap}
-    .btn:hover{opacity:0.88}.btn:disabled{opacity:0.4;cursor:not-allowed}.btn-full{width:100%}
+    .btn:hover{opacity:0.88}.btn:disabled{opacity:0.4;cursor:not-allowed}
+    .btn-full{width:100%}.btn-red{background:var(--red)}.btn-sm{padding:7px 14px;font-size:13px;border-radius:8px}
     .error-msg{background:rgba(220,50,50,0.08);border:1px solid rgba(220,50,50,0.2);color:#CC3333;border-radius:10px;padding:12px 16px;font-size:14px;margin-top:12px;display:none}
+    .section-title{font-size:16px;font-weight:700;margin:28px 0 12px;display:flex;align-items:center;gap:8px}
+    .section-badge{font-size:11px;padding:2px 9px;border-radius:100px;background:rgba(26,111,255,0.1);color:var(--accent);font-weight:600}
     #gate{display:block}#admin-content{display:none}
     .gate-card{max-width:400px;margin:80px auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px;box-shadow:0 2px 16px rgba(108,92,231,0.08);text-align:center}
     .gate-icon{font-size:40px;margin-bottom:16px}.gate-title{font-size:20px;font-weight:800;margin-bottom:6px}.gate-sub{font-size:14px;color:var(--muted);margin-bottom:20px}
-    .hub-card{display:block;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:14px;text-decoration:none;color:inherit;transition:transform 0.15s,box-shadow 0.15s;position:relative;overflow:hidden}
-    .hub-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent2),var(--accent));opacity:0;transition:opacity 0.15s}
-    .hub-card:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(108,92,231,0.1)}
-    .hub-card:hover::before{opacity:1}
-    .hub-icon{font-size:32px;margin-bottom:12px}
-    .hub-title{font-size:18px;font-weight:800;margin-bottom:6px}
-    .hub-desc{font-size:14px;color:var(--muted);line-height:1.5}
+    .fb-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;align-items:flex-start;gap:12px}
+    .fb-body{flex:1;min-width:0}
+    .fb-meta{font-size:11px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .fb-page{font-size:11px;font-weight:600;color:var(--muted);background:var(--surface);border:1px solid var(--border);padding:2px 8px;border-radius:100px;text-transform:none;letter-spacing:0}
+    .fb-message{font-size:14px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+    .fb-list{display:flex;flex-direction:column;gap:10px}
+    .feed-empty{text-align:center;padding:40px 0;color:var(--muted);font-size:14px;background:var(--surface);border:1px dashed var(--border);border-radius:var(--radius)}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px}
     @media(max-width:540px){nav{padding:14px 16px}.container{margin-top:24px}.admin-nav{padding:10px 16px;gap:4px}.admin-nav-link{padding:5px 12px;font-size:12px}}
   </style>
 </head>
@@ -63,37 +68,24 @@
 
 <div id="admin-content">
   <div class="admin-nav">
-    <a href="/admin.html" class="admin-nav-link active">Dashboard</a>
+    <a href="/admin.html" class="admin-nav-link">Dashboard</a>
     <a href="/admin-polls.html" class="admin-nav-link">Polls</a>
     <a href="/admin-challenge.html" class="admin-nav-link">Challenge</a>
     <a href="/admin-articles.html" class="admin-nav-link">Articles</a>
-    <a href="/admin-feedback.html" class="admin-nav-link">Feedback</a>
+    <a href="/admin-feedback.html" class="admin-nav-link active">Feedback</a>
   </div>
   <div class="container">
-    <div class="page-title">FPLGWR Admin Panel</div>
-    <p class="page-sub">Select a section to manage.</p>
+    <div class="page-title">Site Feedback</div>
+    <p class="page-sub">Feedback submitted by visitors via the floating feedback button on the site.</p>
 
-    <a class="hub-card" href="/admin-polls.html">
-      <div class="hub-icon">📊</div>
-      <div class="hub-title">GW Dilemmas</div>
-      <div class="hub-desc">Create and manage community polls — captain picks, bench dilemmas, transfer debates.</div>
-    </a>
-
-    <a class="hub-card" href="/admin-challenge.html">
-      <div class="hub-icon">🎯</div>
-      <div class="hub-title">Challenge Management</div>
-      <div class="hub-desc">Toggle submission status, set captain brackets, manage This or That pairs, and calculate GW scores.</div>
-    </a>
-
-    <a class="hub-card" href="/admin-articles.html">
-      <div class="hub-icon">📝</div>
-      <div class="hub-title">Article Editor</div>
-      <div class="hub-desc">Write, edit, and publish Expert Insight articles with markdown support.</div>
-    </a>
+    <div class="section-title">All Feedback <span class="section-badge" id="fb-count">—</span></div>
+    <div id="fb-list" class="fb-list"><div class="feed-empty"><span class="spinner"></span>Loading feedback...</div></div>
   </div>
 </div>
 
 <script>
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
 async function checkPassword() {
   const pw = document.getElementById('gate-pw').value.trim();
   const err = document.getElementById('gate-error');
@@ -107,6 +99,14 @@ async function checkPassword() {
 }
 document.getElementById('gate-pw').addEventListener('keydown', e => { if (e.key === 'Enter') checkPassword(); });
 
+async function adminFetch(path, options = {}) {
+  const pw = sessionStorage.getItem('admin_pw');
+  const res = await fetch(path, { ...options, headers: { 'x-admin-password': pw, 'Content-Type': 'application/json', ...(options.headers || {}) } });
+  if (res.status === 401) throw new Error('401');
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || `Request failed: ${res.status}`); }
+  return res.json();
+}
+
 async function initAdmin(pw) {
   const password = pw || sessionStorage.getItem('admin_pw');
   if (!password) return;
@@ -116,8 +116,46 @@ async function initAdmin(pw) {
   sessionStorage.setItem('admin_pw', password);
   document.getElementById('gate').style.display = 'none';
   document.getElementById('admin-content').style.display = 'block';
+  await loadFeedback();
 }
 if (sessionStorage.getItem('admin_pw')) initAdmin();
+
+function timeAgo(iso) {
+  const diff = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+  return `${Math.floor(diff/86400)}d ago`;
+}
+
+async function loadFeedback() {
+  const listEl = document.getElementById('fb-list');
+  const countEl = document.getElementById('fb-count');
+  listEl.innerHTML = '<div class="feed-empty"><span class="spinner"></span>Loading feedback...</div>';
+  try {
+    const items = await adminFetch('/api/feedback');
+    countEl.textContent = `${items.length} total`;
+    if (!items.length) { listEl.innerHTML = '<div class="feed-empty">No feedback yet.</div>'; return; }
+    listEl.innerHTML = items.map(f => `
+      <div class="fb-card" id="fb-${f.id}">
+        <div class="fb-body">
+          <div class="fb-meta">${timeAgo(f.created_at)}${f.page ? ('<span class="fb-page">' + escHtml(f.page) + '</span>') : ''}</div>
+          <div class="fb-message">${escHtml(f.message)}</div>
+        </div>
+        <button class="btn btn-red btn-sm" onclick="deleteFeedback('${f.id}')">Delete</button>
+      </div>
+    `).join('');
+  } catch(e) { listEl.innerHTML = `<div class="feed-empty">⚠️ ${e.message}</div>`; }
+}
+
+async function deleteFeedback(id) {
+  if (!confirm('Delete this feedback permanently?')) return;
+  const card = document.getElementById(`fb-${id}`);
+  const btns = card.querySelectorAll('button');
+  btns.forEach(b => b.disabled = true);
+  try { await adminFetch('/api/feedback', { method: 'DELETE', body: JSON.stringify({ id }) }); card.style.opacity = '0.4'; card.style.pointerEvents = 'none'; setTimeout(() => { card.remove(); loadFeedback(); }, 500); }
+  catch(e) { alert('Error: ' + e.message); btns.forEach(b => b.disabled = false); }
+}
 </script>
 </body>
 </html>

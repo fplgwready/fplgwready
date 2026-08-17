@@ -277,5 +277,63 @@ loadPlayers();
   Data sourced from <a href="https://fantasy.premierleague.com" target="_blank" style="color:#1A6FFF;text-decoration:none;">FPL Official API</a>
   · Built by <strong>FPLGWReady</strong>
 </div>
+<button id="fb-widget-btn" onclick="toggleFeedbackWidget(true)" title="Send Feedback" aria-label="Send Feedback">💬</button>
+<div id="fb-widget-overlay" onclick="if(event.target===this)toggleFeedbackWidget(false)">
+  <div id="fb-widget-card">
+    <div id="fb-widget-title">Send Feedback</div>
+    <div id="fb-widget-sub">Tell us what's working, what's broken, or what you'd like to see.</div>
+    <textarea id="fb-widget-text" rows="4" maxlength="2000" placeholder="Your feedback..."></textarea>
+    <div id="fb-widget-actions">
+      <button type="button" class="fb-btn-cancel" onclick="toggleFeedbackWidget(false)">Cancel</button>
+      <button type="button" class="fb-btn-send" id="fb-widget-send" onclick="submitFeedback()">Send</button>
+    </div>
+    <div id="fb-widget-msg"></div>
+  </div>
+</div>
+<style>
+  #fb-widget-btn{position:fixed;bottom:22px;right:22px;width:52px;height:52px;border-radius:50%;background:var(--accent,#1A6FFF);color:#fff;border:none;font-size:22px;line-height:1;cursor:pointer;box-shadow:0 4px 16px rgba(26,111,255,0.35);z-index:9998;display:flex;align-items:center;justify-content:center;transition:transform .15s;font-family:inherit}
+  #fb-widget-btn:hover{transform:scale(1.06)}
+  #fb-widget-overlay{position:fixed;inset:0;background:rgba(26,21,53,0.45);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px}
+  #fb-widget-overlay.open{display:flex}
+  #fb-widget-card{background:var(--surface,#fff);border:1px solid var(--border,rgba(108,92,231,.15));border-radius:var(--radius,16px);padding:24px;max-width:380px;width:100%;box-shadow:0 8px 32px rgba(26,21,53,.2);font-family:'Inter',sans-serif}
+  #fb-widget-title{font-size:16px;font-weight:800;color:var(--text,#1A1535);margin-bottom:4px}
+  #fb-widget-sub{font-size:13px;color:var(--muted,#6B63A8);margin-bottom:14px;line-height:1.4}
+  #fb-widget-text{width:100%;background:var(--surface2,#F0F2FF);border:1px solid var(--border,rgba(108,92,231,.15));border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;color:var(--text,#1A1535);resize:vertical;min-height:90px;outline:none;box-sizing:border-box}
+  #fb-widget-text:focus{border-color:var(--accent,#1A6FFF)}
+  #fb-widget-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+  #fb-widget-actions button{border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+  .fb-btn-cancel{background:var(--surface2,#F0F2FF);color:var(--muted,#6B63A8)}
+  .fb-btn-send{background:var(--accent,#1A6FFF);color:#fff}
+  .fb-btn-send:disabled{opacity:.5;cursor:not-allowed}
+  #fb-widget-msg{font-size:12px;margin-top:8px;display:none}
+  @media(max-width:480px){#fb-widget-btn{width:46px;height:46px;bottom:16px;right:16px;font-size:19px}}
+</style>
+<script>
+  function toggleFeedbackWidget(open) {
+    const ov = document.getElementById('fb-widget-overlay');
+    ov.classList.toggle('open', open);
+    if (open) { document.getElementById('fb-widget-text').focus(); }
+    else { document.getElementById('fb-widget-msg').style.display = 'none'; }
+  }
+  async function submitFeedback() {
+    const text = document.getElementById('fb-widget-text');
+    const msg = document.getElementById('fb-widget-msg');
+    const btn = document.getElementById('fb-widget-send');
+    const val = text.value.trim();
+    if (!val) { msg.textContent = 'Please enter your feedback.'; msg.style.color = '#E84040'; msg.style.display = 'block'; return; }
+    btn.disabled = true; btn.textContent = 'Sending...';
+    try {
+      const res = await fetch('/api/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: val, page: location.pathname }) });
+      if (!res.ok) throw new Error('failed');
+      text.value = '';
+      msg.style.color = '#00976B'; msg.textContent = 'Thanks! Your feedback was sent.'; msg.style.display = 'block';
+      setTimeout(() => toggleFeedbackWidget(false), 1400);
+    } catch (e) {
+      msg.style.color = '#E84040'; msg.textContent = 'Could not send. Please try again.'; msg.style.display = 'block';
+    } finally {
+      btn.disabled = false; btn.textContent = 'Send';
+    }
+  }
+</script>
 </body>
 </html>
