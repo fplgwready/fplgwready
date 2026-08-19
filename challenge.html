@@ -229,16 +229,16 @@
     </div>
   </div>
 
-  <!-- Leaderboard (always visible) -->
-  <div class="section-title">Leaderboard <span class="section-badge" id="gw-badge">GW —</span></div>
-  <div id="leaderboard">
-    <div class="feed-loading"><div class="feed-spinner"></div>Loading leaderboard...</div>
-  </div>
-
   <!-- Articles promo (always visible) -->
-  <div class="section-title" style="margin-top:28px;">Latest Articles <span class="section-badge">📰 Expert Insights</span></div>
+  <div class="section-title">Latest Articles <span class="section-badge">📰 Expert Insights</span></div>
   <div id="articles-promo" class="lb-card">
     <div class="feed-loading"><div class="feed-spinner"></div>Loading articles...</div>
+  </div>
+
+  <!-- Leaderboard (always visible) -->
+  <div class="section-title" style="margin-top:28px;">Leaderboard <span class="section-badge" id="gw-badge">GW —</span></div>
+  <div id="leaderboard">
+    <div class="feed-loading"><div class="feed-spinner"></div>Loading leaderboard...</div>
   </div>
 </div>
 
@@ -612,7 +612,7 @@ async function loadArticlesPromo() {
     if (!articles.length) { el.innerHTML = '<div class="feed-empty">No articles published yet. Check back soon!</div>'; return; }
     el.innerHTML = articles.map(a => `
       <a class="lb-row" href="/insight.html?article=${encodeURIComponent(a.slug)}" style="text-decoration:none;color:inherit;">
-        <div class="lb-rank" style="font-size:15px;">📄</div>
+        ${a.cover_image ? `<img src="${escHtml(a.cover_image)}" alt="" loading="lazy" style="width:40px;height:40px;border-radius:8px;object-fit:cover;flex-shrink:0;"/>` : `<div class="lb-rank" style="font-size:15px;">📄</div>`}
         <div class="lb-name">${escHtml(a.title)}<div class="lb-name-sub">GW${a.gw}${a.author ? ' · By ' + escHtml(a.author) : ''}${a.published_at ? ' · ' + formatArticleDate(a.published_at) : ''}</div></div>
         <div class="lb-score" style="font-size:13px;color:var(--accent);">Read →</div>
       </a>`).join('');
