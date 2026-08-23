@@ -318,6 +318,16 @@ for (let i = 1; i <= 38; i++) {
 gwSelect.value = 38;
 
 let currentGW = 38, currentEntry = null, currentHistory = null, playerMap = {}, currentId = null;
+let realCurrentGW = 38;
+
+async function detectCurrentGW() {
+  try {
+    const boot = await fetchWithFallback('https://fantasy.premierleague.com/api/bootstrap-static/');
+    boot.elements.forEach(p => { playerMap[p.id] = p; });
+    const cur = boot.events.find(e => e.is_current) || boot.events.find(e => e.is_next);
+    return cur ? cur.id : 38;
+  } catch(e) { return 38; }
+}
 
 async function fetchTeam() {
   const id = document.getElementById('fpl-id').value.trim();
@@ -330,6 +340,7 @@ async function fetchTeam() {
   err.style.display = 'none'; result.style.display = 'none';
   if (!id || isNaN(id)) { err.textContent = 'Please enter a valid FPL Team ID.'; err.style.display = 'block'; return; }
   if (!gw) { err.textContent = 'Please select a gameweek.'; err.style.display = 'block'; return; }
+  if (gw > realCurrentGW) { err.textContent = `GW ${gw} hasn't been played yet — try GW ${realCurrentGW} or earlier.`; err.style.display = 'block'; return; }
 
   localStorage.setItem('fpl_id', id);
   btn.disabled = true; loading.style.display = 'block';
@@ -375,7 +386,7 @@ async function renderGW(id, gw) {
   document.getElementById('gw-nav-title').textContent = `Gameweek ${gw}`;
   document.getElementById('gw-nav-pts').textContent = gwData ? `${gwData.points} pts` : '—';
   document.getElementById('btn-prev').disabled = gw <= 1;
-  document.getElementById('btn-next').disabled = gw >= 38;
+  document.getElementById('btn-next').disabled = gw >= realCurrentGW;
 
   const chip = picks.active_chip;
   document.getElementById('chip-label').textContent = chip ? (CHIP_MAP[chip] || chip) : 'GW Picks';
@@ -535,20 +546,26 @@ async function jumpToGW(id, gw) {
 }
 
 function navigateGW(dir) {
-  const newGW = Math.min(38, Math.max(1, currentGW + dir));
+  const newGW = Math.min(realCurrentGW, Math.max(1, currentGW + dir));
   if (newGW !== currentGW) jumpToGW(currentId, newGW);
 }
 
 document.getElementById('fpl-id').addEventListener('keydown', e => { if (e.key === 'Enter') fetchTeam(); });
 
-const params = new URLSearchParams(window.location.search);
-const _savedId = localStorage.getItem('fpl_id');
-if (_savedId && !params.get('id')) document.getElementById('fpl-id').value = _savedId;
-if (params.get('id')) {
-  document.getElementById('fpl-id').value = params.get('id');
+(async () => {
+  realCurrentGW = await detectCurrentGW();
+  currentGW = realCurrentGW;
+  gwSelect.value = realCurrentGW;
+
+  const params = new URLSearchParams(window.location.search);
+  const _savedId = localStorage.getItem('fpl_id');
+  if (_savedId && !params.get('id')) document.getElementById('fpl-id').value = _savedId;
   if (params.get('gw')) gwSelect.value = params.get('gw');
-  fetchTeam();
-}
+  if (params.get('id')) {
+    document.getElementById('fpl-id').value = params.get('id');
+    fetchTeam();
+  }
+})();
 </script>
 
 <div style="text-align:center;padding:24px;font-size:11px;color:#6B63A8;border-top:1px solid rgba(108,92,231,0.1);margin-top:40px;">
