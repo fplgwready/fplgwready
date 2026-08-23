@@ -129,7 +129,7 @@
 </nav>
 
 <div class="container">
-  <div class="page-title">FPLGWR Challenge 🏆</div>
+  <div class="page-title">FPLGWR Challenge 🏆 <span class="section-badge" id="header-gw-badge" style="vertical-align:middle;font-size:13px;">GW —</span></div>
   <p class="page-sub">Pick right, win Rp 50.000!</p>
 
   <!-- Identity card -->
@@ -139,10 +139,11 @@
     </div>
     <div id="submission-closed" style="display:none;text-align:center;padding:20px 0 8px;">
       <div style="font-size:36px;margin-bottom:10px;">⏰</div>
-      <div style="font-size:18px;font-weight:800;margin-bottom:6px;">Submission Closed</div>
+      <div style="font-size:18px;font-weight:800;margin-bottom:6px;">GW <span id="closed-gw-num">—</span> Submission Closed</div>
       <div style="font-size:13px;color:var(--muted);">Results coming soon — check the leaderboard below!</div>
     </div>
     <div id="step-id" style="display:none;">
+      <p style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:12px;">📍 You're submitting picks for GW <span id="form-gw-num">—</span></p>
       <div class="id-row">
         <div class="field-group">
           <label class="input-label" for="fpl-id">FPL Team ID</label>
@@ -250,6 +251,7 @@
 <script>
 let SB_URL = null, SB_KEY = null;
 let currentGW = null;
+let submissionsOpen = true;
 let managerData = null;
 let thisOrThatPairs = [];
 let totSelections = {};
@@ -505,6 +507,20 @@ async function submitChallenge() {
 
   btn.disabled = true; btn.textContent = 'Submitting...';
   try {
+    // Re-check open/closed right before writing — the tab may have been open
+    // since before an admin closed submissions, so don't trust the state we
+    // loaded the page with.
+    const statusCheck = await fetch(`/api/challenge-status?gw=${currentGW}`).then(r => r.json()).catch(() => null);
+    if (statusCheck && statusCheck.is_open === false) {
+      submissionsOpen = false;
+      document.getElementById('step-games').style.display = 'none';
+      document.getElementById('closed-gw-num').textContent = currentGW;
+      document.getElementById('submission-closed').style.display = 'block';
+      err.textContent = `Submissions for GW ${currentGW} just closed — sorry, your picks weren't saved.`;
+      err.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Submit My Picks →';
+      return;
+    }
     // Stamp created_at explicitly in unambiguous UTC instead of relying on
     // the DB's `now()` default, whose serialized offset depends on the
     // Postgres session timezone and was showing submissions as several
@@ -531,7 +547,10 @@ async function submitChallenge() {
     await loadLeaderboard();
     document.getElementById('leaderboard').scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch(e) {
-    err.textContent = e.message || 'Could not save picks. Please try again.';
+    const isRlsBlock = /row-level security|policy/i.test(e.message || '');
+    err.textContent = isRlsBlock
+      ? `Submissions for GW ${currentGW} are closed — your picks weren't saved.`
+      : (e.message || 'Could not save picks. Please try again.');
     err.style.display = 'block';
   }
   btn.disabled = false; btn.textContent = 'Submit My Picks →';
@@ -645,11 +664,14 @@ async function loadArticlesPromo() {
   const current = statusResult.status === 'fulfilled' ? statusResult.value : { gw: PLAYERS_DATA.gw, is_open: true };
   currentGW = current.gw;
   document.getElementById('gw-badge').textContent = `GW ${currentGW}`;
-  const is_open = current.is_open !== false;
+  document.getElementById('header-gw-badge').textContent = `GW ${currentGW}`;
+  document.getElementById('form-gw-num').textContent = currentGW;
+  document.getElementById('closed-gw-num').textContent = currentGW;
+  submissionsOpen = current.is_open !== false;
 
   document.getElementById('init-loading').style.display = 'none';
 
-  if (!is_open) {
+  if (!submissionsOpen) {
     document.getElementById('submission-closed').style.display = 'block';
   } else {
     document.getElementById('step-id').style.display = 'block';
