@@ -185,7 +185,7 @@ const POS_CLASS = { 1:'pos-gk', 2:'pos-def', 3:'pos-mid', 4:'pos-fwd' };
 
 let allPlayers = [], teamMap = {}, currentPos = 'ALL';
 let currentSort = 'eo', sortAsc = false, searchQuery = '';
-let teamFixtures = {}, liveGW = 1, totalManagers = 0;
+let teamFixtures = {}, liveGW = 1;
 let squadFilterIds = null;
 
 async function fetchAPI(endpoint) {
@@ -221,21 +221,17 @@ function fixturesHTML(teamId) {
   }).join('')}</div>`;
 }
 
-// FPL doesn't publish its price-change algorithm or threshold. When a price
-// has already moved this GW (cost_change_event) we show that as certain;
-// otherwise this estimates direction/likelihood from net transfer momentum
-// as a share of all FPL managers — a heuristic, not an official prediction.
-function computeLikelihood(p) {
+// FPL doesn't publish a "likely to change" prediction before it actually
+// happens, so we don't invent one — this only reflects real price-change
+// data straight from the FPL API (cost_change_event). No change yet just
+// reads "Stable" rather than showing a guessed percentage.
+function priceStatus(p) {
   if (p.delta_f !== 0) {
-    return { pct: 100, dir: p.delta_f > 0 ? 'up' : 'down', label: p.delta_f > 0 ? 'Rose today' : 'Fell today' };
+    const pct = Math.min(100, Math.round(Math.abs(p.delta_f) / 0.3 * 100));
+    const dir = p.delta_f > 0 ? 'up' : 'down';
+    return { pct, dir, label: `${dir === 'up' ? '▲ +' : '▼ '}£${Math.abs(p.delta_f).toFixed(1)}m` };
   }
-  const net = (p.transfers_in_event || 0) - (p.transfers_out_event || 0);
-  if (!net || !totalManagers) return { pct: 0, dir: 'flat', label: 'Stable' };
-  const ratioPct = Math.abs(net / totalManagers) * 100;
-  const pct = Math.max(0, Math.min(100, Math.round(ratioPct * 100)));
-  const dir = net > 0 ? 'up' : 'down';
-  if (pct < 15) return { pct, dir: 'flat', label: 'Stable' };
-  return { pct, dir, label: `${pct}% ${dir === 'up' ? '▲' : '▼'}` };
+  return { pct: 0, dir: 'flat', label: 'Stable' };
 }
 
 function likelyCellHTML(lk) {
@@ -358,7 +354,6 @@ async function loadPlayers() {
   try {
     const boot = await fetchAPI('bootstrap-static/');
     boot.teams.forEach(t => { teamMap[t.id] = t; });
-    totalManagers = boot.total_players || 0;
     const curEvent = boot.events.find(e => e.is_current) || boot.events.find(e => e.is_next);
     liveGW = curEvent ? curEvent.id : 1;
     teamFixtures = await loadTeamFixtures(liveGW);
@@ -372,7 +367,7 @@ async function loadPlayers() {
         delta_f: (p.cost_change_event||0)/10,
         teamData: teamMap[p.team],
       };
-      mapped.likely = computeLikelihood(mapped);
+      mapped.likely = priceStatus(mapped);
       mapped.likely_signed = mapped.likely.dir === 'up' ? mapped.likely.pct : mapped.likely.dir === 'down' ? -mapped.likely.pct : 0;
       return mapped;
     });
