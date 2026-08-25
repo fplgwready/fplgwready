@@ -152,7 +152,7 @@ function goToTeam() {
   if (!id || isNaN(id)) { err.style.display = 'block'; return; }
   err.style.display = 'none';
   localStorage.setItem('fpl_id', id);
-  window.location.href = `/team.html?id=${id}&gw=38`;
+  window.location.href = `/team.html?id=${id}`;
 }
 document.getElementById('fpl-id').addEventListener('keydown', e => { if (e.key === 'Enter') goToTeam(); });
 function startCountdown() {
