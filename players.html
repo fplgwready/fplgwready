@@ -82,11 +82,33 @@
     .form-high { color: #00976B; font-weight: 600; }
     .form-mid { color: #C47F00; font-weight: 500; }
     .empty { text-align: center; padding: 60px 0; color: var(--muted); }
+    .delta-val { font-size: 12px; font-weight: 700; white-space: nowrap; }
+    .delta-up { color: #00976B; }
+    .delta-down { color: #E84040; }
+    .delta-none { color: var(--muted); font-weight: 400; }
+    .price-section { margin-bottom: 24px; }
+    .price-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+    .price-section-title { font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .price-updated { font-size: 12px; font-weight: 400; color: var(--muted); }
+    .price-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .price-col { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
+    .price-col-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--surface2); }
+    .riser-title { color: #00976B; }
+    .faller-title { color: #E84040; }
+    .price-list { display: flex; flex-direction: column; }
+    .price-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--border); }
+    .price-item:last-child { border-bottom: none; }
+    .price-item-body { flex: 1; min-width: 0; }
+    .price-item-name { font-size: 13px; font-weight: 600; }
+    .price-item-team { font-size: 11px; color: var(--muted); }
+    .price-item-now { font-size: 11px; color: var(--muted); white-space: nowrap; }
+    .price-empty { padding: 24px 16px; text-align: center; color: var(--muted); font-size: 13px; }
     @media (max-width: 768px) {
       nav { padding: 14px 16px; }
       .nav-links { gap: 4px; overflow-x: auto; flex-wrap: nowrap; flex: 1; scrollbar-width: none; }
       .nav-link { padding: 5px 10px; font-size: 11px; }
       .filters { gap: 8px; }
+      .price-cols { grid-template-columns: 1fr; }
     }
     .nav-links::-webkit-scrollbar { display: none; }
   </style>
@@ -111,6 +133,23 @@
     <div class="player-count" id="player-count">Loading...</div>
   </div>
 
+  <div class="price-section" id="price-section" style="display:none;">
+    <div class="price-section-header">
+      <div class="price-section-title">💰 Price Changes <span class="price-updated" id="price-updated"></span></div>
+      <button class="filter-btn" onclick="loadPlayers()">↻ Refresh</button>
+    </div>
+    <div class="price-cols">
+      <div class="price-col">
+        <div class="price-col-title riser-title">🔺 Risers</div>
+        <div class="price-list" id="risers-list"></div>
+      </div>
+      <div class="price-col">
+        <div class="price-col-title faller-title">🔻 Fallers</div>
+        <div class="price-list" id="fallers-list"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="filters">
     <div class="filter-group">
       <button class="filter-btn active" onclick="filterPos('ALL', this)">All</button>
@@ -126,6 +165,7 @@
       <button class="filter-btn" id="sort-eo" onclick="sortBy('eo')">EO</button>
       <button class="filter-btn" id="sort-form" onclick="sortBy('form')">Form</button>
       <button class="filter-btn" id="sort-price" onclick="sortBy('price')">Price</button>
+      <button class="filter-btn" id="sort-delta" onclick="sortBy('delta')">Price Δ</button>
     </div>
     <div class="divider"></div>
     <input type="text" class="search-input" id="search-input" placeholder="Search players..." oninput="filterSearch()"/>
@@ -143,6 +183,7 @@
           <th style="width:200px">Player</th>
           <th>Pos</th>
           <th onclick="sortBy('price')" id="th-price">Price <span class="sort-arrow">↕</span></th>
+          <th onclick="sortBy('delta')" id="th-delta">Δ Price <span class="sort-arrow">↕</span></th>
           <th onclick="sortBy('eo')" id="th-eo">EO% <span class="sort-arrow">↕</span></th>
           <th onclick="sortBy('form')" id="th-form">Form <span class="sort-arrow">↕</span></th>
           <th onclick="sortBy('ep_this')" id="th-ep_this">xP GW <span class="sort-arrow">↓</span></th>
@@ -212,7 +253,7 @@ function renderTable() {
     return true;
   });
 
-  const sortKeyMap = { ep_this:'ep_this_f', ep_next:'ep_next_f', eo:'eo_f', form:'form_f', price:'price_f' };
+  const sortKeyMap = { ep_this:'ep_this_f', ep_next:'ep_next_f', eo:'eo_f', form:'form_f', price:'price_f', delta:'delta_f' };
   const sortKey = sortKeyMap[currentSort] || 'ep_this_f';
   filtered.sort((a,b) => sortAsc ? a[sortKey]-b[sortKey] : b[sortKey]-a[sortKey]);
 
@@ -239,6 +280,7 @@ function renderTable() {
       <td><div class="player-cell">${jerseyHTML(p.team,teamShort)}<div><div class="player-name">${p.web_name}</div><div class="player-team">${team?.name||'—'}</div></div></div></td>
       <td><span class="pos-badge ${POS_CLASS[p.element_type]}">${POS_MAP[p.element_type]}</span></td>
       <td><span class="price-val">£${p.price_f.toFixed(1)}m</span></td>
+      <td><span class="delta-val ${p.delta_f>0?'delta-up':p.delta_f<0?'delta-down':'delta-none'}">${p.delta_f>0?'▲ +':p.delta_f<0?'▼ ':'—'}${p.delta_f!==0?'£'+Math.abs(p.delta_f).toFixed(1)+'m':''}</span></td>
       <td><div class="eo-cell"><div class="eo-bar-bg"><div class="eo-bar-fill" style="width:${Math.min(100,p.eo_f)}%"></div></div><span class="eo-val">${p.eo_f.toFixed(1)}%</span>${isDiff?'<span class="eo-diff">Diff</span>':''}</div></td>
       <td><span class="${formClass}">${p.form_f.toFixed(1)}</span></td>
       <td><span class="xp-val">${p.ep_this_f.toFixed(1)}</span></td>
@@ -247,6 +289,31 @@ function renderTable() {
     `;
     tbody.appendChild(tr);
   });
+}
+
+function renderPriceTicker() {
+  const risers = allPlayers.filter(p => p.delta_f > 0).sort((a,b) => b.delta_f - a.delta_f || b.transfers_in_event - a.transfers_in_event).slice(0, 8);
+  const fallers = allPlayers.filter(p => p.delta_f < 0).sort((a,b) => a.delta_f - b.delta_f || b.transfers_out_event - a.transfers_out_event).slice(0, 8);
+
+  const itemHTML = p => {
+    const teamShort = p.teamData?.short_name || '?';
+    return `<div class="price-item">
+      ${jerseyHTML(p.team, teamShort)}
+      <div class="price-item-body"><div class="price-item-name">${p.web_name}</div><div class="price-item-team">${teamShort}</div></div>
+      <span class="delta-val ${p.delta_f>0?'delta-up':'delta-down'}">${p.delta_f>0?'▲ +':'▼ '}£${Math.abs(p.delta_f).toFixed(1)}m</span>
+      <span class="price-item-now">£${p.price_f.toFixed(1)}m</span>
+    </div>`;
+  };
+
+  document.getElementById('risers-list').innerHTML = risers.length
+    ? risers.map(itemHTML).join('')
+    : '<div class="price-empty">No risers yet — check back after FPL\'s nightly price update (~1:30am UK).</div>';
+  document.getElementById('fallers-list').innerHTML = fallers.length
+    ? fallers.map(itemHTML).join('')
+    : '<div class="price-empty">No fallers yet — check back after FPL\'s nightly price update (~1:30am UK).</div>';
+
+  document.getElementById('price-updated').textContent = `Live · Updated ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  document.getElementById('price-section').style.display = 'block';
 }
 
 async function loadPlayers() {
@@ -260,10 +327,12 @@ async function loadPlayers() {
       eo_f: parseFloat(p.selected_by_percent)||0,
       form_f: parseFloat(p.form)||0,
       price_f: p.now_cost/10,
+      delta_f: (p.cost_change_event||0)/10,
       teamData: teamMap[p.team],
     }));
     document.getElementById('loading').style.display = 'none';
     document.getElementById('table-wrap').style.display = 'block';
+    renderPriceTicker();
     renderTable();
   } catch(e) {
     document.getElementById('loading').innerHTML = `<p style="color:#E84040;">Failed to load data: ${e.message}</p>`;
@@ -271,6 +340,8 @@ async function loadPlayers() {
 }
 
 loadPlayers();
+// Keep price data fresh without a manual reload.
+setInterval(loadPlayers, 5 * 60 * 1000);
 </script>
 
 <div style="text-align:center;padding:24px;font-size:11px;color:#6B63A8;border-top:1px solid rgba(108,92,231,0.1);margin-top:40px;">
