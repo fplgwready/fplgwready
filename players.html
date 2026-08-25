@@ -70,8 +70,6 @@
     .pos-def { background: rgba(26,111,255,0.12); color: var(--accent); }
     .pos-mid { background: rgba(0,151,107,0.12); color: #00976B; }
     .pos-fwd { background: rgba(232,64,64,0.12); color: #E84040; }
-    .xp-val { font-size: 15px; font-weight: 800; color: var(--accent); }
-    .xp-next { font-size: 15px; font-weight: 800; color: var(--accent2); }
     .eo-cell { display: flex; align-items: center; gap: 8px; }
     .eo-bar-bg { flex: 1; max-width: 60px; height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
     .eo-bar-fill { height: 100%; border-radius: 2px; background: var(--accent2); }
@@ -82,33 +80,28 @@
     .form-high { color: #00976B; font-weight: 600; }
     .form-mid { color: #C47F00; font-weight: 500; }
     .empty { text-align: center; padding: 60px 0; color: var(--muted); }
-    .delta-val { font-size: 12px; font-weight: 700; white-space: nowrap; }
-    .delta-up { color: #00976B; }
-    .delta-down { color: #E84040; }
-    .delta-none { color: var(--muted); font-weight: 400; }
-    .price-section { margin-bottom: 24px; }
-    .price-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
-    .price-section-title { font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
-    .price-updated { font-size: 12px; font-weight: 400; color: var(--muted); }
-    .price-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .price-col { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
-    .price-col-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--surface2); }
-    .riser-title { color: #00976B; }
-    .faller-title { color: #E84040; }
-    .price-list { display: flex; flex-direction: column; }
-    .price-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--border); }
-    .price-item:last-child { border-bottom: none; }
-    .price-item-body { flex: 1; min-width: 0; }
-    .price-item-name { font-size: 13px; font-weight: 600; }
-    .price-item-team { font-size: 11px; color: var(--muted); }
-    .price-item-now { font-size: 11px; color: var(--muted); white-space: nowrap; }
-    .price-empty { padding: 24px 16px; text-align: center; color: var(--muted); font-size: 13px; }
+    .likely-cell { display: flex; align-items: center; gap: 8px; min-width: 130px; }
+    .likely-bar-bg { position: relative; flex: 1; max-width: 80px; height: 6px; background: var(--surface2); border-radius: 3px; }
+    .likely-bar-mid { position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--border); }
+    .likely-bar-fill { position: absolute; top: 0; bottom: 0; border-radius: 3px; }
+    .likely-bar-fill.up { left: 50%; background: #00976B; }
+    .likely-bar-fill.down { right: 50%; background: #E84040; }
+    .likely-label { font-size: 11px; font-weight: 700; white-space: nowrap; min-width: 60px; }
+    .likely-label.up { color: #00976B; }
+    .likely-label.down { color: #E84040; }
+    .likely-label.flat { color: var(--muted); font-weight: 400; }
+    .fixture-row { display: flex; gap: 4px; flex-wrap: wrap; max-width: 150px; }
+    .fixture-badge { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
+    .fixture-none { color: var(--muted); font-size: 12px; }
+    .squad-filter { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .squad-active-badge { font-size: 12px; background: rgba(26,111,255,0.08); color: var(--accent); border: 1px solid rgba(26,111,255,0.25); padding: 5px 12px; border-radius: 100px; display: inline-flex; align-items: center; gap: 8px; }
+    .squad-clear-btn { background: none; border: none; color: var(--accent); cursor: pointer; font-weight: 700; font-size: 13px; padding: 0; line-height: 1; }
+    .squad-error { font-size: 12px; color: #E84040; margin-top: 6px; width: 100%; }
     @media (max-width: 768px) {
       nav { padding: 14px 16px; }
       .nav-links { gap: 4px; overflow-x: auto; flex-wrap: nowrap; flex: 1; scrollbar-width: none; }
       .nav-link { padding: 5px 10px; font-size: 11px; }
       .filters { gap: 8px; }
-      .price-cols { grid-template-columns: 1fr; }
     }
     .nav-links::-webkit-scrollbar { display: none; }
   </style>
@@ -133,23 +126,6 @@
     <div class="player-count" id="player-count">Loading...</div>
   </div>
 
-  <div class="price-section" id="price-section" style="display:none;">
-    <div class="price-section-header">
-      <div class="price-section-title">💰 Price Changes <span class="price-updated" id="price-updated"></span></div>
-      <button class="filter-btn" onclick="loadPlayers()">↻ Refresh</button>
-    </div>
-    <div class="price-cols">
-      <div class="price-col">
-        <div class="price-col-title riser-title">🔺 Risers</div>
-        <div class="price-list" id="risers-list"></div>
-      </div>
-      <div class="price-col">
-        <div class="price-col-title faller-title">🔻 Fallers</div>
-        <div class="price-list" id="fallers-list"></div>
-      </div>
-    </div>
-  </div>
-
   <div class="filters">
     <div class="filter-group">
       <button class="filter-btn active" onclick="filterPos('ALL', this)">All</button>
@@ -159,16 +135,24 @@
       <button class="filter-btn pos-fwd" onclick="filterPos('FWD', this)">FWD</button>
     </div>
     <div class="divider"></div>
-    <div class="filter-group">
-      <button class="filter-btn active-sort" id="sort-xp" onclick="sortBy('ep_this')">xP GW ↓</button>
-      <button class="filter-btn" id="sort-xpnext" onclick="sortBy('ep_next')">xP Next</button>
-      <button class="filter-btn" id="sort-eo" onclick="sortBy('eo')">EO</button>
-      <button class="filter-btn" id="sort-form" onclick="sortBy('form')">Form</button>
+    <div class="filter-group" id="sort-group">
       <button class="filter-btn" id="sort-price" onclick="sortBy('price')">Price</button>
-      <button class="filter-btn" id="sort-delta" onclick="sortBy('delta')">Price Δ</button>
+      <button class="filter-btn" id="sort-likely" onclick="sortBy('likely')">Price Change</button>
+      <button class="filter-btn" id="sort-form" onclick="sortBy('form')">Form</button>
+      <button class="filter-btn active" id="sort-eo" onclick="sortBy('eo')">EO ↓</button>
     </div>
     <div class="divider"></div>
-    <input type="text" class="search-input" id="search-input" placeholder="Search players..." oninput="filterSearch()"/>
+    <input type="text" class="search-input" id="search-input" placeholder="Search player or team..." oninput="filterSearch()"/>
+  </div>
+
+  <div class="squad-filter">
+    <input type="text" class="search-input" id="fpl-id-input" placeholder="FPL Team ID e.g. 222758" style="width:170px;"/>
+    <button class="filter-btn" onclick="viewSquad()">View My Squad →</button>
+    <span class="squad-active-badge" id="squad-badge" style="display:none;">
+      Showing squad: <strong id="squad-name"></strong>
+      <button class="squad-clear-btn" onclick="clearSquadFilter()" title="Clear">✕</button>
+    </span>
+    <div class="squad-error" id="squad-error" style="display:none;"></div>
   </div>
 
   <div class="loading" id="loading">
@@ -181,14 +165,11 @@
       <thead>
         <tr>
           <th style="width:200px">Player</th>
-          <th>Pos</th>
           <th onclick="sortBy('price')" id="th-price">Price <span class="sort-arrow">↕</span></th>
-          <th onclick="sortBy('delta')" id="th-delta">Δ Price <span class="sort-arrow">↕</span></th>
-          <th onclick="sortBy('eo')" id="th-eo">EO% <span class="sort-arrow">↕</span></th>
+          <th onclick="sortBy('likely')" id="th-likely">Price Change <span class="sort-arrow">↕</span></th>
+          <th>Next 3 GW</th>
           <th onclick="sortBy('form')" id="th-form">Form <span class="sort-arrow">↕</span></th>
-          <th onclick="sortBy('ep_this')" id="th-ep_this">xP GW <span class="sort-arrow">↓</span></th>
-          <th onclick="sortBy('ep_next')" id="th-ep_next">xP Next <span class="sort-arrow">↕</span></th>
-          <th>Status</th>
+          <th onclick="sortBy('eo')" id="th-eo" class="sorted">EO% <span class="sort-arrow">↓</span></th>
         </tr>
       </thead>
       <tbody id="players-tbody"></tbody>
@@ -202,7 +183,9 @@ const POS_MAP = { 1:'GK', 2:'DEF', 3:'MID', 4:'FWD' };
 const POS_CLASS = { 1:'pos-gk', 2:'pos-def', 3:'pos-mid', 4:'pos-fwd' };
 
 let allPlayers = [], teamMap = {}, currentPos = 'ALL';
-let currentSort = 'ep_this', sortAsc = false, searchQuery = '';
+let currentSort = 'eo', sortAsc = false, searchQuery = '';
+let teamFixtures = {}, liveGW = 1, totalManagers = 0;
+let squadFilterIds = null;
 
 async function fetchAPI(endpoint) {
   const res = await fetch(`/api/fpl?endpoint=${encodeURIComponent(endpoint)}`);
@@ -225,6 +208,43 @@ function jerseyHTML(teamId, s) {
   return `<div class="jersey" style="background:${bg};color:${fg};border:1px solid rgba(0,0,0,0.1);">${s||'?'}</div>`;
 }
 
+const FDR_COLORS = { 1:['#03592c','#fff'], 2:['#00ff87','#0a0a0a'], 3:['#e7e7e7','#0a0a0a'], 4:['#ff1751','#fff'], 5:['#80072d','#fff'] };
+
+function fixturesHTML(teamId) {
+  const fx = teamFixtures[teamId] || [];
+  if (!fx.length) return '<span class="fixture-none">—</span>';
+  return `<div class="fixture-row">${fx.map(f => {
+    const oppShort = teamMap[f.opp]?.short_name || '?';
+    const [bg, fg] = FDR_COLORS[f.diff] || ['#888','#fff'];
+    return `<span class="fixture-badge" style="background:${bg};color:${fg};">${oppShort} ${f.home ? '(H)' : '(A)'}</span>`;
+  }).join('')}</div>`;
+}
+
+// FPL doesn't publish its price-change algorithm or threshold. When a price
+// has already moved this GW (cost_change_event) we show that as certain;
+// otherwise this estimates direction/likelihood from net transfer momentum
+// as a share of all FPL managers — a heuristic, not an official prediction.
+function computeLikelihood(p) {
+  if (p.delta_f !== 0) {
+    return { pct: 100, dir: p.delta_f > 0 ? 'up' : 'down', label: p.delta_f > 0 ? 'Rose today' : 'Fell today' };
+  }
+  const net = (p.transfers_in_event || 0) - (p.transfers_out_event || 0);
+  if (!net || !totalManagers) return { pct: 0, dir: 'flat', label: 'Stable' };
+  const ratioPct = Math.abs(net / totalManagers) * 100;
+  const pct = Math.max(0, Math.min(100, Math.round(ratioPct * 100)));
+  const dir = net > 0 ? 'up' : 'down';
+  if (pct < 15) return { pct, dir: 'flat', label: 'Stable' };
+  return { pct, dir, label: `${pct}% ${dir === 'up' ? '▲' : '▼'}` };
+}
+
+function likelyCellHTML(lk) {
+  const width = lk.dir === 'flat' ? 0 : lk.pct / 2;
+  return `<div class="likely-cell">
+    <div class="likely-bar-bg"><span class="likely-bar-mid"></span>${lk.dir !== 'flat' ? `<div class="likely-bar-fill ${lk.dir}" style="width:${width}%"></div>` : ''}</div>
+    <span class="likely-label ${lk.dir}">${lk.label}</span>
+  </div>`;
+}
+
 function filterPos(pos, btn) {
   currentPos = pos;
   document.querySelectorAll('.filter-group:first-child .filter-btn').forEach(b => b.classList.remove('active'));
@@ -238,6 +258,9 @@ function sortBy(key) {
   document.querySelectorAll('th').forEach(t => t.classList.remove('sorted'));
   const thEl = document.getElementById(`th-${key}`);
   if (thEl) { thEl.classList.add('sorted'); thEl.querySelector('.sort-arrow').textContent = sortAsc ? '↑' : '↓'; }
+  document.querySelectorAll('#sort-group .filter-btn').forEach(b => b.classList.remove('active'));
+  const btnEl = document.getElementById(`sort-${key}`);
+  if (btnEl) btnEl.classList.add('active');
   renderTable();
 }
 
@@ -246,15 +269,44 @@ function filterSearch() {
   renderTable();
 }
 
+async function viewSquad() {
+  const idInput = document.getElementById('fpl-id-input');
+  const id = idInput.value.trim();
+  const err = document.getElementById('squad-error');
+  err.style.display = 'none';
+  if (!id || isNaN(id)) { err.textContent = 'Enter a valid FPL Team ID.'; err.style.display = 'block'; return; }
+  try {
+    const [entry, picks] = await Promise.all([
+      fetchAPI(`entry/${id}/`),
+      fetchAPI(`entry/${id}/event/${liveGW}/picks/`)
+    ]);
+    squadFilterIds = new Set(picks.picks.map(pk => pk.element));
+    document.getElementById('squad-name').textContent = entry.name;
+    document.getElementById('squad-badge').style.display = 'inline-flex';
+    renderTable();
+  } catch(e) {
+    err.textContent = 'Could not find that team. Check the ID and try again.';
+    err.style.display = 'block';
+  }
+}
+
+function clearSquadFilter() {
+  squadFilterIds = null;
+  document.getElementById('squad-badge').style.display = 'none';
+  document.getElementById('fpl-id-input').value = '';
+  renderTable();
+}
+
 function renderTable() {
   let filtered = allPlayers.filter(p => {
+    if (squadFilterIds && !squadFilterIds.has(p.id)) return false;
     if (currentPos !== 'ALL' && POS_MAP[p.element_type] !== currentPos) return false;
-    if (searchQuery && !p.web_name.toLowerCase().includes(searchQuery) && !p.teamData?.name.toLowerCase().includes(searchQuery)) return false;
+    if (searchQuery && !p.web_name.toLowerCase().includes(searchQuery) && !p.teamData?.name.toLowerCase().includes(searchQuery) && !(p.teamData?.short_name||'').toLowerCase().includes(searchQuery)) return false;
     return true;
   });
 
-  const sortKeyMap = { ep_this:'ep_this_f', ep_next:'ep_next_f', eo:'eo_f', form:'form_f', price:'price_f', delta:'delta_f' };
-  const sortKey = sortKeyMap[currentSort] || 'ep_this_f';
+  const sortKeyMap = { eo:'eo_f', form:'form_f', price:'price_f', likely:'likely_signed' };
+  const sortKey = sortKeyMap[currentSort] || 'eo_f';
   filtered.sort((a,b) => sortAsc ? a[sortKey]-b[sortKey] : b[sortKey]-a[sortKey]);
 
   document.getElementById('player-count').textContent = `${filtered.length} players`;
@@ -269,78 +321,72 @@ function renderTable() {
   document.getElementById('empty-state').style.display = 'none';
   document.getElementById('table-wrap').style.display = 'block';
 
-  const statusMap = { a:'✅', d:'⚠️', i:'❌', s:'❌', u:'❌' };
-
   filtered.slice(0,200).forEach(p => {
     const team = p.teamData, teamShort = team?.short_name || '?';
     const isDiff = p.eo_f < 10;
     const formClass = p.form_f >= 7 ? 'form-high' : p.form_f >= 4 ? 'form-mid' : 'form-val';
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td><div class="player-cell">${jerseyHTML(p.team,teamShort)}<div><div class="player-name">${p.web_name}</div><div class="player-team">${team?.name||'—'}</div></div></div></td>
-      <td><span class="pos-badge ${POS_CLASS[p.element_type]}">${POS_MAP[p.element_type]}</span></td>
+      <td><div class="player-cell">${jerseyHTML(p.team,teamShort)}<div><div class="player-name">${p.web_name} <span class="pos-badge ${POS_CLASS[p.element_type]}">${POS_MAP[p.element_type]}</span></div><div class="player-team">${team?.name||'—'}</div></div></div></td>
       <td><span class="price-val">£${p.price_f.toFixed(1)}m</span></td>
-      <td><span class="delta-val ${p.delta_f>0?'delta-up':p.delta_f<0?'delta-down':'delta-none'}">${p.delta_f>0?'▲ +':p.delta_f<0?'▼ ':'—'}${p.delta_f!==0?'£'+Math.abs(p.delta_f).toFixed(1)+'m':''}</span></td>
-      <td><div class="eo-cell"><div class="eo-bar-bg"><div class="eo-bar-fill" style="width:${Math.min(100,p.eo_f)}%"></div></div><span class="eo-val">${p.eo_f.toFixed(1)}%</span>${isDiff?'<span class="eo-diff">Diff</span>':''}</div></td>
+      <td>${likelyCellHTML(p.likely)}</td>
+      <td>${fixturesHTML(p.team)}</td>
       <td><span class="${formClass}">${p.form_f.toFixed(1)}</span></td>
-      <td><span class="xp-val">${p.ep_this_f.toFixed(1)}</span></td>
-      <td><span class="xp-next">${p.ep_next_f.toFixed(1)}</span></td>
-      <td>${statusMap[p.status]||'—'}</td>
+      <td><div class="eo-cell"><div class="eo-bar-bg"><div class="eo-bar-fill" style="width:${Math.min(100,p.eo_f)}%"></div></div><span class="eo-val">${p.eo_f.toFixed(1)}%</span>${isDiff?'<span class="eo-diff">Diff</span>':''}</div></td>
     `;
     tbody.appendChild(tr);
   });
 }
 
-function renderPriceTicker() {
-  const risers = allPlayers.filter(p => p.delta_f > 0).sort((a,b) => b.delta_f - a.delta_f || b.transfers_in_event - a.transfers_in_event).slice(0, 8);
-  const fallers = allPlayers.filter(p => p.delta_f < 0).sort((a,b) => a.delta_f - b.delta_f || b.transfers_out_event - a.transfers_out_event).slice(0, 8);
-
-  const itemHTML = p => {
-    const teamShort = p.teamData?.short_name || '?';
-    return `<div class="price-item">
-      ${jerseyHTML(p.team, teamShort)}
-      <div class="price-item-body"><div class="price-item-name">${p.web_name}</div><div class="price-item-team">${teamShort}</div></div>
-      <span class="delta-val ${p.delta_f>0?'delta-up':'delta-down'}">${p.delta_f>0?'▲ +':'▼ '}£${Math.abs(p.delta_f).toFixed(1)}m</span>
-      <span class="price-item-now">£${p.price_f.toFixed(1)}m</span>
-    </div>`;
-  };
-
-  document.getElementById('risers-list').innerHTML = risers.length
-    ? risers.map(itemHTML).join('')
-    : '<div class="price-empty">No risers yet — check back after FPL\'s nightly price update (~1:30am UK).</div>';
-  document.getElementById('fallers-list').innerHTML = fallers.length
-    ? fallers.map(itemHTML).join('')
-    : '<div class="price-empty">No fallers yet — check back after FPL\'s nightly price update (~1:30am UK).</div>';
-
-  document.getElementById('price-updated').textContent = `Live · Updated ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-  document.getElementById('price-section').style.display = 'block';
+async function loadTeamFixtures(currentEventId) {
+  const fixtures = await fetchAPI('fixtures/');
+  const upcoming = fixtures
+    .filter(f => f.event !== null && f.event >= currentEventId)
+    .sort((a,b) => a.event - b.event || new Date(a.kickoff_time) - new Date(b.kickoff_time));
+  const map = {};
+  upcoming.forEach(f => {
+    if (!map[f.team_h]) map[f.team_h] = [];
+    if (!map[f.team_a]) map[f.team_a] = [];
+    if (map[f.team_h].length < 3) map[f.team_h].push({ opp: f.team_a, home: true, diff: f.team_h_difficulty });
+    if (map[f.team_a].length < 3) map[f.team_a].push({ opp: f.team_h, home: false, diff: f.team_a_difficulty });
+  });
+  return map;
 }
 
 async function loadPlayers() {
   try {
     const boot = await fetchAPI('bootstrap-static/');
     boot.teams.forEach(t => { teamMap[t.id] = t; });
-    allPlayers = boot.elements.map(p => ({
-      ...p,
-      ep_this_f: parseFloat(p.ep_this)||0,
-      ep_next_f: parseFloat(p.ep_next)||0,
-      eo_f: parseFloat(p.selected_by_percent)||0,
-      form_f: parseFloat(p.form)||0,
-      price_f: p.now_cost/10,
-      delta_f: (p.cost_change_event||0)/10,
-      teamData: teamMap[p.team],
-    }));
+    totalManagers = boot.total_players || 0;
+    const curEvent = boot.events.find(e => e.is_current) || boot.events.find(e => e.is_next);
+    liveGW = curEvent ? curEvent.id : 1;
+    teamFixtures = await loadTeamFixtures(liveGW);
+
+    allPlayers = boot.elements.map(p => {
+      const mapped = {
+        ...p,
+        eo_f: parseFloat(p.selected_by_percent)||0,
+        form_f: parseFloat(p.form)||0,
+        price_f: p.now_cost/10,
+        delta_f: (p.cost_change_event||0)/10,
+        teamData: teamMap[p.team],
+      };
+      mapped.likely = computeLikelihood(mapped);
+      mapped.likely_signed = mapped.likely.dir === 'up' ? mapped.likely.pct : mapped.likely.dir === 'down' ? -mapped.likely.pct : 0;
+      return mapped;
+    });
     document.getElementById('loading').style.display = 'none';
     document.getElementById('table-wrap').style.display = 'block';
-    renderPriceTicker();
     renderTable();
   } catch(e) {
     document.getElementById('loading').innerHTML = `<p style="color:#E84040;">Failed to load data: ${e.message}</p>`;
   }
 }
 
+document.getElementById('fpl-id-input').addEventListener('keydown', e => { if (e.key === 'Enter') viewSquad(); });
+
 loadPlayers();
-// Keep price data fresh without a manual reload.
+// Keep price-change data fresh without a manual reload.
 setInterval(loadPlayers, 5 * 60 * 1000);
 </script>
 
