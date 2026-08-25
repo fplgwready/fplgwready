@@ -698,7 +698,7 @@ async function submitChallenge() {
 // Score so rank lookups use identical scoring/tie-break logic.
 async function computeRanking(gw) {
   const entries = await Promise.race([
-    sbSelect('challenge_entries', { gw: `eq.${gw}`, select: 'fpl_id,manager_name,score,created_at', order: 'created_at.asc', limit: 500 }),
+    sbSelect('challenge_entries', { gw: `eq.${gw}`, select: 'fpl_id,manager_name,score,created_at', order: 'created_at.asc', limit: 5000 }),
     new Promise((_, rej) => setTimeout(() => rej(new Error('Leaderboard timeout')), 8000))
   ]);
 
