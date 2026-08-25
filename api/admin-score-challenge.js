@@ -6,6 +6,7 @@ function getBracket(pts) {
 }
 
 export default async function handler(req, res) {
+  res.setHeader('Cache-Control', 'no-store');
   const pw = req.headers['x-admin-password'];
   if (!pw || pw !== process.env.ADMIN_PASSWORD) return res.status(401).json({ error: 'Unauthorized' });
 
