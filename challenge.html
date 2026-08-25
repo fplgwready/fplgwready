@@ -232,6 +232,24 @@
     </div>
   </div>
 
+  <!-- Check Your Score (always visible, works even after submissions close) -->
+  <div class="section-title">Check Your Score <span class="section-badge">🔍 Look Up</span></div>
+  <div class="input-card">
+    <div class="id-row" style="grid-template-columns:1fr auto;align-items:end;">
+      <div class="field-group">
+        <label class="input-label" for="score-check-id">FPL Team ID</label>
+        <input type="text" id="score-check-id" placeholder="e.g. 222758" maxlength="10"/>
+      </div>
+      <button class="btn" id="score-check-btn" onclick="checkMyScore()">Check My Score →</button>
+    </div>
+    <p class="input-hint">Enter your FPL Team ID anytime — before or after GW <span id="score-check-gw-num">—</span> closes — to see your breakdown.</p>
+    <div class="error-msg" id="score-check-error"></div>
+    <div id="score-check-result" style="display:none;margin-top:16px;">
+      <div class="manager-bar" id="score-check-manager" style="margin-bottom:12px;"></div>
+      <div class="lb-card" id="score-check-breakdown"></div>
+    </div>
+  </div>
+
   <!-- Articles promo (always visible) -->
   <div class="section-title">Latest Articles <span class="section-badge">📰 Expert Insights</span></div>
   <div id="articles-promo" class="lb-card">
@@ -451,9 +469,9 @@ async function verifyIdentity() {
   btn.disabled = false; btn.textContent = 'Check →';
 }
 
-function renderBreakdown(entries) {
-  const wrap = document.getElementById('my-breakdown');
-  const list = document.getElementById('breakdown-list');
+function renderBreakdown(entries, wrapId = 'my-breakdown', listId = 'breakdown-list') {
+  const wrap = document.getElementById(wrapId);
+  const list = document.getElementById(listId);
 
   const rowsHTML = entries.map(e => {
     let label, maxPts;
@@ -476,6 +494,45 @@ function renderBreakdown(entries) {
   const total = entries.reduce((sum, e) => sum + (e.score || 0), 0);
   list.innerHTML = rowsHTML + `<div class="lb-row" style="font-weight:800;"><div class="lb-name">Total</div><div class="lb-score">${total} <span class="lb-score-label">pts</span></div></div>`;
   wrap.style.display = 'block';
+}
+
+// ── Check Your Score (standalone lookup, works even after submissions close) ──
+async function checkMyScore() {
+  const id = document.getElementById('score-check-id').value.trim();
+  const err = document.getElementById('score-check-error');
+  const btn = document.getElementById('score-check-btn');
+  err.style.display = 'none';
+  document.getElementById('score-check-result').style.display = 'none';
+
+  if (!id || isNaN(id)) { err.textContent = 'Please enter a valid FPL Team ID.'; err.style.display = 'block'; return; }
+  if (!SB_KEY || !currentGW) { err.textContent = 'Still loading — please try again in a moment.'; err.style.display = 'block'; return; }
+
+  btn.disabled = true; btn.textContent = 'Checking...';
+  try {
+    const [entry, entries] = await Promise.all([
+      fetch(`/api/fpl?endpoint=entry/${id}/`).then(r => { if (!r.ok) throw new Error('FPL Team not found.'); return r.json(); }),
+      sbSelect('challenge_entries', { fpl_id: `eq.${id}`, gw: `eq.${currentGW}`, select: 'game_type,prediction,score' })
+    ]);
+
+    const name = `${entry.player_first_name} ${entry.player_last_name}`;
+    if (!entries.length) {
+      err.textContent = `No submission found for ${name} in GW ${currentGW}.`;
+      err.style.display = 'block';
+      return;
+    }
+
+    const parts = name.trim().split(' ');
+    const initials = parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : name.slice(0, 2).toUpperCase();
+    document.getElementById('score-check-manager').innerHTML = `
+      <div class="manager-avatar">${initials}</div>
+      <div class="manager-info"><div class="manager-name">${escHtml(name)}</div><div class="manager-team">${escHtml(entry.name)}</div></div>
+    `;
+    renderBreakdown(entries, 'score-check-result', 'score-check-breakdown');
+  } catch(e) {
+    err.textContent = e.message || 'Could not check score. Please try again.';
+    err.style.display = 'block';
+  }
+  btn.disabled = false; btn.textContent = 'Check My Score →';
 }
 
 // ── Submit ────────────────────────────────────────────────
@@ -654,6 +711,7 @@ async function loadArticlesPromo() {
 
   document.getElementById('fpl-id').addEventListener('keydown', e => { if (e.key === 'Enter') verifyIdentity(); });
   document.getElementById('email').addEventListener('keydown', e => { if (e.key === 'Enter') verifyIdentity(); });
+  document.getElementById('score-check-id').addEventListener('keydown', e => { if (e.key === 'Enter') checkMyScore(); });
 
   const [supabaseResult, statusResult] = await Promise.allSettled([
     initSupabase(),
@@ -668,6 +726,7 @@ async function loadArticlesPromo() {
   document.getElementById('gw-badge').textContent = `GW ${currentGW}`;
   document.getElementById('header-gw-badge').textContent = `GW ${currentGW}`;
   document.getElementById('form-gw-num').textContent = currentGW;
+  document.getElementById('score-check-gw-num').textContent = currentGW;
   document.getElementById('closed-gw-num').textContent = currentGW;
   submissionsOpen = current.is_open !== false;
 
