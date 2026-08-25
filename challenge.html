@@ -235,6 +235,11 @@
   <!-- Check Your Score (always visible, works even after submissions close) -->
   <div class="section-title">Check Your Score <span class="section-badge">🔍 Look Up</span></div>
   <div class="input-card">
+    <div class="field-group" style="margin-bottom:14px;">
+      <label class="input-label" for="view-gw-select">Viewing Results For</label>
+      <select id="view-gw-select" onchange="onViewGWChange()"></select>
+      <p class="input-hint" style="margin-top:6px;">Switches both the score lookup below and the Leaderboard further down — browse any past GW, not just the one currently open.</p>
+    </div>
     <div class="id-row" style="grid-template-columns:1fr auto;align-items:end;">
       <div class="field-group">
         <label class="input-label" for="score-check-id">FPL Team ID</label>
@@ -242,7 +247,7 @@
       </div>
       <button class="btn" id="score-check-btn" onclick="checkMyScore()">Check My Score →</button>
     </div>
-    <p class="input-hint">Enter your FPL Team ID anytime — before or after GW <span id="score-check-gw-num">—</span> closes — to see your breakdown.</p>
+    <p class="input-hint">Enter your FPL Team ID to see your breakdown for GW <span id="score-check-gw-num">—</span>.</p>
     <div class="error-msg" id="score-check-error"></div>
     <div id="score-check-result" style="display:none;margin-top:16px;">
       <div class="manager-bar" id="score-check-manager" style="margin-bottom:12px;"></div>
@@ -279,9 +284,18 @@ let captainBrackets = [];
 let bracketSelections = {};
 const BRACKETS = ['1-4', '5-8', '9-12', '13+'];
 
+// The GW the visitor is browsing on the Leaderboard / Check Your Score —
+// separate from currentGW, which stays tied to admin's actual open GW for
+// submissions. Defaults to currentGW but the user can switch it.
+let viewGW = null;
+let viewCaptainBrackets = [];
+let viewThisOrThatPairs = [];
+
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
+function getBracket(pts) { if (pts >= 13) return '13+'; if (pts >= 9) return '9-12'; if (pts >= 5) return '5-8'; return '1-4'; }
 
 const PLAYERS_DATA = {"gw":1,"players":[{"n":"Raya","t":"ARS","p":1,"c":60,"x":4.0},{"n":"Gabriel","t":"ARS","p":2,"c":80,"x":4.0},{"n":"Haaland","t":"MCI","p":4,"c":155,"x":4.0},{"n":"B.Fernandes","t":"MUN","p":3,"c":120,"x":4.0},{"n":"Pickford","t":"EVE","p":1,"c":55,"x":3.3},{"n":"A.Becker","t":"LIV","p":1,"c":55,"x":3.3},{"n":"Donnarumma","t":"MCI","p":1,"c":55,"x":3.3},{"n":"Saka","t":"ARS","p":3,"c":95,"x":3.2},{"n":"Palmer","t":"CHE","p":3,"c":95,"x":3.2},{"n":"Virgil","t":"LIV","p":2,"c":65,"x":3.1},{"n":"O'Reilly","t":"MCI","p":2,"c":65,"x":3.1},{"n":"Semenyo","t":"MCI","p":3,"c":85,"x":2.9},{"n":"Lacroix","t":"CRY","p":2,"c":60,"x":2.8},{"n":"Tarkowski","t":"EVE","p":2,"c":60,"x":2.8},{"n":"Gu\u00e9hi","t":"MCI","p":2,"c":60,"x":2.8},{"n":"Matheus N.","t":"MCI","p":2,"c":60,"x":2.8},{"n":"Mbeumo","t":"MUN","p":3,"c":80,"x":2.8},{"n":"Cunha","t":"MUN","p":3,"c":80,"x":2.8},{"n":"Gibbs-White","t":"NFO","p":3,"c":80,"x":2.8},{"n":"Senesi","t":"TOT","p":2,"c":60,"x":2.8},{"n":"Isak","t":"LIV","p":4,"c":90,"x":2.7},{"n":"Arrizabalaga","t":"ARS","p":1,"c":50,"x":2.6},{"n":"Meslier","t":"ARS","p":1,"c":50,"x":2.6},{"n":"Rice","t":"ARS","p":3,"c":75,"x":2.6},{"n":"Martinez","t":"AVL","p":1,"c":50,"x":2.6},{"n":"Kroupi.Jr","t":"BOU","p":3,"c":75,"x":2.6},{"n":"Kelleher","t":"BRE","p":1,"c":50,"x":2.6},{"n":"Rogers","t":"CHE","p":3,"c":75,"x":2.6},{"n":"S\u00e1nchez","t":"CHE","p":1,"c":50,"x":2.6},{"n":"J\u00f6rgensen","t":"CHE","p":1,"c":50,"x":2.6},{"n":"Henderson","t":"CRY","p":1,"c":50,"x":2.6},{"n":"Travers","t":"EVE","p":1,"c":50,"x":2.6},{"n":"Mamardashvili","t":"LIV","p":1,"c":50,"x":2.6},{"n":"Wirtz","t":"LIV","p":3,"c":75,"x":2.6},{"n":"Trafford","t":"MCI","p":1,"c":50,"x":2.6},{"n":"Cherki","t":"MCI","p":3,"c":75,"x":2.6},{"n":"Doku","t":"MCI","p":3,"c":75,"x":2.6},{"n":"Lammens","t":"MUN","p":1,"c":50,"x":2.6},{"n":"Pope","t":"NEW","p":1,"c":50,"x":2.6},{"n":"Sels","t":"NFO","p":1,"c":50,"x":2.6},{"n":"Roefs","t":"SUN","p":1,"c":50,"x":2.6},{"n":"Calafiori","t":"ARS","p":2,"c":55,"x":2.5},{"n":"Hincapie","t":"ARS","p":2,"c":55,"x":2.5},{"n":"Mosquera","t":"ARS","p":2,"c":55,"x":2.5},{"n":"Watkins","t":"AVL","p":4,"c":80,"x":2.5},{"n":"Hill","t":"BOU","p":2,"c":55,"x":2.5},{"n":"Truffert","t":"BOU","p":2,"c":55,"x":2.5},{"n":"Collins","t":"BRE","p":2,"c":55,"x":2.5},{"n":"Thiago","t":"BRE","p":4,"c":80,"x":2.5},{"n":"James","t":"CHE","p":2,"c":55,"x":2.5},{"n":"Chalobah","t":"CHE","p":2,"c":55,"x":2.5},{"n":"Palestra","t":"CHE","p":2,"c":55,"x":2.5},{"n":"Mu\u00f1oz","t":"CRY","p":2,"c":55,"x":2.5},{"n":"Branthwaite","t":"EVE","p":2,"c":55,"x":2.5},{"n":"Frimpong","t":"LIV","p":2,"c":55,"x":2.5},{"n":"Kerkez","t":"LIV","p":2,"c":55,"x":2.5},{"n":"R\u00faben","t":"MCI","p":2,"c":55,"x":2.5},{"n":"Gvardiol","t":"MCI","p":2,"c":55,"x":2.5},{"n":"A\u00eft-Nouri","t":"MCI","p":2,"c":55,"x":2.5},{"n":"Khusanov","t":"MCI","p":2,"c":55,"x":2.5},{"n":"Milenkovi\u0107","t":"NFO","p":2,"c":55,"x":2.5},{"n":"Pedro Porro","t":"TOT","p":2,"c":55,"x":2.5},{"n":"Mukiele","t":"SUN","p":2,"c":55,"x":2.5},{"n":"Enzo","t":"CHE","p":3,"c":70,"x":2.4},{"n":"Gakpo","t":"LIV","p":3,"c":70,"x":2.4},{"n":"Szoboszlai","t":"LIV","p":3,"c":70,"x":2.4},{"n":"Foden","t":"MCI","p":3,"c":70,"x":2.4},{"n":"Rashford","t":"MUN","p":3,"c":70,"x":2.4},{"n":"Bruno G.","t":"NEW","p":3,"c":70,"x":2.4},{"n":"Eze","t":"ARS","p":3,"c":65,"x":2.3},{"n":"\u00d8degaard","t":"ARS","p":3,"c":65,"x":2.3},{"n":"Madueke","t":"ARS","p":3,"c":65,"x":2.3},{"n":"Martinelli","t":"ARS","p":3,"c":65,"x":2.3},{"n":"Gy\u00f6keres","t":"ARS","p":4,"c":75,"x":2.3},{"n":"Havertz","t":"ARS","p":4,"c":75,"x":2.3},{"n":"Tzolis","t":"ARS","p":3,"c":65,"x":2.3},{"n":"Rayan","t":"BOU","p":3,"c":65,"x":2.3},{"n":"O.Dango","t":"BRE","p":3,"c":65,"x":2.3},{"n":"Neto","t":"CHE","p":3,"c":65,"x":2.3},{"n":"Est\u00eav\u00e3o","t":"CHE","p":3,"c":65,"x":2.3},{"n":"Jo\u00e3o Pedro","t":"CHE","p":4,"c":75,"x":2.3},{"n":"Sarr","t":"CRY","p":3,"c":65,"x":2.3},{"n":"Dewsbury-Hall","t":"EVE","p":3,"c":65,"x":2.3},{"n":"Wilson","t":"LEE","p":3,"c":65,"x":2.3},{"n":"Munoz","t":"LIV","p":3,"c":65,"x":2.3},{"n":"Grealish","t":"MCI","p":3,"c":65,"x":2.3},{"n":"Savinho","t":"MCI","p":3,"c":65,"x":2.3},{"n":"Anderson","t":"MCI","p":3,"c":65,"x":2.3},{"n":"Maddison","t":"TOT","p":3,"c":65,"x":2.3},{"n":"Diakit\u00e9","t":"BOU","p":2,"c":50,"x":2.2},{"n":"Milosavljevi\u0107","t":"BOU","p":2,"c":50,"x":2.2},{"n":"Van den Berg","t":"BRE","p":2,"c":50,"x":2.2},{"n":"Svoboda","t":"BHA","p":2,"c":50,"x":2.2},{"n":"Wieffer","t":"BHA","p":2,"c":50,"x":2.2},{"n":"Struijk","t":"BHA","p":2,"c":50,"x":2.2},{"n":"Vuskovic","t":"BHA","p":2,"c":50,"x":2.2},{"n":"Gusto","t":"CHE","p":2,"c":50,"x":2.2},{"n":"Colwill","t":"CHE","p":2,"c":50,"x":2.2},{"n":"Richards","t":"CRY","p":2,"c":50,"x":2.2},{"n":"Canvot","t":"CRY","p":2,"c":50,"x":2.2},{"n":"Keane","t":"EVE","p":2,"c":50,"x":2.2},{"n":"O'Brien","t":"EVE","p":2,"c":50,"x":2.2},{"n":"Bijol","t":"LEE","p":2,"c":50,"x":2.2},{"n":"Muharemovi\u0107","t":"LEE","p":2,"c":50,"x":2.2},{"n":"Gomez","t":"LIV","p":2,"c":50,"x":2.2},{"n":"Tsimikas","t":"LIV","p":2,"c":50,"x":2.2},{"n":"Alleyne","t":"MCI","p":2,"c":50,"x":2.2},{"n":"Marmoush","t":"MCI","p":4,"c":70,"x":2.2},{"n":"Dalot","t":"MUN","p":2,"c":50,"x":2.2},{"n":"Maguire","t":"MUN","p":2,"c":50,"x":2.2},{"n":"Yoro","t":"MUN","p":2,"c":50,"x":2.2},{"n":"Thiaw","t":"NEW","p":2,"c":50,"x":2.2},{"n":"Sch\u00e4r","t":"NEW","p":2,"c":50,"x":2.2},{"n":"Botman","t":"NEW","p":2,"c":50,"x":2.2},{"n":"Burn","t":"NEW","p":2,"c":50,"x":2.2},{"n":"Hall","t":"NEW","p":2,"c":50,"x":2.2},{"n":"N.Williams","t":"NFO","p":2,"c":50,"x":2.2},{"n":"Morato","t":"NFO","p":2,"c":50,"x":2.2},{"n":"Van Hecke","t":"TOT","p":2,"c":50,"x":2.2},{"n":"Romero","t":"TOT","p":2,"c":50,"x":2.2},{"n":"Danso","t":"TOT","p":2,"c":50,"x":2.2},{"n":"Van de Ven","t":"TOT","p":2,"c":50,"x":2.2},{"n":"Ballard","t":"SUN","p":2,"c":50,"x":2.2},{"n":"Alderete","t":"SUN","p":2,"c":50,"x":2.2},{"n":"Merino","t":"ARS","p":3,"c":60,"x":2.1},{"n":"Buend\u00eda","t":"AVL","p":3,"c":60,"x":2.1},{"n":"Manzambi","t":"AVL","p":3,"c":60,"x":2.1},{"n":"Garnacho","t":"AVL","p":3,"c":60,"x":2.1},{"n":"Tavernier","t":"BOU","p":3,"c":60,"x":2.1},{"n":"Scott","t":"BOU","p":3,"c":60,"x":2.1},{"n":"Kluivert","t":"BOU","p":3,"c":60,"x":2.1},{"n":"Schade","t":"BRE","p":3,"c":60,"x":2.1},{"n":"Anthony","t":"BRE","p":3,"c":60,"x":2.1},{"n":"Minteh","t":"BHA","p":3,"c":60,"x":2.1},{"n":"Hinshelwood","t":"BHA","p":3,"c":60,"x":2.1},{"n":"Gittens","t":"CHE","p":3,"c":60,"x":2.1},{"n":"N.Jackson","t":"CHE","p":4,"c":65,"x":2.1},{"n":"Johnson","t":"CRY","p":3,"c":60,"x":2.1},{"n":"Mateta","t":"CRY","p":4,"c":65,"x":2.1},{"n":"Ndiaye","t":"EVE","p":3,"c":60,"x":2.1},{"n":"Stach","t":"LEE","p":3,"c":60,"x":2.1},{"n":"Okafor","t":"LEE","p":3,"c":60,"x":2.1},{"n":"Ngumoha","t":"LIV","p":3,"c":60,"x":2.1},{"n":"Gravenberch","t":"LIV","p":3,"c":60,"x":2.1},{"n":"Reijnders","t":"MCI","p":3,"c":60,"x":2.1},{"n":"Dorgu","t":"MUN","p":3,"c":60,"x":2.1},{"n":"Amad","t":"MUN","p":3,"c":60,"x":2.1},{"n":"Barnes","t":"NEW","p":3,"c":60,"x":2.1},{"n":"Elanga","t":"NEW","p":3,"c":60,"x":2.1},{"n":"J.Murphy","t":"NEW","p":3,"c":60,"x":2.1},{"n":"Tour\u00e9","t":"NEW","p":3,"c":60,"x":2.1},{"n":"Tel","t":"TOT","p":3,"c":60,"x":2.1},{"n":"Fernandes","t":"TOT","p":3,"c":60,"x":2.1},{"n":"E.Le F\u00e9e","t":"SUN","p":3,"c":60,"x":2.1},{"n":"Lewis-Skelly","t":"ARS","p":3,"c":55,"x":2.0},{"n":"Zubimendi","t":"ARS","p":3,"c":55,"x":2.0},{"n":"Dowman","t":"ARS","p":3,"c":55,"x":2.0},{"n":"Nwaneri","t":"ARS","p":3,"c":55,"x":2.0},{"n":"F\u00e1bio Vieira","t":"ARS","p":3,"c":55,"x":2.0},{"n":"Nelson","t":"ARS","p":3,"c":55,"x":2.0},{"n":"G.Jesus","t":"ARS","p":4,"c":60,"x":2.0},{"n":"M.Bizot","t":"AVL","p":1,"c":45,"x":2.0},{"n":"Guessand","t":"AVL","p":3,"c":55,"x":2.0},{"n":"Bailey","t":"AVL","p":3,"c":55,"x":2.0},{"n":"McGinn","t":"AVL","p":3,"c":55,"x":2.0},{"n":"Gomes","t":"AVL","p":3,"c":55,"x":2.0},{"n":"Petrovi\u0107","t":"BOU","p":1,"c":45,"x":2.0},{"n":"Evanilson","t":"BOU","p":4,"c":60,"x":2.0},{"n":"Rodr\u00edguez","t":"BOU","p":4,"c":60,"x":2.0},{"n":"Valdimarsson","t":"BRE","p":1,"c":45,"x":2.0},{"n":"Lewis-Potter","t":"BRE","p":3,"c":55,"x":2.0},{"n":"Damsgaard","t":"BRE","p":3,"c":55,"x":2.0},{"n":"Jensen","t":"BRE","p":3,"c":55,"x":2.0},{"n":"Verbruggen","t":"BHA","p":1,"c":45,"x":2.0},{"n":"Rushworth","t":"BHA","p":1,"c":45,"x":2.0},{"n":"Gro\u00df","t":"BHA","p":3,"c":55,"x":2.0},{"n":"O'Riley","t":"BHA","p":3,"c":55,"x":2.0},{"n":"Ayari","t":"BHA","p":3,"c":55,"x":2.0},{"n":"Welbeck","t":"BHA","p":4,"c":60,"x":2.0},{"n":"Caicedo","t":"CHE","p":3,"c":55,"x":2.0},{"n":"Wilson","t":"COV","p":1,"c":45,"x":2.0},{"n":"Mason-Clark","t":"COV","p":3,"c":55,"x":2.0},{"n":"Torp","t":"COV","p":3,"c":55,"x":2.0},{"n":"Tchaouna","t":"COV","p":3,"c":55,"x":2.0},{"n":"Benitez","t":"CRY","p":1,"c":45,"x":2.0},{"n":"Yeremy","t":"CRY","p":3,"c":55,"x":2.0},{"n":"Strand Larsen","t":"CRY","p":4,"c":60,"x":2.0},{"n":"King","t":"EVE","p":1,"c":45,"x":2.0},{"n":"McNeil","t":"EVE","p":3,"c":55,"x":2.0},{"n":"George","t":"EVE","p":3,"c":55,"x":2.0},{"n":"Dibling","t":"EVE","p":3,"c":55,"x":2.0},{"n":"Hackney","t":"EVE","p":3,"c":55,"x":2.0},{"n":"Leno","t":"FUL","p":1,"c":45,"x":2.0},{"n":"Iwobi","t":"FUL","p":3,"c":55,"x":2.0},{"n":"Smith Rowe","t":"FUL","p":3,"c":55,"x":2.0},{"n":"Kevin","t":"FUL","p":3,"c":55,"x":2.0},{"n":"Bobb","t":"FUL","p":3,"c":55,"x":2.0},{"n":"King","t":"FUL","p":3,"c":55,"x":2.0},{"n":"Butland","t":"HUL","p":1,"c":45,"x":2.0},{"n":"Walton","t":"IPS","p":1,"c":45,"x":2.0},{"n":"Clarke","t":"IPS","p":3,"c":55,"x":2.0},{"n":"Fatawu","t":"IPS","p":3,"c":55,"x":2.0},{"n":"Philogene","t":"IPS","p":3,"c":55,"x":2.0},{"n":"Van Oevelen","t":"IPS","p":1,"c":45,"x":2.0},{"n":"Perri","t":"LEE","p":1,"c":45,"x":2.0},{"n":"Aaronson","t":"LEE","p":3,"c":55,"x":2.0},{"n":"Ampadu","t":"LEE","p":3,"c":55,"x":2.0},{"n":"Calvert-Lewin","t":"LEE","p":4,"c":60,"x":2.0},{"n":"Chiesa","t":"LIV","p":3,"c":55,"x":2.0},{"n":"Mac Allister","t":"LIV","p":3,"c":55,"x":2.0},{"n":"C.Jones","t":"LIV","p":3,"c":55,"x":2.0},{"n":"Elliott","t":"LIV","p":3,"c":55,"x":2.0},{"n":"Bettinelli","t":"MCI","p":1,"c":45,"x":2.0},{"n":"N.Gonzalez","t":"MCI","p":3,"c":55,"x":2.0},{"n":"Kova\u010di\u0107","t":"MCI","p":3,"c":55,"x":2.0},{"n":"Bayindir","t":"MUN","p":1,"c":45,"x":2.0},{"n":"Mount","t":"MUN","p":3,"c":55,"x":2.0},{"n":"Mainoo","t":"MUN","p":3,"c":55,"x":2.0},{"n":"Gillespie","t":"NEW","p":1,"c":45,"x":2.0},{"n":"Jaouen","t":"NEW","p":1,"c":45,"x":2.0},{"n":"Woltemade","t":"NEW","p":4,"c":60,"x":2.0},{"n":"Wissa","t":"NEW","p":4,"c":60,"x":2.0},{"n":"Osula","t":"NEW","p":4,"c":60,"x":2.0},{"n":"John","t":"NFO","p":1,"c":45,"x":2.0},{"n":"Ndoye","t":"NFO","p":3,"c":55,"x":2.0},{"n":"Hutchinson","t":"NFO","p":3,"c":55,"x":2.0},{"n":"Bakwa","t":"NFO","p":3,"c":55,"x":2.0},{"n":"McAtee","t":"NFO","p":3,"c":55,"x":2.0},{"n":"Wood","t":"NFO","p":4,"c":60,"x":2.0},{"n":"Igor Jesus","t":"NFO","p":4,"c":60,"x":2.0},{"n":"Tonali","t":"TOT","p":3,"c":55,"x":2.0},{"n":"Vicario","t":"TOT","p":1,"c":45,"x":2.0},{"n":"Kinsky","t":"TOT","p":1,"c":45,"x":2.0},{"n":"Bentancur","t":"TOT","p":3,"c":55,"x":2.0},{"n":"Gallagher","t":"TOT","p":3,"c":55,"x":2.0},{"n":"Bergvall","t":"TOT","p":3,"c":55,"x":2.0},{"n":"Solanke","t":"TOT","p":4,"c":60,"x":2.0},{"n":"Richarlison","t":"TOT","p":4,"c":60,"x":2.0},{"n":"Ellborg","t":"SUN","p":1,"c":45,"x":2.0},{"n":"Diarra","t":"SUN","p":3,"c":55,"x":2.0},{"n":"Xhaka","t":"SUN","p":3,"c":55,"x":2.0},{"n":"Talbi","t":"SUN","p":3,"c":55,"x":2.0},{"n":"Brobbey","t":"SUN","p":4,"c":60,"x":2.0},{"n":"Murillo","t":"NFO","p":2,"c":55,"x":1.9},{"n":"Enes \u00dcnal","t":"BOU","p":4,"c":55,"x":1.8},{"n":"Wilson","t":"BRE","p":4,"c":55,"x":1.8},{"n":"Georginio","t":"BHA","p":4,"c":55,"x":1.8},{"n":"Kostoulas","t":"BHA","p":4,"c":55,"x":1.8},{"n":"Delap","t":"CHE","p":4,"c":55,"x":1.8},{"n":"Wright","t":"COV","p":4,"c":55,"x":1.8},{"n":"Nketiah","t":"CRY","p":4,"c":55,"x":1.8},{"n":"Beto","t":"EVE","p":4,"c":55,"x":1.8},{"n":"Barry","t":"EVE","p":4,"c":55,"x":1.8},{"n":"Muniz","t":"FUL","p":4,"c":55,"x":1.8},{"n":"McBurnie","t":"HUL","p":4,"c":55,"x":1.8},{"n":"Emersonn","t":"IPS","p":4,"c":55,"x":1.8},{"n":"Nmecha","t":"LEE","p":4,"c":55,"x":1.8},{"n":"Zirkzee","t":"MUN","p":4,"c":55,"x":1.8},{"n":"Awoniyi","t":"NFO","p":4,"c":55,"x":1.8},{"n":"Kalimuendo","t":"NFO","p":4,"c":55,"x":1.8},{"n":"Isidor","t":"SUN","p":4,"c":55,"x":1.8},{"n":"Digne","t":"AVL","p":2,"c":45,"x":1.7},{"n":"Konsa","t":"AVL","p":2,"c":45,"x":1.7},{"n":"Cash","t":"AVL","p":2,"c":45,"x":1.7},{"n":"Mings","t":"AVL","p":2,"c":45,"x":1.7},{"n":"Pau","t":"AVL","p":2,"c":45,"x":1.7},{"n":"Maatsen","t":"AVL","p":2,"c":45,"x":1.7},{"n":"Lindel\u00f6f","t":"AVL","p":2,"c":45,"x":1.7},{"n":"Smith","t":"BOU","p":2,"c":45,"x":1.7},{"n":"J.Araujo","t":"BOU","p":2,"c":45,"x":1.7},{"n":"Ajer","t":"BRE","p":2,"c":45,"x":1.7},{"n":"Kayode","t":"BRE","p":2,"c":45,"x":1.7},{"n":"Henry","t":"BRE","p":2,"c":45,"x":1.7},{"n":"Hickey","t":"BRE","p":2,"c":45,"x":1.7},{"n":"Pinnock","t":"BRE","p":2,"c":45,"x":1.7},{"n":"Ji-soo","t":"BRE","p":2,"c":45,"x":1.7},{"n":"Schuster","t":"BRE","p":2,"c":45,"x":1.7},{"n":"F.Kad\u0131o\u011flu","t":"BHA","p":2,"c":45,"x":1.7},{"n":"Boscagli","t":"BHA","p":2,"c":45,"x":1.7},{"n":"De Cuyper","t":"BHA","p":2,"c":45,"x":1.7},{"n":"Dunk","t":"BHA","p":2,"c":45,"x":1.7},{"n":"Coppola","t":"BHA","p":2,"c":45,"x":1.7},{"n":"Igor","t":"BHA","p":2,"c":45,"x":1.7},{"n":"Costinha","t":"BHA","p":2,"c":45,"x":1.7},{"n":"B.Badiashile","t":"CHE","p":2,"c":45,"x":1.7},{"n":"Tosin","t":"CHE","p":2,"c":45,"x":1.7},{"n":"Hato","t":"CHE","p":2,"c":45,"x":1.7},{"n":"M.Sarr","t":"CHE","p":2,"c":45,"x":1.7},{"n":"Acheampong","t":"CHE","p":2,"c":45,"x":1.7},{"n":"Disasi","t":"CHE","p":2,"c":45,"x":1.7},{"n":"Mitchell","t":"CRY","p":2,"c":45,"x":1.7},{"n":"Sosa","t":"CRY","p":2,"c":45,"x":1.7},{"n":"Chadi Riad","t":"CRY","p":2,"c":45,"x":1.7},{"n":"Mingueza","t":"CRY","p":2,"c":45,"x":1.7},{"n":"Cardines","t":"CRY","p":2,"c":45,"x":1.7},{"n":"Mykolenko","t":"EVE","p":2,"c":45,"x":1.7},{"n":"Patterson","t":"EVE","p":2,"c":45,"x":1.7},{"n":"Robinson","t":"FUL","p":2,"c":45,"x":1.7},{"n":"J.Cuenca","t":"FUL","p":2,"c":45,"x":1.7},{"n":"Tete","t":"FUL","p":2,"c":45,"x":1.7},{"n":"Bassey","t":"FUL","p":2,"c":45,"x":1.7},{"n":"Castagne","t":"FUL","p":2,"c":45,"x":1.7},{"n":"Sessegnon","t":"FUL","p":2,"c":45,"x":1.7},{"n":"Rodon","t":"LEE","p":2,"c":45,"x":1.7},{"n":"Bogle","t":"LEE","p":2,"c":45,"x":1.7},{"n":"Gudmundsson","t":"LEE","p":2,"c":45,"x":1.7},{"n":"Justin","t":"LEE","p":2,"c":45,"x":1.7},{"n":"Bornauw","t":"LEE","p":2,"c":45,"x":1.7},{"n":"Lewis","t":"MCI","p":2,"c":45,"x":1.7},{"n":"Vitor Reis","t":"MCI","p":2,"c":45,"x":1.7},{"n":"Heaven","t":"MUN","p":2,"c":45,"x":1.7},{"n":"Mazraoui","t":"MUN","p":2,"c":45,"x":1.7},{"n":"Shaw","t":"MUN","p":2,"c":45,"x":1.7},{"n":"\u0160e\u0161ko","t":"MUN","p":4,"c":70,"x":1.7},{"n":"Aina","t":"NFO","p":2,"c":45,"x":1.7},{"n":"Jair Cunha","t":"NFO","p":2,"c":45,"x":1.7},{"n":"Netz","t":"NFO","p":2,"c":45,"x":1.7},{"n":"Robertson","t":"TOT","p":2,"c":45,"x":1.7},{"n":"Spence","t":"TOT","p":2,"c":45,"x":1.7},{"n":"Udogie","t":"TOT","p":2,"c":45,"x":1.7},{"n":"Phillips","t":"TOT","p":2,"c":45,"x":1.7},{"n":"Kudus","t":"TOT","p":3,"c":65,"x":1.7},{"n":"Hume","t":"SUN","p":2,"c":45,"x":1.7},{"n":"Reinildo","t":"SUN","p":2,"c":45,"x":1.7},{"n":"Seelt","t":"SUN","p":2,"c":45,"x":1.7},{"n":"Meunier","t":"SUN","p":2,"c":45,"x":1.7},{"n":"Jacquet","t":"LIV","p":2,"c":50,"x":1.6},{"n":"Tielemans","t":"MUN","p":3,"c":60,"x":1.6},{"n":"Martinez","t":"MUN","p":2,"c":50,"x":1.6},{"n":"Livramento","t":"NEW","p":2,"c":50,"x":1.6},{"n":"Hudson-Odoi","t":"NFO","p":3,"c":60,"x":1.6},{"n":"N\u00f8rgaard","t":"ARS","p":3,"c":50,"x":1.5},{"n":"Bogarde","t":"AVL","p":3,"c":50,"x":1.5},{"n":"Barkley","t":"AVL","p":3,"c":50,"x":1.5},{"n":"Iling Jr","t":"AVL","p":3,"c":50,"x":1.5},{"n":"Alysson","t":"AVL","p":3,"c":50,"x":1.5},{"n":"Cook","t":"BOU","p":3,"c":50,"x":1.5},{"n":"Gannon-Doak","t":"BOU","p":3,"c":50,"x":1.5},{"n":"Adams","t":"BOU","p":3,"c":50,"x":1.5},{"n":"Brooks","t":"BOU","p":3,"c":50,"x":1.5},{"n":"T\u00f3th.A","t":"BOU","p":3,"c":50,"x":1.5},{"n":"Adli","t":"BOU","p":3,"c":50,"x":1.5},{"n":"Janelt","t":"BRE","p":3,"c":50,"x":1.5},{"n":"Yarmoliuk","t":"BRE","p":3,"c":50,"x":1.5},{"n":"Dasilva","t":"BRE","p":3,"c":50,"x":1.5},{"n":"Gomez","t":"BHA","p":3,"c":50,"x":1.5},{"n":"Buonanotte","t":"BHA","p":3,"c":50,"x":1.5},{"n":"Baleba","t":"BHA","p":3,"c":50,"x":1.5},{"n":"Watson","t":"BHA","p":3,"c":50,"x":1.5},{"n":"Yohanna","t":"BHA","p":3,"c":50,"x":1.5},{"n":"Lavia","t":"CHE","p":3,"c":50,"x":1.5},{"n":"Quenda","t":"CHE","p":3,"c":55,"x":1.5},{"n":"Onyeka","t":"COV","p":3,"c":50,"x":1.5},{"n":"Grimes","t":"COV","p":3,"c":50,"x":1.5},{"n":"Sakamoto","t":"COV","p":3,"c":50,"x":1.5},{"n":"Eccles","t":"COV","p":3,"c":50,"x":1.5},{"n":"Wharton","t":"CRY","p":3,"c":55,"x":1.5},{"n":"Lerma","t":"CRY","p":3,"c":50,"x":1.5},{"n":"Kamada","t":"CRY","p":3,"c":50,"x":1.5},{"n":"Devenny","t":"CRY","p":3,"c":50,"x":1.5},{"n":"Esse","t":"CRY","p":3,"c":50,"x":1.5},{"n":"M.Fran\u00e7a","t":"CRY","p":3,"c":50,"x":1.5},{"n":"Doucour\u00e9","t":"CRY","p":3,"c":50,"x":1.5},{"n":"J.Rak-Sakyi","t":"CRY","p":3,"c":50,"x":1.5},{"n":"Iroegbunam","t":"EVE","p":3,"c":50,"x":1.5},{"n":"Alcaraz","t":"EVE","p":3,"c":50,"x":1.5},{"n":"Armstrong","t":"EVE","p":3,"c":50,"x":1.5},{"n":"R\u00f6hl","t":"EVE","p":3,"c":50,"x":1.5},{"n":"Berge","t":"FUL","p":3,"c":50,"x":1.5},{"n":"Cairney","t":"FUL","p":3,"c":50,"x":1.5},{"n":"Luki\u0107","t":"FUL","p":3,"c":50,"x":1.5},{"n":"Belloumi","t":"HUL","p":3,"c":50,"x":1.5},{"n":"Millar","t":"HUL","p":3,"c":50,"x":1.5},{"n":"\u00d6m\u00fcr","t":"HUL","p":3,"c":50,"x":1.5},{"n":"Kamara","t":"HUL","p":3,"c":50,"x":1.5},{"n":"Akintola","t":"HUL","p":3,"c":50,"x":1.5},{"n":"N\u00fa\u00f1ez","t":"IPS","p":3,"c":50,"x":1.5},{"n":"Matusiwa","t":"IPS","p":3,"c":50,"x":1.5},{"n":"Burns","t":"IPS","p":3,"c":50,"x":1.5},{"n":"Ogbene","t":"IPS","p":3,"c":50,"x":1.5},{"n":"Szmodics","t":"IPS","p":3,"c":50,"x":1.5},{"n":"Mehmeti","t":"IPS","p":3,"c":50,"x":1.5},{"n":"Longstaff","t":"LEE","p":3,"c":50,"x":1.5},{"n":"Gelhardt","t":"LEE","p":3,"c":50,"x":1.5},{"n":"Gnonto","t":"LEE","p":3,"c":50,"x":1.5},{"n":"Harrison","t":"LEE","p":3,"c":50,"x":1.5},{"n":"James","t":"LEE","p":3,"c":50,"x":1.5},{"n":"Gruev","t":"LEE","p":3,"c":50,"x":1.5},{"n":"Tanaka","t":"LEE","p":3,"c":50,"x":1.5},{"n":"Nyoni","t":"LIV","p":3,"c":50,"x":1.5},{"n":"Koumas","t":"LIV","p":3,"c":50,"x":1.5},{"n":"Echeverri","t":"MCI","p":3,"c":50,"x":1.5},{"n":"Phillips","t":"MCI","p":3,"c":50,"x":1.5},{"n":"Monga","t":"MCI","p":3,"c":50,"x":1.5},{"n":"Andrey Santos","t":"MUN","p":3,"c":50,"x":1.5},{"n":"Darlow","t":"MUN","p":1,"c":45,"x":1.5},{"n":"J.Fletcher","t":"MUN","p":3,"c":50,"x":1.5},{"n":"Lacey","t":"MUN","p":3,"c":50,"x":1.5},{"n":"Collyer","t":"MUN","p":3,"c":50,"x":1.5},{"n":"J.Ramsey","t":"NEW","p":3,"c":50,"x":1.5},{"n":"Joelinton","t":"NEW","p":3,"c":55,"x":1.5},{"n":"Willock","t":"NEW","p":3,"c":50,"x":1.5},{"n":"Steur","t":"NEW","p":3,"c":50,"x":1.5},{"n":"Dominguez","t":"NFO","p":3,"c":50,"x":1.5},{"n":"Sangar\u00e9","t":"NFO","p":3,"c":50,"x":1.5},{"n":"Schlager","t":"NFO","p":3,"c":50,"x":1.5},{"n":"P.M.Sarr","t":"TOT","p":3,"c":50,"x":1.5},{"n":"Gray","t":"TOT","p":3,"c":50,"x":1.5},{"n":"Moore","t":"TOT","p":3,"c":50,"x":1.5},{"n":"Sadiki","t":"SUN","p":3,"c":50,"x":1.5},{"n":"Adingra","t":"SUN","p":3,"c":50,"x":1.5},{"n":"Mundle","t":"SUN","p":3,"c":50,"x":1.5},{"n":"Rigg","t":"SUN","p":3,"c":50,"x":1.5},{"n":"Jocelin.T","t":"SUN","p":3,"c":50,"x":1.5},{"n":"Angulo","t":"SUN","p":3,"c":50,"x":1.5},{"n":"Marc Guiu","t":"CHE","p":4,"c":50,"x":1.4},{"n":"Thomas-Asante","t":"COV","p":4,"c":50,"x":1.4},{"n":"Simms","t":"COV","p":4,"c":50,"x":1.4},{"n":"Markelo","t":"COV","p":4,"c":50,"x":1.4},{"n":"Hirst","t":"IPS","p":4,"c":50,"x":1.4},{"n":"Akpom","t":"IPS","p":4,"c":50,"x":1.4},{"n":"Al-Hamadi","t":"IPS","p":4,"c":50,"x":1.4},{"n":"Piroe","t":"LEE","p":4,"c":50,"x":1.4},{"n":"Tzimas","t":"BHA","p":4,"c":55,"x":1.3},{"n":"Kamara","t":"AVL","p":3,"c":50,"x":1.1},{"n":"Milambo","t":"BRE","p":3,"c":50,"x":1.1},{"n":"Henderson","t":"BRE","p":3,"c":50,"x":1.1},{"n":"Rudoni","t":"COV","p":3,"c":50,"x":1.1},{"n":"Endo","t":"LIV","p":3,"c":50,"x":1.1},{"n":"A.Garc\u00eda","t":"AVL","p":2,"c":40,"x":1.0},{"n":"Nedeljkovic","t":"AVL","p":2,"c":40,"x":1.0},{"n":"Burrowes","t":"AVL","p":3,"c":45,"x":1.0},{"n":"George Hemmings","t":"AVL","p":3,"c":45,"x":1.0},{"n":"Forster","t":"BOU","p":1,"c":40,"x":1.0},{"n":"Dennis","t":"BOU","p":1,"c":40,"x":1.0},{"n":"Soler","t":"BOU","p":2,"c":40,"x":1.0},{"n":"Furo","t":"BRE","p":4,"c":45,"x":1.0},{"n":"Steele","t":"BHA","p":1,"c":40,"x":1.0},{"n":"Howell","t":"BHA","p":3,"c":45,"x":1.0},{"n":"Oriola","t":"BHA","p":3,"c":45,"x":1.0},{"n":"D.Essugo","t":"CHE","p":3,"c":45,"x":1.0},{"n":"Mheuka","t":"CHE","p":4,"c":45,"x":1.0},{"n":"Emegha","t":"CHE","p":4,"c":50,"x":1.0},{"n":"Dovin","t":"COV","p":1,"c":40,"x":1.0},{"n":"Thomas","t":"COV","p":2,"c":40,"x":1.0},{"n":"Kitching","t":"COV","p":2,"c":40,"x":1.0},{"n":"van Ewijk","t":"COV","p":2,"c":40,"x":1.0},{"n":"Dasilva","t":"COV","p":2,"c":40,"x":1.0},{"n":"Kesler-Hayden","t":"COV","p":2,"c":40,"x":1.0},{"n":"Bidwell","t":"COV","p":2,"c":40,"x":1.0},{"n":"Latibeaudiere","t":"COV","p":2,"c":40,"x":1.0},{"n":"Woolfenden","t":"COV","p":2,"c":40,"x":1.0},{"n":"Brau","t":"COV","p":2,"c":40,"x":1.0},{"n":"Amenda","t":"COV","p":2,"c":40,"x":1.0},{"n":"Shepherd","t":"COV","p":3,"c":45,"x":1.0},{"n":"Borges Rodrigues","t":"COV","p":3,"c":45,"x":1.0},{"n":"Andrews","t":"COV","p":3,"c":45,"x":1.0},{"n":"Bassette","t":"COV","p":4,"c":45,"x":1.0},{"n":"Hughes","t":"CRY","p":3,"c":45,"x":1.0},{"n":"Drakes-Thomas","t":"CRY","p":3,"c":45,"x":1.0},{"n":"Matthews","t":"CRY","p":1,"c":40,"x":1.0},{"n":"Aznou","t":"EVE","p":2,"c":40,"x":1.0},{"n":"Lecomte","t":"FUL","p":1,"c":40,"x":1.0},{"n":"McNally","t":"FUL","p":1,"c":40,"x":1.0},{"n":"Reed","t":"FUL","p":3,"c":45,"x":1.0},{"n":"Kusi-Asare","t":"FUL","p":4,"c":45,"x":1.0},{"n":"Phillips","t":"HUL","p":1,"c":40,"x":1.0},{"n":"Cartwright","t":"HUL","p":1,"c":40,"x":1.0},{"n":"Lo-Tutala","t":"HUL","p":1,"c":40,"x":1.0},{"n":"Egan","t":"HUL","p":2,"c":40,"x":1.0},{"n":"Hughes","t":"HUL","p":2,"c":40,"x":1.0},{"n":"Ajayi","t":"HUL","p":2,"c":40,"x":1.0},{"n":"Coyle","t":"HUL","p":2,"c":40,"x":1.0},{"n":"Drameh","t":"HUL","p":2,"c":40,"x":1.0},{"n":"Giles","t":"HUL","p":2,"c":40,"x":1.0},{"n":"Jacob","t":"HUL","p":2,"c":40,"x":1.0},{"n":"McCarthy","t":"HUL","p":2,"c":40,"x":1.0},{"n":"McNair","t":"HUL","p":2,"c":40,"x":1.0},{"n":"Dowell","t":"HUL","p":3,"c":45,"x":1.0},{"n":"Crooks","t":"HUL","p":3,"c":45,"x":1.0},{"n":"Slater","t":"HUL","p":3,"c":45,"x":1.0},{"n":"Zambrano","t":"HUL","p":3,"c":45,"x":1.0},{"n":"Gyabi","t":"HUL","p":3,"c":45,"x":1.0},{"n":"Destan","t":"HUL","p":4,"c":45,"x":1.0},{"n":"Burstow","t":"HUL","p":4,"c":45,"x":1.0},{"n":"Targett","t":"HUL","p":2,"c":40,"x":1.0},{"n":"Diop","t":"IPS","p":2,"c":40,"x":1.0},{"n":"Palmer","t":"IPS","p":1,"c":40,"x":1.0},{"n":"Button","t":"IPS","p":1,"c":40,"x":1.0},{"n":"Kipr\u00e9","t":"IPS","p":2,"c":40,"x":1.0},{"n":"O'Shea","t":"IPS","p":2,"c":40,"x":1.0},{"n":"Davis","t":"IPS","p":2,"c":40,"x":1.0},{"n":"Greaves","t":"IPS","p":2,"c":40,"x":1.0},{"n":"Johnson","t":"IPS","p":2,"c":40,"x":1.0},{"n":"Furlong","t":"IPS","p":2,"c":40,"x":1.0},{"n":"Taylor","t":"IPS","p":3,"c":45,"x":1.0},{"n":"Walle Egeli","t":"IPS","p":4,"c":45,"x":1.0},{"n":"McAteer","t":"IPS","p":3,"c":45,"x":1.0},{"n":"Mateo Joseph","t":"LEE","p":4,"c":45,"x":1.0},{"n":"Woodman","t":"LIV","p":1,"c":40,"x":1.0},{"n":"Pecsi","t":"LIV","p":1,"c":40,"x":1.0},{"n":"Jaros","t":"LIV","p":1,"c":40,"x":1.0},{"n":"Davies","t":"LIV","p":1,"c":40,"x":1.0},{"n":"Lucky","t":"LIV","p":2,"c":40,"x":1.0},{"n":"Ramsay","t":"LIV","p":2,"c":40,"x":1.0},{"n":"McConnell","t":"LIV","p":3,"c":45,"x":1.0},{"n":"Mukasa","t":"MCI","p":3,"c":45,"x":1.0},{"n":"Heaton","t":"MUN","p":1,"c":40,"x":1.0},{"n":"Amass","t":"MUN","p":2,"c":40,"x":1.0},{"n":"Fredricson","t":"MUN","p":2,"c":40,"x":1.0},{"n":"Bendito Mantato","t":"MUN","p":3,"c":45,"x":1.0},{"n":"Fletcher","t":"MUN","p":3,"c":45,"x":1.0},{"n":"Obi","t":"MUN","p":4,"c":45,"x":1.0},{"n":"A.Murphy","t":"NEW","p":2,"c":40,"x":1.0},{"n":"Neave","t":"NEW","p":4,"c":45,"x":1.0},{"n":"O.Richards","t":"NFO","p":2,"c":40,"x":1.0},{"n":"Abbott","t":"NFO","p":2,"c":40,"x":1.0},{"n":"Bindon","t":"NFO","p":2,"c":40,"x":1.0},{"n":"Yates","t":"NFO","p":3,"c":45,"x":1.0},{"n":"Austin","t":"TOT","p":1,"c":40,"x":1.0},{"n":"Dubravka","t":"TOT","p":1,"c":40,"x":1.0},{"n":"Davies","t":"TOT","p":2,"c":40,"x":1.0},{"n":"Byfield","t":"TOT","p":2,"c":40,"x":1.0},{"n":"Rowswell","t":"TOT","p":2,"c":40,"x":1.0},{"n":"Souza","t":"TOT","p":2,"c":40,"x":1.0},{"n":"Olusesi","t":"TOT","p":3,"c":45,"x":1.0},{"n":"Scarlett","t":"TOT","p":4,"c":45,"x":1.0},{"n":"Patterson","t":"SUN","p":1,"c":40,"x":1.0},{"n":"Hjelde","t":"SUN","p":2,"c":40,"x":1.0},{"n":"O'Nien","t":"SUN","p":2,"c":40,"x":1.0},{"n":"Masuaku","t":"SUN","p":2,"c":40,"x":1.0},{"n":"Danns","t":"LIV","p":4,"c":45,"x":0.8},{"n":"J.Timber","t":"ARS","p":2,"c":65,"x":0.0},{"n":"Saliba","t":"ARS","p":2,"c":60,"x":0.0},{"n":"White","t":"ARS","p":2,"c":55,"x":0.0},{"n":"Onana","t":"AVL","p":3,"c":50,"x":0.0},{"n":"Abraham","t":"AVL","p":4,"c":55,"x":0.0},{"n":"Christie","t":"BOU","p":3,"c":50,"x":0.0},{"n":"Carvalho","t":"BRE","p":3,"c":50,"x":0.0},{"n":"Mitoma","t":"BHA","p":3,"c":60,"x":0.0},{"n":"Ferguson","t":"BHA","p":4,"c":50,"x":0.0},{"n":"Fofana","t":"CHE","p":2,"c":50,"x":0.0},{"n":"Garner","t":"EVE","p":3,"c":60,"x":0.0},{"n":"Andersen","t":"FUL","p":2,"c":50,"x":0.0},{"n":"Matazo","t":"HUL","p":3,"c":45,"x":0.0},{"n":"Bradley","t":"LIV","p":2,"c":50,"x":0.0},{"n":"Leoni","t":"LIV","p":2,"c":40,"x":0.0},{"n":"Bajcetic","t":"LIV","p":3,"c":50,"x":0.0},{"n":"Ekitik\u00e9","t":"LIV","p":4,"c":75,"x":0.0},{"n":"Rodrigo","t":"MCI","p":3,"c":65,"x":0.0},{"n":"De Ligt","t":"MUN","p":2,"c":50,"x":0.0},{"n":"Ugarte","t":"MUN","p":3,"c":50,"x":0.0},{"n":"L.Miley","t":"NEW","p":3,"c":55,"x":0.0},{"n":"Savona","t":"NFO","p":2,"c":45,"x":0.0},{"n":"Xavi","t":"TOT","p":3,"c":60,"x":0.0},{"n":"Odobert","t":"TOT","p":3,"c":55,"x":0.0},{"n":"Kulusevski","t":"TOT","p":3,"c":65,"x":0.0}]};
 
@@ -458,7 +472,8 @@ async function verifyIdentity() {
     if (existing?.length > 0) {
       document.getElementById('done-msg').textContent = `${managerData.name} has already submitted their challenge for GW ${currentGW}. No re-submissions allowed!`;
       document.getElementById('step-done').style.display = 'block';
-      renderBreakdown(existing);
+      const gwResults = SB_KEY ? await sbSelect('challenge_gw_results', { gw: `eq.${currentGW}`, select: '*', limit: 1 }).then(r => r[0] || null).catch(() => null) : null;
+      renderBreakdown(existing, { gwResults });
     } else {
       document.getElementById('step-games').style.display = 'block';
     }
@@ -469,26 +484,44 @@ async function verifyIdentity() {
   btn.disabled = false; btn.textContent = 'Check →';
 }
 
-function renderBreakdown(entries, wrapId = 'my-breakdown', listId = 'breakdown-list') {
+// gwResults (from challenge_gw_results, public-readable) lets us show HOW
+// each score was calculated, not just the number — e.g. the actual pts the
+// predicted player and the true top scorer got. It's null until an admin
+// has run Confirm & Update Scores for that GW.
+function renderBreakdown(entries, opts = {}) {
+  const { wrapId = 'my-breakdown', listId = 'breakdown-list', gwResults = null, brackets = captainBrackets, pairs = thisOrThatPairs } = opts;
   const wrap = document.getElementById(wrapId);
   const list = document.getElementById(listId);
 
   const rowsHTML = entries.map(e => {
-    let label, maxPts;
+    let label, maxPts, explain = '';
     if (e.game_type === 'top_score') {
       label = `🥅 Top Scorer — ${e.prediction}`; maxPts = 40;
+      if (gwResults && gwResults.top_scorer_pts) {
+        const predPts = gwResults.player_pts?.[e.prediction];
+        if (predPts != null) explain = `${escHtml(e.prediction)} scored ${predPts} pts · ${escHtml(gwResults.top_scorer || 'top scorer')} scored ${gwResults.top_scorer_pts} pts → ${predPts}÷${gwResults.top_scorer_pts}×40 = ${e.score ?? 0}`;
+      }
     } else if (e.game_type.startsWith('captain_bracket_')) {
       const slot = parseInt(e.game_type.split('_').pop()) - 1;
-      const bp = captainBrackets[slot];
+      const bp = brackets[slot];
       label = `👑 Captain Bracket — ${bp ? bp.player_name : `Slot ${slot + 1}`}: ${e.prediction}`; maxPts = 15;
+      if (gwResults && bp) {
+        const actualPts = gwResults.captain_pts?.[bp.player_name];
+        if (actualPts != null) explain = `${escHtml(bp.player_name)} scored ${actualPts} pts → falls in the ${getBracket(actualPts)} bracket`;
+      }
     } else if (e.game_type.startsWith('this_or_that_')) {
       const idx = parseInt(e.game_type.split('_').pop()) - 1;
-      const pair = thisOrThatPairs[idx];
+      const pair = pairs[idx];
       label = `⚔️ This or That${pair ? ` — ${pair.player_a} vs ${pair.player_b}` : ''}: ${e.prediction}`; maxPts = 10;
+      const r = gwResults?.tot_results?.[idx];
+      if (r) {
+        const winner = r === 'TIE' ? 'Tie' : (r === 'A' ? pair?.player_a : pair?.player_b);
+        explain = `Result: ${escHtml(winner || r)}`;
+      }
     } else {
       label = e.game_type; maxPts = null;
     }
-    return `<div class="lb-row"><div class="lb-name">${label}</div><div class="lb-score">${e.score ?? 0}${maxPts ? `/${maxPts}` : ''} <span class="lb-score-label">pts</span></div></div>`;
+    return `<div class="lb-row"><div class="lb-name">${label}${explain ? `<div class="lb-name-sub">${explain}</div>` : ''}</div><div class="lb-score">${e.score ?? 0}${maxPts ? `/${maxPts}` : ''} <span class="lb-score-label">pts</span></div></div>`;
   }).join('');
 
   const total = entries.reduce((sum, e) => sum + (e.score || 0), 0);
@@ -496,7 +529,7 @@ function renderBreakdown(entries, wrapId = 'my-breakdown', listId = 'breakdown-l
   wrap.style.display = 'block';
 }
 
-// ── Check Your Score (standalone lookup, works even after submissions close) ──
+// ── Check Your Score (standalone lookup for any GW, works even after that GW's submissions close) ──
 async function checkMyScore() {
   const id = document.getElementById('score-check-id').value.trim();
   const err = document.getElementById('score-check-error');
@@ -505,18 +538,19 @@ async function checkMyScore() {
   document.getElementById('score-check-result').style.display = 'none';
 
   if (!id || isNaN(id)) { err.textContent = 'Please enter a valid FPL Team ID.'; err.style.display = 'block'; return; }
-  if (!SB_KEY || !currentGW) { err.textContent = 'Still loading — please try again in a moment.'; err.style.display = 'block'; return; }
+  if (!SB_KEY || !viewGW) { err.textContent = 'Still loading — please try again in a moment.'; err.style.display = 'block'; return; }
 
   btn.disabled = true; btn.textContent = 'Checking...';
   try {
-    const [entry, entries] = await Promise.all([
+    const [entry, entries, gwResultsRows] = await Promise.all([
       fetch(`/api/fpl?endpoint=entry/${id}/`).then(r => { if (!r.ok) throw new Error('FPL Team not found.'); return r.json(); }),
-      sbSelect('challenge_entries', { fpl_id: `eq.${id}`, gw: `eq.${currentGW}`, select: 'game_type,prediction,score' })
+      sbSelect('challenge_entries', { fpl_id: `eq.${id}`, gw: `eq.${viewGW}`, select: 'game_type,prediction,score' }),
+      sbSelect('challenge_gw_results', { gw: `eq.${viewGW}`, select: '*', limit: 1 }).catch(() => [])
     ]);
 
     const name = `${entry.player_first_name} ${entry.player_last_name}`;
     if (!entries.length) {
-      err.textContent = `No submission found for ${name} in GW ${currentGW}.`;
+      err.textContent = `No submission found for ${name} in GW ${viewGW}.`;
       err.style.display = 'block';
       return;
     }
@@ -527,12 +561,42 @@ async function checkMyScore() {
       <div class="manager-avatar">${initials}</div>
       <div class="manager-info"><div class="manager-name">${escHtml(name)}</div><div class="manager-team">${escHtml(entry.name)}</div></div>
     `;
-    renderBreakdown(entries, 'score-check-result', 'score-check-breakdown');
+    renderBreakdown(entries, {
+      wrapId: 'score-check-result', listId: 'score-check-breakdown',
+      gwResults: gwResultsRows?.[0] || null,
+      brackets: viewCaptainBrackets, pairs: viewThisOrThatPairs,
+    });
   } catch(e) {
     err.textContent = e.message || 'Could not check score. Please try again.';
     err.style.display = 'block';
   }
   btn.disabled = false; btn.textContent = 'Check My Score →';
+}
+
+// ── GW picker (Leaderboard + Check Your Score) ─────────────
+function populateViewGWSelect(maxGW, selected) {
+  const sel = document.getElementById('view-gw-select');
+  sel.innerHTML = Array.from({ length: maxGW }, (_, i) => i + 1)
+    .map(gw => `<option value="${gw}" ${gw === selected ? 'selected' : ''}>GW ${gw}${gw === currentGW ? ' (current)' : ''}</option>`)
+    .join('');
+}
+
+async function loadViewBracketsAndPairs(gw) {
+  try {
+    [viewCaptainBrackets, viewThisOrThatPairs] = await Promise.all([
+      sbSelect('captain_brackets', { gw: `eq.${gw}`, order: 'slot.asc', limit: 2 }),
+      sbSelect('this_or_that', { gw: `eq.${gw}`, order: 'pair_num.asc.nullslast,id.asc', limit: 3 }),
+    ]);
+  } catch(e) { viewCaptainBrackets = []; viewThisOrThatPairs = []; }
+}
+
+async function onViewGWChange() {
+  viewGW = parseInt(document.getElementById('view-gw-select').value);
+  document.getElementById('gw-badge').textContent = `GW ${viewGW}`;
+  document.getElementById('score-check-gw-num').textContent = viewGW;
+  document.getElementById('score-check-result').style.display = 'none';
+  document.getElementById('score-check-error').style.display = 'none';
+  await Promise.all([loadViewBracketsAndPairs(viewGW), loadLeaderboard()]);
 }
 
 // ── Submit ────────────────────────────────────────────────
@@ -627,7 +691,7 @@ async function loadLeaderboard() {
 
   try {
     const entries = await Promise.race([
-      sbSelect('challenge_entries', { gw: `eq.${currentGW}`, select: 'fpl_id,manager_name,score,created_at', order: 'created_at.asc', limit: 500 }),
+      sbSelect('challenge_entries', { gw: `eq.${viewGW}`, select: 'fpl_id,manager_name,score,created_at', order: 'created_at.asc', limit: 500 }),
       new Promise((_, rej) => setTimeout(() => rej(new Error('Leaderboard timeout')), 8000))
     ]);
 
@@ -726,9 +790,12 @@ async function loadArticlesPromo() {
   document.getElementById('gw-badge').textContent = `GW ${currentGW}`;
   document.getElementById('header-gw-badge').textContent = `GW ${currentGW}`;
   document.getElementById('form-gw-num').textContent = currentGW;
-  document.getElementById('score-check-gw-num').textContent = currentGW;
   document.getElementById('closed-gw-num').textContent = currentGW;
   submissionsOpen = current.is_open !== false;
+
+  viewGW = currentGW;
+  populateViewGWSelect(currentGW, viewGW);
+  document.getElementById('score-check-gw-num').textContent = viewGW;
 
   document.getElementById('init-loading').style.display = 'none';
 
@@ -743,6 +810,10 @@ async function loadArticlesPromo() {
     document.getElementById('tot-container').innerHTML = '<div class="tot-coming">⚠️ Database unavailable</div>';
   } else {
     await Promise.all([loadThisOrThat(), loadCaptainBrackets(), loadLeaderboard()]);
+    // viewGW starts equal to currentGW, so reuse what we just fetched
+    // instead of firing a duplicate pair of queries.
+    viewCaptainBrackets = captainBrackets;
+    viewThisOrThatPairs = thisOrThatPairs;
   }
 })();
 </script>
