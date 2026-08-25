@@ -60,6 +60,7 @@
     .manager-name { font-size: 15px; font-weight: 800; }
     .manager-team { font-size: 12px; color: var(--muted); margin-top: 2px; }
     .verified-badge { font-size: 11px; background: rgba(0,151,107,0.1); color: var(--green); padding: 2px 8px; border-radius: 100px; font-weight: 600; white-space: nowrap; }
+    .rank-badge { font-size: 12px; background: rgba(196,127,0,0.1); color: var(--gold); padding: 4px 10px; border-radius: 100px; font-weight: 700; white-space: nowrap; }
     .game-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 12px; box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
     .game-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
     .game-name { font-size: 15px; font-weight: 800; }
@@ -544,10 +545,11 @@ async function checkMyScore() {
 
   btn.disabled = true; btn.textContent = 'Checking...';
   try {
-    const [entry, entries, gwResultsRows] = await Promise.all([
+    const [entry, entries, gwResultsRows, ranked] = await Promise.all([
       fetch(`/api/fpl?endpoint=entry/${id}/`).then(r => { if (!r.ok) throw new Error('FPL Team not found.'); return r.json(); }),
       sbSelect('challenge_entries', { fpl_id: `eq.${id}`, gw: `eq.${viewGW}`, select: 'game_type,prediction,score' }),
-      sbSelect('challenge_gw_results', { gw: `eq.${viewGW}`, select: '*', limit: 1 }).catch(() => [])
+      sbSelect('challenge_gw_results', { gw: `eq.${viewGW}`, select: '*', limit: 1 }).catch(() => []),
+      computeRanking(viewGW).catch(() => [])
     ]);
 
     const name = `${entry.player_first_name} ${entry.player_last_name}`;
@@ -557,11 +559,18 @@ async function checkMyScore() {
       return;
     }
 
+    const rankIdx = ranked.findIndex(u => u.fpl_id === id);
+    const medals = ['🥇', '🥈', '🥉'];
+    const rankBadge = rankIdx !== -1
+      ? `<span class="rank-badge">${medals[rankIdx] || ''} #${rankIdx + 1} of ${ranked.length}</span>`
+      : '';
+
     const parts = name.trim().split(' ');
     const initials = parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : name.slice(0, 2).toUpperCase();
     document.getElementById('score-check-manager').innerHTML = `
       <div class="manager-avatar">${initials}</div>
       <div class="manager-info"><div class="manager-name">${escHtml(name)}</div><div class="manager-team">${escHtml(entry.name)}</div></div>
+      ${rankBadge}
     `;
     renderBreakdown(entries, {
       wrapId: 'score-check-result', listId: 'score-check-breakdown',
@@ -684,6 +693,25 @@ async function submitChallenge() {
 }
 
 // ── Leaderboard ───────────────────────────────────────────
+// Full ranked standings for a GW (all participants, not just the top 20
+// shown on the Leaderboard) — shared by the Leaderboard and by Check Your
+// Score so rank lookups use identical scoring/tie-break logic.
+async function computeRanking(gw) {
+  const entries = await Promise.race([
+    sbSelect('challenge_entries', { gw: `eq.${gw}`, select: 'fpl_id,manager_name,score,created_at', order: 'created_at.asc', limit: 500 }),
+    new Promise((_, rej) => setTimeout(() => rej(new Error('Leaderboard timeout')), 8000))
+  ]);
+
+  const byUser = {};
+  (entries || []).forEach(e => {
+    if (!byUser[e.fpl_id]) byUser[e.fpl_id] = { fpl_id: e.fpl_id, manager_name: e.manager_name, total: 0, earliest: e.created_at };
+    byUser[e.fpl_id].total += (e.score || 0);
+    if (e.created_at < byUser[e.fpl_id].earliest) byUser[e.fpl_id].earliest = e.created_at;
+  });
+
+  return Object.values(byUser).sort((a, b) => b.total - a.total || new Date(a.earliest) - new Date(b.earliest));
+}
+
 async function loadLeaderboard() {
   const lb = document.getElementById('leaderboard');
   lb.innerHTML = '<div class="feed-loading"><div class="feed-spinner"></div>Loading leaderboard...</div>';
@@ -694,29 +722,17 @@ async function loadLeaderboard() {
   }
 
   try {
-    const entries = await Promise.race([
-      sbSelect('challenge_entries', { gw: `eq.${viewGW}`, select: 'fpl_id,manager_name,score,created_at', order: 'created_at.asc', limit: 500 }),
-      new Promise((_, rej) => setTimeout(() => rej(new Error('Leaderboard timeout')), 8000))
-    ]);
+    const ranked = await computeRanking(viewGW);
 
-    if (!entries?.length) {
+    if (!ranked.length) {
       lb.innerHTML = '<div class="feed-empty">No entries yet — be the first! 🚀</div>';
       return;
     }
 
-    const byUser = {};
-    entries.forEach(e => {
-      if (!byUser[e.fpl_id]) byUser[e.fpl_id] = { manager_name: e.manager_name, total: 0, earliest: e.created_at };
-      byUser[e.fpl_id].total += (e.score || 0);
-      if (e.created_at < byUser[e.fpl_id].earliest) byUser[e.fpl_id].earliest = e.created_at;
-    });
-
-    const ranked = Object.values(byUser)
-      .sort((a, b) => b.total - a.total || new Date(a.earliest) - new Date(b.earliest))
-      .slice(0, 20);
+    const top = ranked.slice(0, 20);
     const medals = ['🥇', '🥈', '🥉'];
 
-    const rowsHTML = ranked.map((u, i) => {
+    const rowsHTML = top.map((u, i) => {
       const rank = i < 3
         ? `<span class="lb-rank">${medals[i]}</span>`
         : `<span class="lb-rank"><span class="lb-rank-num">${i + 1}</span></span>`;
