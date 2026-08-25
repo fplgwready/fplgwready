@@ -83,6 +83,8 @@
     .prize-note { font-size: 12px; color: var(--muted); margin-top: 3px; }
     .section-title { font-size: 16px; font-weight: 700; margin: 16px 0 12px; display: flex; align-items: center; gap: 8px; }
     .section-badge { font-size: 11px; padding: 2px 9px; border-radius: 100px; background: rgba(26,111,255,0.1); color: var(--accent); font-weight: 600; }
+    .gw-badge-select { font-size: 11px; font-weight: 600; padding: 2px 26px 2px 10px; border-radius: 100px; background-color: rgba(26,111,255,0.1); border: 1px solid transparent; color: var(--accent); width: auto; }
+    .gw-badge-select:hover { border-color: var(--accent2); }
     .lb-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
     .lb-row { display: flex; align-items: center; gap: 12px; padding: 13px 20px; border-bottom: 1px solid var(--border); }
     .lb-row:last-child { border-bottom: none; }
@@ -237,7 +239,7 @@
   <div class="input-card">
     <div class="field-group" style="margin-bottom:14px;">
       <label class="input-label" for="view-gw-select">Viewing Results For</label>
-      <select id="view-gw-select" onchange="onViewGWChange()"></select>
+      <select id="view-gw-select" onchange="onViewGWChange(this.value)"></select>
       <p class="input-hint" style="margin-top:6px;">Switches both the score lookup below and the Leaderboard further down — browse any past GW, not just the one currently open.</p>
     </div>
     <div class="id-row" style="grid-template-columns:1fr auto;align-items:end;">
@@ -262,7 +264,7 @@
   </div>
 
   <!-- Leaderboard (always visible) -->
-  <div class="section-title" style="margin-top:28px;">Leaderboard <span class="section-badge" id="gw-badge">GW —</span></div>
+  <div class="section-title" style="margin-top:28px;">Leaderboard <select id="view-gw-select-lb" class="gw-badge-select" onchange="onViewGWChange(this.value)"></select></div>
   <div id="leaderboard">
     <div class="feed-loading"><div class="feed-spinner"></div>Loading leaderboard...</div>
   </div>
@@ -573,12 +575,13 @@ async function checkMyScore() {
   btn.disabled = false; btn.textContent = 'Check My Score →';
 }
 
-// ── GW picker (Leaderboard + Check Your Score) ─────────────
+// ── GW picker (Leaderboard + Check Your Score, kept in sync) ────────────
 function populateViewGWSelect(maxGW, selected) {
-  const sel = document.getElementById('view-gw-select');
-  sel.innerHTML = Array.from({ length: maxGW }, (_, i) => i + 1)
+  const optionsHTML = Array.from({ length: maxGW }, (_, i) => i + 1)
     .map(gw => `<option value="${gw}" ${gw === selected ? 'selected' : ''}>GW ${gw}${gw === currentGW ? ' (current)' : ''}</option>`)
     .join('');
+  document.getElementById('view-gw-select').innerHTML = optionsHTML;
+  document.getElementById('view-gw-select-lb').innerHTML = optionsHTML;
 }
 
 async function loadViewBracketsAndPairs(gw) {
@@ -590,9 +593,10 @@ async function loadViewBracketsAndPairs(gw) {
   } catch(e) { viewCaptainBrackets = []; viewThisOrThatPairs = []; }
 }
 
-async function onViewGWChange() {
-  viewGW = parseInt(document.getElementById('view-gw-select').value);
-  document.getElementById('gw-badge').textContent = `GW ${viewGW}`;
+async function onViewGWChange(newGW) {
+  viewGW = parseInt(newGW);
+  document.getElementById('view-gw-select').value = viewGW;
+  document.getElementById('view-gw-select-lb').value = viewGW;
   document.getElementById('score-check-gw-num').textContent = viewGW;
   document.getElementById('score-check-result').style.display = 'none';
   document.getElementById('score-check-error').style.display = 'none';
@@ -787,7 +791,6 @@ async function loadArticlesPromo() {
   const supabaseErr = supabaseResult.status === 'rejected' ? supabaseResult.reason.message : null;
   const current = statusResult.status === 'fulfilled' ? statusResult.value : { gw: PLAYERS_DATA.gw, is_open: true };
   currentGW = current.gw;
-  document.getElementById('gw-badge').textContent = `GW ${currentGW}`;
   document.getElementById('header-gw-badge').textContent = `GW ${currentGW}`;
   document.getElementById('form-gw-num').textContent = currentGW;
   document.getElementById('closed-gw-num').textContent = currentGW;
