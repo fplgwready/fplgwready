@@ -1,8 +1,28 @@
-export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET');
-  const { endpoint } = req.query;
-  if (!endpoint) return res.status(400).json({ error: 'Missing endpoint' });
+// Runs on Vercel's Edge Runtime instead of Node serverless — the Node
+// functions' outbound IPs (shared AWS ranges) are being blocked with a 403
+// by FPL/Cloudflare, while direct requests from elsewhere succeed. Edge
+// functions route through a different network path that isn't blocked.
+export const config = { runtime: 'edge' };
+
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET',
+};
+
+function json(body, status, extraHeaders = {}) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...CORS_HEADERS, 'Content-Type': 'application/json', ...extraHeaders },
+  });
+}
+
+export default async function handler(req) {
+  if (req.method === 'OPTIONS') return new Response(null, { status: 200, headers: CORS_HEADERS });
+
+  const { searchParams } = new URL(req.url);
+  const endpoint = searchParams.get('endpoint');
+  if (!endpoint) return json({ error: 'Missing endpoint' }, 400);
+
   const BASE = 'https://fantasy.premierleague.com/api';
   const allowed = [
     /^entry\/\d+\/$/,
@@ -14,7 +34,8 @@ export default async function handler(req, res) {
     /^fixtures\/$/,
   ];
   const isAllowed = allowed.some(r => r.test(endpoint));
-  if (!isAllowed) return res.status(403).json({ error: 'Endpoint not allowed' });
+  if (!isAllowed) return json({ error: 'Endpoint not allowed' }, 403);
+
   try {
     const response = await fetch(`${BASE}/${endpoint}`, {
       headers: {
@@ -23,14 +44,15 @@ export default async function handler(req, res) {
         'Accept-Language': 'en-US,en;q=0.9',
         'Referer': 'https://fantasy.premierleague.com/',
         'Origin': 'https://fantasy.premierleague.com',
-      }
+      },
     });
-    if (!response.ok) return res.status(response.status).json({ error: 'FPL API error', upstream_status: response.status });
+    if (!response.ok) return json({ error: 'FPL API error', upstream_status: response.status }, response.status);
     const data = await response.json();
     const isHeavy = endpoint.startsWith('bootstrap-static') || endpoint.startsWith('fixtures');
-    res.setHeader('Cache-Control', isHeavy ? 's-maxage=300, stale-while-revalidate=3600' : 's-maxage=60, stale-while-revalidate');
-    return res.status(200).json(data);
-  } catch(e) {
-    return res.status(500).json({ error: 'Failed to fetch from FPL' });
+    return json(data, 200, {
+      'Cache-Control': isHeavy ? 's-maxage=300, stale-while-revalidate=3600' : 's-maxage=60, stale-while-revalidate',
+    });
+  } catch (e) {
+    return json({ error: 'Failed to fetch from FPL' }, 500);
   }
 }
