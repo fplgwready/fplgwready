@@ -47,22 +47,6 @@
     .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .result { display: none; }
-    /* AI Narrative teaser */
-    .ai-section { margin-top: 20px; }
-    .ai-section-title { font-size: 14px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-    .ai-premium-badge { font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 100px; background: linear-gradient(135deg,rgba(196,127,0,0.15),rgba(196,127,0,0.06)); color: #C47F00; border: 1px solid rgba(196,127,0,0.25); letter-spacing: 0.3px; }
-    .ai-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 2px 16px rgba(108,92,231,0.07); position: relative; }
-    .ai-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg,#6C5CE7,#1A6FFF,#00b4d8); }
-    .ai-card-header { padding: 18px 22px 14px; border-bottom: 1px solid var(--border); }
-    .ai-card-sub { font-size: 13px; color: var(--muted); line-height: 1.5; }
-    .ai-preview-wrap { position: relative; padding: 20px 22px; }
-    .ai-preview-text { font-size: 14px; line-height: 1.75; color: var(--text); filter: blur(5px); user-select: none; pointer-events: none; }
-    .ai-lock-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: rgba(248,249,255,0.55); backdrop-filter: blur(1px); }
-    .ai-lock-icon { width: 44px; height: 44px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 2px 12px rgba(108,92,231,0.12); }
-    .ai-lock-label { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: 0.3px; }
-    .ai-card-footer { padding: 14px 22px 18px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
-    .ai-unlock-btn { width: 100%; background: linear-gradient(135deg,var(--accent2),var(--accent)); color: #fff; border: none; border-radius: 10px; padding: 13px 20px; font-size: 14px; font-weight: 700; font-family: 'Inter',sans-serif; cursor: default; opacity: 0.85; letter-spacing: 0.1px; }
-    .ai-price-note { text-align: center; font-size: 12px; color: var(--muted); }
     .manager-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 26px; margin-bottom: 14px; box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
     .manager-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
     .manager-avatar { width: 46px; height: 46px; border-radius: 50%; background: var(--accent2); display: flex; align-items: center; justify-content: center; font-family: 'Inter', sans-serif; font-size: 17px; font-weight: 800; color: #fff; flex-shrink: 0; }
@@ -72,6 +56,10 @@
     .stat-box { background: var(--surface2); border-radius: 10px; padding: 12px; text-align: center; }
     .stat-val { font-family: 'Inter', sans-serif; font-size: 20px; font-weight: 800; color: var(--accent); }
     .stat-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; }
+    .stat-rank-chg { font-size: 11px; font-weight: 700; margin-top: 4px; }
+    .rank-chg-up { color: #00976B; }
+    .rank-chg-down { color: #E84040; }
+    .rank-chg-same { color: var(--muted); font-weight: 400; }
     .gw-nav { display: flex; align-items: center; gap: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 20px; margin-bottom: 14px; box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
     .gw-nav-title { font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 800; }
     .gw-nav-pts { font-size: 13px; color: var(--muted); margin-top: 2px; }
@@ -132,6 +120,8 @@
     .stat-xp { font-weight: 700; color: #f9fafb; }
     .stat-divider { color: #6b7280; }
     .stat-eo { color: #9ca3af; font-weight: 400; }
+    .stat-price-up { color: #34d399; font-weight: 700; }
+    .stat-price-down { color: #f87171; font-weight: 700; }
     .bench-section .player-stats { font-size: 9px; }
 
     /* Points Badge — Color Tiers */
@@ -202,7 +192,7 @@
         <div class="stat-box"><div class="stat-val" id="gw-pts"></div><div class="stat-lbl">GW Points</div></div>
         <div class="stat-box"><div class="stat-val" id="gw-rank"></div><div class="stat-lbl">GW Rank</div></div>
         <div class="stat-box"><div class="stat-val" id="total-pts"></div><div class="stat-lbl">Total Points</div></div>
-        <div class="stat-box"><div class="stat-val" id="overall-rank"></div><div class="stat-lbl">Overall Rank</div></div>
+        <div class="stat-box"><div class="stat-val" id="overall-rank"></div><div class="stat-lbl">Overall League Rank</div><div class="stat-rank-chg" id="overall-rank-chg"></div></div>
       </div>
     </div>
 
@@ -232,30 +222,6 @@
     <div class="pitch-wrap">
       <div class="pitch" id="pitch"></div>
       <div class="bench-wrap" id="bench-wrap"></div>
-    </div>
-
-    <!-- AI Narrative Teaser -->
-    <div class="ai-section">
-      <div class="ai-section-title">
-        🤖 Your GW AI Analysis
-        <span class="ai-premium-badge">⭐ Premium</span>
-      </div>
-      <div class="ai-card">
-        <div class="ai-card-header">
-          <div class="ai-card-sub">Personalized insights based on your squad, captain pick, and this week's fixtures</div>
-        </div>
-        <div class="ai-preview-wrap">
-          <div class="ai-preview-text">GW38 looks tricky for your squad. You're heavily reliant on your captain at high ownership — if he blanks, you're exposed. Your differential pick is your best shot at a green arrow this week. Consider your bench options carefully; one of your subs has a great fixture and could be the difference. Your transfer window has left you thin in midfield, but the fixtures ahead actually suit your setup. Play to your strengths and hold your nerve.</div>
-          <div class="ai-lock-overlay">
-            <div class="ai-lock-icon">🔒</div>
-            <div class="ai-lock-label">Premium Feature</div>
-          </div>
-        </div>
-        <div class="ai-card-footer">
-          <button class="ai-unlock-btn">Unlock AI Analysis — Coming Soon</button>
-
-        </div>
-      </div>
     </div>
   </div>
 </div>
@@ -383,6 +349,18 @@ async function renderGW(id, gw) {
   document.getElementById('gw-rank').textContent = gwData ? fmt(gwData.rank) : '—';
   document.getElementById('total-pts').textContent = gwData ? fmt(gwData.total_points) : '—';
   document.getElementById('overall-rank').textContent = gwData ? fmt(gwData.overall_rank) : '—';
+
+  const prevGwData = currentHistory.current.find(g => g.event === gw - 1);
+  const rankChgEl = document.getElementById('overall-rank-chg');
+  if (gwData?.overall_rank && prevGwData?.overall_rank) {
+    const diff = prevGwData.overall_rank - gwData.overall_rank; // positive = moved up (lower rank number is better)
+    if (diff > 0) rankChgEl.innerHTML = `<span class="rank-chg-up">▲ ${fmt(diff)}</span>`;
+    else if (diff < 0) rankChgEl.innerHTML = `<span class="rank-chg-down">▼ ${fmt(Math.abs(diff))}</span>`;
+    else rankChgEl.innerHTML = `<span class="rank-chg-same">No change</span>`;
+  } else {
+    rankChgEl.innerHTML = '';
+  }
+
   document.getElementById('gw-nav-title').textContent = `Gameweek ${gw}`;
   document.getElementById('gw-nav-pts').textContent = gwData ? `${gwData.points} pts` : '—';
   document.getElementById('btn-prev').disabled = gw <= 1;
@@ -509,12 +487,25 @@ function makePlayerCard(pick, player, liveMap, isBench) {
   nameEl.textContent = smartTruncateName(player.web_name);
   infoEl.appendChild(nameEl);
 
+  // Real price movement only (FPL's cost_change_event) — no guessed
+  // "likely to change" prediction here, same as the Players page.
+  const priceDelta = (player.cost_change_event || 0) / 10;
+  const priceCls = priceDelta > 0 ? 'stat-price-up' : 'stat-price-down';
+  const priceHTML = priceDelta !== 0
+    ? `<span class="${priceCls}">${priceDelta > 0 ? '▲' : '▼'} £${Math.abs(priceDelta).toFixed(1)}m</span>`
+    : '';
+
   if (!isBench) {
     const xp = parseFloat(player.ep_this) || 0;
     const eo = parseFloat(player.selected_by_percent) || 0;
     const statsEl = document.createElement('span');
     statsEl.className = 'player-stats';
-    statsEl.innerHTML = `<span class="stat-xp">xP ${xp.toFixed(1)}</span><span class="stat-divider"> · </span><span class="stat-eo">EO ${eo.toFixed(1)}%</span>`;
+    statsEl.innerHTML = `<span class="stat-xp">xP ${xp.toFixed(1)}</span><span class="stat-divider"> · </span><span class="stat-eo">EO ${eo.toFixed(1)}%</span>${priceHTML ? `<span class="stat-divider"> · </span>${priceHTML}` : ''}`;
+    infoEl.appendChild(statsEl);
+  } else if (priceHTML) {
+    const statsEl = document.createElement('span');
+    statsEl.className = 'player-stats';
+    statsEl.innerHTML = priceHTML;
     infoEl.appendChild(statsEl);
   }
 
