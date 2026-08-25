@@ -37,6 +37,8 @@
     .success-msg{background:rgba(0,151,107,0.08);border:1px solid rgba(0,151,107,0.2);color:var(--green);border-radius:10px;padding:12px 16px;font-size:14px;margin-top:12px;display:none}
     .section-title{font-size:16px;font-weight:700;margin:28px 0 12px;display:flex;align-items:center;gap:8px}
     .section-badge{font-size:11px;padding:2px 9px;border-radius:100px;background:rgba(26,111,255,0.1);color:var(--accent);font-weight:600}
+    .input-hint{font-size:12px;color:var(--muted);line-height:1.5}
+    .criterion-badge{font-size:10px;font-weight:700;padding:1px 8px;border-radius:100px;background:rgba(108,92,231,0.1);color:var(--accent2);margin-left:6px;white-space:nowrap}
     #gate{display:block}#admin-content{display:none}
     .gate-card{max-width:400px;margin:80px auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px;box-shadow:0 2px 16px rgba(108,92,231,0.08);text-align:center}
     .gate-icon{font-size:40px;margin-bottom:16px}.gate-title{font-size:20px;font-weight:800;margin-bottom:6px}.gate-sub{font-size:14px;color:var(--muted);margin-bottom:20px}
@@ -120,7 +122,8 @@
     <!-- This or That Pairs -->
     <div class="section-title" style="margin-top:40px;">This or That Pairs <span class="section-badge">Pair Manager</span></div>
     <div class="card">
-      <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Add New Pair</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:4px;">Add New Pair</div>
+      <p class="input-hint" style="margin-bottom:16px;">📐 Add in order — Pair 1 = Points scored this GW · Pairs 2 &amp; 3 = Defensive Contribution (DefCon)</p>
       <div class="form-grid">
         <div class="field-group"><label class="input-label" for="tot-gw">Gameweek</label><input type="number" id="tot-gw" placeholder="e.g. 38" min="1" max="38"/></div>
         <div style="display:flex;align-items:flex-end;"><button class="btn btn-full" onclick="loadTotPairs(parseInt(document.getElementById('tot-gw').value))">Load Pairs →</button></div>
@@ -176,6 +179,12 @@
 
 <script>
 function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// Pairs are added in order (server assigns pair_num sequentially), and the
+// public Challenge page's copy is fixed: Pair 1 asks who scores more points,
+// Pairs 2 & 3 ask who gets more Defensive Contribution (DefCon). Mirrored
+// here so admins score each pair against the right stat.
+const TOT_CRITERIA = ['Points', 'DefCon', 'DefCon'];
 
 async function checkPassword() {
   const pw = document.getElementById('gate-pw').value.trim();
@@ -362,7 +371,7 @@ async function loadTotPairs(gw) {
     if (!pairs.length) { listEl.innerHTML = '<div class="feed-empty">No pairs for this GW yet.</div>'; return; }
     listEl.innerHTML = pairs.map((p, i) => `
       <div class="poll-admin-card" id="tot-pair-${p.id}">
-        <div class="poll-admin-body"><div class="poll-admin-type">GW${p.gw} · Pair ${i+1}</div><div class="poll-admin-question">${escHtml(p.player_a)} <span style="color:var(--muted);font-weight:400">vs</span> ${escHtml(p.player_b)}</div></div>
+        <div class="poll-admin-body"><div class="poll-admin-type">GW${p.gw} · Pair ${i+1} <span class="criterion-badge">${TOT_CRITERIA[i] || 'Points'}</span></div><div class="poll-admin-question">${escHtml(p.player_a)} <span style="color:var(--muted);font-weight:400">vs</span> ${escHtml(p.player_b)}</div></div>
         <button class="btn btn-red btn-sm" onclick="deleteTotPair('${p.id}')">Delete</button>
       </div>`).join('');
   } catch(e) { listEl.innerHTML = `<div class="feed-empty">⚠️ ${e.message}</div>`; }
@@ -415,7 +424,7 @@ function renderScoreForm(data) {
   else { bracketListEl.innerHTML = data.captain_brackets.map(cb => { const val = saved?.captain_pts?.[cb.player_name]; return `<div style="display:flex;align-items:center;gap:10px;"><div style="font-size:13px;font-weight:600;flex:1;min-width:0;">Slot ${cb.slot}: ${escHtml(cb.player_name)}</div><input type="number" data-bracket-player="${escHtml(cb.player_name)}" placeholder="GW pts" min="0" value="${val ?? ''}" style="width:90px;flex-shrink:0;"/></div>`; }).join(''); }
   const totEl = document.getElementById('score-tot-pairs');
   if (!data.pairs.length) { totEl.innerHTML = '<div style="color:var(--muted);font-size:13px;">No ToT pairs set for this GW.</div>'; }
-  else { totEl.innerHTML = data.pairs.map((pair, i) => { const r = saved?.tot_results?.[i]; return `<div><div style="font-size:13px;font-weight:700;margin-bottom:8px;">Pair ${i+1}: ${escHtml(pair.player_a)} vs ${escHtml(pair.player_b)}</div><div class="tot-result-group"><label class="tot-result-label"><input type="radio" name="tot-result-${i}" value="A" ${r==='A'?'checked':''}/> ${escHtml(pair.player_a)} wins</label><label class="tot-result-label"><input type="radio" name="tot-result-${i}" value="TIE" ${r==='TIE'?'checked':''}/> Tie</label><label class="tot-result-label"><input type="radio" name="tot-result-${i}" value="B" ${r==='B'?'checked':''}/> ${escHtml(pair.player_b)} wins</label></div></div>`; }).join(''); }
+  else { totEl.innerHTML = data.pairs.map((pair, i) => { const r = saved?.tot_results?.[i]; return `<div><div style="font-size:13px;font-weight:700;margin-bottom:8px;">Pair ${i+1} <span class="criterion-badge">${TOT_CRITERIA[i] || 'Points'}</span>: ${escHtml(pair.player_a)} vs ${escHtml(pair.player_b)}</div><div class="tot-result-group"><label class="tot-result-label"><input type="radio" name="tot-result-${i}" value="A" ${r==='A'?'checked':''}/> ${escHtml(pair.player_a)} wins</label><label class="tot-result-label"><input type="radio" name="tot-result-${i}" value="TIE" ${r==='TIE'?'checked':''}/> Tie</label><label class="tot-result-label"><input type="radio" name="tot-result-${i}" value="B" ${r==='B'?'checked':''}/> ${escHtml(pair.player_b)} wins</label></div></div>`; }).join(''); }
 }
 
 function previewScores() {

@@ -204,8 +204,8 @@
         <div class="game-name">Game 3 — This or That</div>
         <div class="pts-badge">10 pts × 3</div>
       </div>
-      <p class="game-desc">Three pairs, three different questions — read the label on each pair before picking.</p>
-      <p class="scoring-note">🤝 If it's a tie (both players score equal points), <strong>everyone gets 10 pts</strong> regardless of their pick.</p>
+      <p class="game-desc">Three pairs — Pair 1 is on <strong>points</strong>, Pairs 2 &amp; 3 are on <strong>Defensive Contribution (DefCon)</strong>. Read the label on each pair before picking.</p>
+      <p class="scoring-note">🤝 If it's a tie on that pair's stat, <strong>everyone gets 10 pts</strong> regardless of their pick.</p>
       <div id="tot-container">
         <div class="tot-coming">⏳ Loading pairs...</div>
       </div>
@@ -368,6 +368,9 @@ const PAIR_QUESTIONS = [
   { label: 'Pair 2 · 10 pts', question: 'Who will get more defcon this GW?' },
   { label: 'Pair 3 · 10 pts', question: 'Who will get more defcon this GW?' }
 ];
+// Same order as PAIR_QUESTIONS — used to label pairs consistently wherever
+// a result/breakdown is shown (Check Your Score, post-submit, admin).
+const TOT_CRITERIA = ['Points', 'DefCon', 'DefCon'];
 
 function renderThisOrThat() {
   const container = document.getElementById('tot-container');
@@ -515,7 +518,7 @@ function renderBreakdown(entries, opts = {}) {
     } else if (e.game_type.startsWith('this_or_that_')) {
       const idx = parseInt(e.game_type.split('_').pop()) - 1;
       const pair = pairs[idx];
-      label = `⚔️ This or That${pair ? ` — ${pair.player_a} vs ${pair.player_b}` : ''}: ${e.prediction}`; maxPts = 10;
+      label = `⚔️ This or That (${TOT_CRITERIA[idx] || 'Points'})${pair ? ` — ${pair.player_a} vs ${pair.player_b}` : ''}: ${e.prediction}`; maxPts = 10;
       const r = gwResults?.tot_results?.[idx];
       if (r) {
         const winner = r === 'TIE' ? 'Tie' : (r === 'A' ? pair?.player_a : pair?.player_b);
