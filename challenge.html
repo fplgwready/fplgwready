@@ -272,7 +272,7 @@
        official confirmed leaderboard (that only updates when admin runs
        Score Calculator after the GW is done). -->
   <div class="section-title" style="margin-top:28px;">Live Tracker <span class="section-badge live-badge"><span class="live-dot"></span>Provisional</span></div>
-  <p class="input-hint" style="margin-bottom:10px;">Estimated standings from real-time FPL data — bonus points and defensive contribution can still change. Not the final result.</p>
+  <p class="input-hint" style="margin-bottom:10px;">Sementara — final akan based on admin confirmation ketika semua sudah final.</p>
   <div id="live-tracker">
     <div class="feed-loading"><div class="feed-spinner"></div>Loading live standings...</div>
   </div>
@@ -772,6 +772,16 @@ async function loadLeaderboard() {
 // it. This is NOT the official leaderboard: bonus points can still change
 // until the match is fully confirmed, and admin's Confirm step is what
 // actually writes final scores to challenge_entries.
+function picksSummary(picks) {
+  const parts = [];
+  if (picks.top_score) parts.push(`🥅 ${escHtml(picks.top_score)}`);
+  const brackets = [picks.captain_bracket_1, picks.captain_bracket_2].filter(Boolean);
+  if (brackets.length) parts.push(`👑 ${brackets.map(escHtml).join('/')}`);
+  const tot = [picks.this_or_that_1, picks.this_or_that_2, picks.this_or_that_3].filter(Boolean);
+  if (tot.length) parts.push(`⚔️ ${tot.map(escHtml).join('/')}`);
+  return parts.join('  ');
+}
+
 async function loadLiveTracker() {
   const el = document.getElementById('live-tracker');
   if (!SB_KEY || !viewGW) return;
@@ -801,9 +811,10 @@ async function loadLiveTracker() {
 
     const byUser = {};
     entries.forEach(e => {
-      if (!byUser[e.fpl_id]) byUser[e.fpl_id] = { fpl_id: e.fpl_id, manager_name: e.manager_name, total: 0, earliest: e.created_at };
+      if (!byUser[e.fpl_id]) byUser[e.fpl_id] = { fpl_id: e.fpl_id, manager_name: e.manager_name, total: 0, earliest: e.created_at, picks: {} };
       const u = byUser[e.fpl_id];
       if (e.created_at < u.earliest) u.earliest = e.created_at;
+      u.picks[e.game_type] = e.prediction;
 
       let score = 0;
       if (e.game_type === 'top_score') {
@@ -835,7 +846,9 @@ async function loadLiveTracker() {
       const rank = i < 3
         ? `<span class="lb-rank">${medals[i]}</span>`
         : `<span class="lb-rank"><span class="lb-rank-num">${i + 1}</span></span>`;
-      return `<div class="lb-row">${rank}<div class="lb-name">${escHtml(u.manager_name)}</div><div class="lb-score">${u.total} <span class="lb-score-label">pts</span></div></div>`;
+      const timeLabel = u.earliest ? fmtTime(u.earliest) : '';
+      const picksLabel = picksSummary(u.picks);
+      return `<div class="lb-row">${rank}<div class="lb-name">${escHtml(u.manager_name)}<div class="lb-name-sub">${timeLabel}${picksLabel ? ' · ' + picksLabel : ''}</div></div><div class="lb-score">${u.total} <span class="lb-score-label">pts</span></div></div>`;
     }).join('');
 
     el.innerHTML = `<div class="lb-card">${rowsHTML}</div>`;
