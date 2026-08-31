@@ -48,9 +48,15 @@ export default async function handler(req) {
     });
     if (!response.ok) return json({ error: 'FPL API error', upstream_status: response.status }, response.status);
     const data = await response.json();
+    // bootstrap-static/fixtures barely change within a GW — cache those
+    // longer. Everything else (live scores, picks, entry summaries,
+    // league standings) changes minute-to-minute during a live GW —
+    // e.g. bonus points ticking up — so keep that window short instead
+    // of the old 60s, which was noticeably stale (a manager's live GW
+    // total was 2 points behind reality mid-bonus-calculation).
     const isHeavy = endpoint.startsWith('bootstrap-static') || endpoint.startsWith('fixtures');
     return json(data, 200, {
-      'Cache-Control': isHeavy ? 's-maxage=300, stale-while-revalidate=3600' : 's-maxage=60, stale-while-revalidate',
+      'Cache-Control': isHeavy ? 's-maxage=300, stale-while-revalidate=3600' : 's-maxage=10, stale-while-revalidate=30',
     });
   } catch (e) {
     return json({ error: 'Failed to fetch from FPL' }, 500);

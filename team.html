@@ -367,12 +367,19 @@ async function renderGW(id, gw) {
   const liveMap = {};
   liveData.elements.forEach(e => { liveMap[e.id] = e.stats.total_points; });
 
+  // FPL's own history.points can lag a couple of points behind while bonus
+  // points are still being finalized (confirmed against a live GW: history
+  // showed 136 while summing live pts × multiplier — which already
+  // reflects the active chip correctly, e.g. Bench Boost — gave the true
+  // 138). Compute it ourselves instead of trusting the history snapshot.
+  const livePts = picks.picks.reduce((sum, p) => sum + ((liveMap[p.element] || 0) * p.multiplier), 0);
+
   // Manager info
   const initials = `${currentEntry.player_first_name[0]}${currentEntry.player_last_name[0]}`.toUpperCase();
   document.getElementById('manager-avatar').textContent = initials;
   document.getElementById('manager-name').textContent = `${currentEntry.player_first_name} ${currentEntry.player_last_name}`;
   document.getElementById('team-name').textContent = currentEntry.name;
-  document.getElementById('gw-pts').textContent = gwData ? fmt(gwData.points) : '—';
+  document.getElementById('gw-pts').textContent = fmt(livePts);
   document.getElementById('gw-rank').textContent = gwData ? fmt(gwData.rank) : '—';
   document.getElementById('total-pts').textContent = gwData ? fmt(gwData.total_points) : '—';
   document.getElementById('overall-rank').textContent = gwData ? fmt(gwData.overall_rank) : '—';
@@ -389,7 +396,7 @@ async function renderGW(id, gw) {
   }
 
   document.getElementById('gw-nav-title').textContent = `Gameweek ${gw}`;
-  document.getElementById('gw-nav-pts').textContent = gwData ? `${gwData.points} pts` : '—';
+  document.getElementById('gw-nav-pts').textContent = `${livePts} pts`;
   document.getElementById('btn-prev').disabled = gw <= 1;
   document.getElementById('btn-next').disabled = gw >= realCurrentGW;
 
@@ -574,6 +581,11 @@ document.getElementById('fpl-id').addEventListener('keydown', e => { if (e.key =
     fetchTeam();
   }
 })();
+
+// Keep the live GW score fresh (bonus points etc.) without a manual
+// reload — only once a team is actually loaded. renderGW() just updates
+// values in place, no spinner/flicker.
+setInterval(() => { if (currentId) renderGW(currentId, currentGW).catch(() => {}); }, 60 * 1000);
 </script>
 
 <div style="text-align:center;padding:24px;font-size:11px;color:#6B63A8;border-top:1px solid rgba(108,92,231,0.1);margin-top:40px;">

@@ -302,14 +302,16 @@ async function loadLeagues() {
   document.getElementById('load-btn').disabled = false;
 }
 
-async function loadLeague(page = 1) {
+async function loadLeague(page = 1, silent = false) {
   const leagueId = document.getElementById('league-select').value;
   if (!leagueId) { showError('Please select a league first.'); return; }
   currentLeagueId = leagueId;
   currentPage = page;
-  document.getElementById('error-msg').style.display = 'none';
-  document.getElementById('result').style.display = 'none';
-  showLoading('Loading standings...');
+  if (!silent) {
+    document.getElementById('error-msg').style.display = 'none';
+    document.getElementById('result').style.display = 'none';
+    showLoading('Loading standings...');
+  }
 
   try {
     const [standings, boot] = await Promise.all([
@@ -325,7 +327,7 @@ async function loadLeague(page = 1) {
     const entries = standings.standings.results;
     const hasNext = standings.standings.has_next;
 
-    showLoading(`Loading ${entries.length} teams' data...`);
+    if (!silent) showLoading(`Loading ${entries.length} teams' data...`);
 
     const [liveData, ...perEntry] = await Promise.all([
       fetchAPI(`event/${currentGW}/live/`),
@@ -357,14 +359,21 @@ async function loadLeague(page = 1) {
 
   } catch(e) {
     hideLoading();
-    showError(e.message || 'Failed to load league data.');
+    // A silent background refresh failing shouldn't blow away an already-
+    // working table with a full error screen — just skip this tick and
+    // try again next interval.
+    if (!silent) showError(e.message || 'Failed to load league data.');
   }
 }
 
 function computeLivePts(picks, liveMap) {
   if (!picks) return null;
   let total = 0;
-  picks.picks.filter(p => p.position <= 11).forEach(pick => {
+  // Don't filter to the starting XI — FPL's own `multiplier` already
+  // encodes who counts (0 for a normal bench, but 1 for every player when
+  // Bench Boost is active). Filtering by position <= 11 was silently
+  // dropping all bench points whenever a manager had Bench Boost active.
+  picks.picks.forEach(pick => {
     const s = liveMap[pick.element];
     if (s) total += s.total_points * pick.multiplier;
   });
@@ -557,6 +566,10 @@ const params = new URLSearchParams(window.location.search);
 const savedId = localStorage.getItem('fpl_id');
 if (savedId) document.getElementById('fpl-id').value = savedId;
 if (params.get('id')) { document.getElementById('fpl-id').value = params.get('id'); loadLeagues(); }
+
+// Keep live GW scores/bonus points fresh without a manual reload — only
+// while a league table is actually open, and quietly (no spinner/flicker).
+setInterval(() => { if (currentLeagueId) loadLeague(currentPage, true); }, 60 * 1000);
 </script>
 <button id="fb-widget-btn" onclick="toggleFeedbackWidget(true)" title="Send Feedback" aria-label="Send Feedback"><span id="fb-widget-btn-icon">💬</span><span id="fb-widget-btn-label">Give Feedback</span></button>
 <div id="fb-widget-overlay" onclick="if(event.target===this)toggleFeedbackWidget(false)">
