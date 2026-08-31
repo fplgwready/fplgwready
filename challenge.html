@@ -772,6 +772,29 @@ async function loadLeaderboard() {
 // it. This is NOT the official leaderboard: bonus points can still change
 // until the match is fully confirmed, and admin's Confirm step is what
 // actually writes final scores to challenge_entries.
+function normName(s) {
+  return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[.\s]/g, '').toLowerCase();
+}
+
+function buildNameResolver(elements) {
+  const exact = {};
+  const list = [];
+  elements.forEach(p => {
+    const n = normName(p.web_name);
+    exact[n] = p.id;
+    list.push({ norm: n, id: p.id });
+  });
+  return rawName => {
+    const n = normName(rawName);
+    if (exact[n] !== undefined) return exact[n];
+    let best = null;
+    for (const item of list) {
+      if (item.norm.length >= 3 && n.endsWith(item.norm) && (!best || item.norm.length > best.norm.length)) best = item;
+    }
+    return best ? best.id : null;
+  };
+}
+
 function picksSummary(picks) {
   const parts = [];
   if (picks.top_score) parts.push(`🥅 ${escHtml(picks.top_score)}`);
@@ -799,12 +822,22 @@ async function loadLiveTracker() {
       return;
     }
 
-    const nameToId = {};
-    boot.elements.forEach(p => { nameToId[p.web_name] = p.id; });
+    // Captain bracket / This-or-That player names are typed in by admin as
+    // free text, and don't always match FPL's exact web_name — e.g. GW1
+    // has "João Pedro" (real web_name, used in the Score Calculator's
+    // typed points) vs "Joao Pedro" (no diacritic, in captain_brackets),
+    // "B. Fernandes" vs the real "B.Fernandes", "I. Sarr" vs the real
+    // "Sarr". A literal lookup silently resolved to 0 pts for these,
+    // which is why GW1's Live Tracker didn't match. Normalize (strip
+    // diacritics/periods/spaces) for an exact match first, then fall back
+    // to the longest web_name whose normalized form is a *suffix* of the
+    // typed name — that handles an extra leading initial FPL's own
+    // web_name dropped (e.g. "isarr" → "sarr").
+    const resolveId = buildNameResolver(boot.elements);
     const liveStats = {};
     liveData.elements.forEach(e => { liveStats[e.id] = e.stats; });
-    const ptsOf = name => liveStats[nameToId[name]]?.total_points ?? 0;
-    const defconOf = name => liveStats[nameToId[name]]?.defensive_contribution ?? 0;
+    const ptsOf = name => { const id = resolveId(name); return id != null ? (liveStats[id]?.total_points ?? 0) : 0; };
+    const defconOf = name => { const id = resolveId(name); return id != null ? (liveStats[id]?.defensive_contribution ?? 0) : 0; };
 
     let topScorerPts = 0;
     liveData.elements.forEach(e => { if (e.stats.total_points > topScorerPts) topScorerPts = e.stats.total_points; });
