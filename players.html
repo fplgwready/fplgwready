@@ -80,10 +80,16 @@
     .form-high { color: #00976B; font-weight: 600; }
     .form-mid { color: #C47F00; font-weight: 500; }
     .empty { text-align: center; padding: 60px 0; color: var(--muted); }
-    .progress-pill { display: inline-block; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); white-space: nowrap; }
-    .progress-pill.up { color: #00976B; border-color: rgba(0,151,107,0.35); }
-    .progress-pill.down { color: #E84040; border-color: rgba(232,64,64,0.35); }
-    .progress-pill.flat { color: var(--muted); font-weight: 500; }
+    .progress-cell { display: flex; align-items: center; gap: 8px; min-width: 120px; }
+    .progress-bar-bg { position: relative; flex: 1; max-width: 80px; height: 6px; background: var(--surface2); border-radius: 3px; }
+    .progress-bar-mid { position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--border); }
+    .progress-bar-fill { position: absolute; top: 0; bottom: 0; border-radius: 3px; }
+    .progress-bar-fill.up { left: 50%; background: #00976B; }
+    .progress-bar-fill.down { right: 50%; background: #E84040; }
+    .progress-label { font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .progress-label.up { color: #00976B; }
+    .progress-label.down { color: #E84040; }
+    .progress-label.flat { color: var(--muted); font-weight: 400; }
     .fixture-row { display: flex; gap: 4px; flex-wrap: wrap; max-width: 150px; }
     .fixture-badge { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
     .fixture-none { color: var(--muted); font-size: 12px; }
@@ -232,18 +238,25 @@ function fixturesHTML(teamId) {
 // Pure real data, same as the official FPL app — no guessed "likely to
 // rise" percentage. cost_change_event is FPL's own record of whether this
 // player's price has actually moved this GW.
-function priceStatus(p) {
-  if (p.delta_f !== 0) {
-    const dir = p.delta_f > 0 ? 'up' : 'down';
-    const prevPrice = p.price_f - p.delta_f;
-    const pct = prevPrice > 0 ? Math.abs(p.delta_f / prevPrice) * 100 : 0;
-    return { dir, progressLabel: `${dir === 'up' ? '▲ +' : '▼ -'}${pct.toFixed(1)}%` };
-  }
-  return { dir: 'flat', progressLabel: '—' };
+// Forward-looking: how likely this player is to move price NEXT — not
+// whether it already has. FPL doesn't publish the real threshold for
+// this, so it's estimated from net transfers today as a share of the
+// single biggest mover — a momentum reading, not an official forecast.
+function priceStatus(p, maxSwing) {
+  const net = (p.transfers_in_event || 0) - (p.transfers_out_event || 0);
+  if (!net || !maxSwing) return { dir: 'flat', pct: 0, progressLabel: '—' };
+  const pct = Math.round(Math.min(100, Math.abs(net) / maxSwing * 100));
+  const dir = net > 0 ? 'up' : 'down';
+  if (pct < 5) return { dir: 'flat', pct: 0, progressLabel: '—' };
+  return { dir, pct, progressLabel: `${dir === 'up' ? '▲ +' : '▼ -'}${pct}%` };
 }
 
 function progressPillHTML(lk) {
-  return `<span class="progress-pill ${lk.dir}">${lk.progressLabel}</span>`;
+  const width = lk.dir === 'flat' ? 0 : lk.pct / 2;
+  return `<div class="progress-cell">
+    <div class="progress-bar-bg"><span class="progress-bar-mid"></span>${lk.dir !== 'flat' ? `<div class="progress-bar-fill ${lk.dir}" style="width:${width}%"></div>` : ''}</div>
+    <span class="progress-label ${lk.dir}">${lk.progressLabel}</span>
+  </div>`;
 }
 
 function filterPos(pos, btn) {
@@ -306,7 +319,7 @@ function renderTable() {
     return true;
   });
 
-  const sortKeyMap = { eo:'eo_f', form:'form_f', price:'price_f', likely:'delta_f' };
+  const sortKeyMap = { eo:'eo_f', form:'form_f', price:'price_f', likely:'likely_signed' };
   const sortKey = sortKeyMap[currentSort] || 'eo_f';
   filtered.sort((a,b) => sortAsc ? a[sortKey]-b[sortKey] : b[sortKey]-a[sortKey]);
 
@@ -370,7 +383,11 @@ async function loadPlayers() {
       delta_f: (p.cost_change_event||0)/10,
       teamData: teamMap[p.team],
     }));
-    allPlayers.forEach(p => { p.likely = priceStatus(p); });
+    const maxSwing = Math.max(1, ...allPlayers.map(p => Math.abs((p.transfers_in_event||0) - (p.transfers_out_event||0))));
+    allPlayers.forEach(p => {
+      p.likely = priceStatus(p, maxSwing);
+      p.likely_signed = p.likely.dir === 'up' ? p.likely.pct : p.likely.dir === 'down' ? -p.likely.pct : 0;
+    });
     document.getElementById('loading').style.display = 'none';
     document.getElementById('table-wrap').style.display = 'block';
     renderTable();
