@@ -87,6 +87,10 @@
     .live-badge { background: rgba(232,64,64,0.1); color: var(--red); }
     .live-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--red); margin-right: 4px; animation: live-pulse 1.4s ease-in-out infinite; }
     @keyframes live-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+    .final-badge { background: rgba(0,151,107,0.12); color: var(--green); }
+    .tracker-box { border-radius: var(--radius); padding: 16px 18px; border: 1px solid; }
+    .tracker-box-live { background: rgba(232,64,64,0.04); border-color: rgba(232,64,64,0.25); }
+    .tracker-box-final { background: rgba(0,151,107,0.04); border-color: rgba(0,151,107,0.3); }
     .gw-badge-select { font-size: 11px; font-weight: 600; padding: 2px 26px 2px 10px; border-radius: 100px; background-color: rgba(26,111,255,0.1); border: 1px solid transparent; color: var(--accent); width: auto; }
     .gw-badge-select:hover { border-color: var(--accent2); }
     .lb-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
@@ -271,16 +275,21 @@
   <!-- Live Tracker — provisional, computed from live FPL data, NOT the
        official confirmed leaderboard (that only updates when admin runs
        Score Calculator after the GW is done). -->
-  <div class="section-title" style="margin-top:28px;">Live Tracker <span class="section-badge live-badge"><span class="live-dot"></span>Provisional</span></div>
-  <p class="input-hint" style="margin-bottom:10px;">Sementara — final akan based on admin confirmation ketika semua sudah final.</p>
-  <div id="live-tracker">
-    <div class="feed-loading"><div class="feed-spinner"></div>Loading live standings...</div>
+  <div class="tracker-box tracker-box-live" style="margin-top:28px;">
+    <div class="section-title" style="margin:0 0 4px;">Live Tracker <span class="section-badge live-badge"><span class="live-dot"></span>BELUM FINAL</span></div>
+    <p class="input-hint" style="margin-bottom:10px;">Sementara — final akan based on admin confirmation ketika semua sudah final.</p>
+    <div id="live-tracker">
+      <div class="feed-loading"><div class="feed-spinner"></div>Loading live standings...</div>
+    </div>
   </div>
 
   <!-- Leaderboard (always visible) -->
-  <div class="section-title" style="margin-top:28px;">Leaderboard <select id="view-gw-select-lb" class="gw-badge-select" onchange="onViewGWChange(this.value)"></select></div>
-  <div id="leaderboard">
-    <div class="feed-loading"><div class="feed-spinner"></div>Loading leaderboard...</div>
+  <div class="tracker-box tracker-box-final" style="margin-top:20px;">
+    <div class="section-title" style="margin:0 0 4px;">🏆 Final Leaderboard <select id="view-gw-select-lb" class="gw-badge-select" onchange="onViewGWChange(this.value)"></select> <span class="section-badge final-badge">KEPUTUSAN FINAL</span></div>
+    <p class="input-hint" style="margin-bottom:10px;">Keputusan final setelah data semua fix (dikonfirmasi admin).</p>
+    <div id="leaderboard">
+      <div class="feed-loading"><div class="feed-spinner"></div>Loading leaderboard...</div>
+    </div>
   </div>
 </div>
 
