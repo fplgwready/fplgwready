@@ -271,17 +271,15 @@ function fmt(n) { if (!n && n !== 0) return '—'; return n.toLocaleString(); }
 // moved this GW is shown as certain (real FPL data); otherwise this is our
 // own relative estimate from net-transfer momentum vs today's biggest
 // mover — not FPL's real (unpublished) threshold.
-// Forward-looking: how likely this player is to move price NEXT — not
-// whether it already has. Estimated from net transfers today as a share
-// of the single biggest mover — a momentum reading, not an official
-// forecast (FPL doesn't publish the real threshold).
+// Just a direction, no invented percentage/threshold — based on today's
+// net transfers relative to the day's biggest mover.
 function priceStatus(p, maxSwing) {
   const net = (p.transfers_in_event || 0) - (p.transfers_out_event || 0);
   if (!net || !maxSwing) return { dir: 'flat', progressLabel: '' };
-  const pct = Math.round(Math.min(100, Math.abs(net) / maxSwing * 100));
-  if (pct < 5) return { dir: 'flat', progressLabel: '' };
+  const pct = Math.abs(net) / maxSwing * 100;
+  if (pct < 15) return { dir: 'flat', progressLabel: '' };
   const dir = net > 0 ? 'up' : 'down';
-  return { dir, progressLabel: `${dir === 'up' ? '▲ +' : '▼ -'}${pct}%` };
+  return { dir, progressLabel: dir === 'up' ? '▲ Mungkin naik' : '▼ Mungkin turun' };
 }
 
 async function fetchWithFallback(url) {
