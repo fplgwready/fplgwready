@@ -278,7 +278,10 @@ function priceStatus(p) {
   const delta = (p.cost_change_event || 0) / 10;
   if (delta !== 0) {
     const dir = delta > 0 ? 'up' : 'down';
-    return { dir, progressLabel: `${dir === 'up' ? '▲ +' : '▼ '}£${Math.abs(delta).toFixed(1)}m` };
+    const currentPrice = p.now_cost / 10;
+    const prevPrice = currentPrice - delta;
+    const pct = prevPrice > 0 ? Math.abs(delta / prevPrice) * 100 : 0;
+    return { dir, progressLabel: `${dir === 'up' ? '▲ +' : '▼ -'}${pct.toFixed(1)}%` };
   }
   return { dir: 'flat', progressLabel: '' };
 }

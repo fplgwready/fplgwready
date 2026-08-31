@@ -235,7 +235,9 @@ function fixturesHTML(teamId) {
 function priceStatus(p) {
   if (p.delta_f !== 0) {
     const dir = p.delta_f > 0 ? 'up' : 'down';
-    return { dir, progressLabel: `${dir === 'up' ? '▲ +' : '▼ '}£${Math.abs(p.delta_f).toFixed(1)}m` };
+    const prevPrice = p.price_f - p.delta_f;
+    const pct = prevPrice > 0 ? Math.abs(p.delta_f / prevPrice) * 100 : 0;
+    return { dir, progressLabel: `${dir === 'up' ? '▲ +' : '▼ -'}${pct.toFixed(1)}%` };
   }
   return { dir: 'flat', progressLabel: '—' };
 }
