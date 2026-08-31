@@ -819,6 +819,19 @@ async function loadLiveTracker() {
   if (!SB_KEY || !viewGW) return;
   el.innerHTML = '<div class="feed-loading"><div class="feed-spinner"></div>Loading live standings...</div>';
 
+  // Admin controls this per GW — while off, don't even fetch picks, so
+  // nobody's predictions are exposed while others can still submit.
+  try {
+    const status = await fetch(`/api/challenge-status?gw=${viewGW}`).then(r => r.json());
+    if (!status.live_tracker_enabled) {
+      el.innerHTML = '<div class="feed-empty">🔒 Live Tracker belum diaktifkan admin untuk GW ini.</div>';
+      return;
+    }
+  } catch(e) {
+    el.innerHTML = '<div class="feed-empty">🔒 Live Tracker belum tersedia untuk GW ini.</div>';
+    return;
+  }
+
   try {
     const [entries, boot, liveData] = await Promise.all([
       sbSelect('challenge_entries', { gw: `eq.${viewGW}`, select: 'fpl_id,manager_name,game_type,prediction,created_at', limit: 5000 }),

@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     const pw = req.headers['x-admin-password'];
     if (!pw || pw !== process.env.ADMIN_PASSWORD) return res.status(401).json({ error: 'Unauthorized' });
-    const { gw, is_open, is_current } = req.body || {};
+    const { gw, is_open, is_current, live_tracker_enabled } = req.body || {};
     if (!gw) return res.status(400).json({ error: 'gw required' });
 
     if (is_current) {
@@ -21,6 +21,7 @@ export default async function handler(req, res) {
     const payload = { gw: parseInt(gw) };
     if (is_open !== undefined) payload.is_open = !!is_open;
     if (is_current !== undefined) payload.is_current = !!is_current;
+    if (live_tracker_enabled !== undefined) payload.live_tracker_enabled = !!live_tracker_enabled;
 
     const r = await fetch(`${SB_URL}/rest/v1/challenge_config?on_conflict=gw`, {
       method: 'POST',
@@ -38,10 +39,10 @@ export default async function handler(req, res) {
     try {
       const r = await fetch(`${SB_URL}/rest/v1/challenge_config?is_current=eq.true&select=*&limit=1`, { headers: base });
       const rows = r.ok ? await r.json() : [];
-      if (rows.length) return res.json({ gw: rows[0].gw, is_open: rows[0].is_open });
-      return res.json({ gw: 1, is_open: true });
+      if (rows.length) return res.json({ gw: rows[0].gw, is_open: rows[0].is_open, live_tracker_enabled: !!rows[0].live_tracker_enabled });
+      return res.json({ gw: 1, is_open: true, live_tracker_enabled: false });
     } catch (e) {
-      return res.json({ gw: 1, is_open: true });
+      return res.json({ gw: 1, is_open: true, live_tracker_enabled: false });
     }
   }
 
@@ -51,8 +52,9 @@ export default async function handler(req, res) {
     const rows = r.ok ? await r.json() : [];
     const is_open = rows.length > 0 ? rows[0].is_open : true;
     const is_current = rows.length > 0 ? !!rows[0].is_current : false;
-    res.json({ gw: parseInt(gw), is_open, is_current });
+    const live_tracker_enabled = rows.length > 0 ? !!rows[0].live_tracker_enabled : false;
+    res.json({ gw: parseInt(gw), is_open, is_current, live_tracker_enabled });
   } catch (e) {
-    res.json({ gw: parseInt(gw), is_open: true, is_current: false });
+    res.json({ gw: parseInt(gw), is_open: true, is_current: false, live_tracker_enabled: false });
   }
 }

@@ -99,6 +99,13 @@
         <div class="field-group" style="justify-content:flex-end;"><label class="input-label">Current Status</label><div id="cfg-status-display" style="font-size:16px;font-weight:800;color:var(--muted);padding-top:4px;">—</div></div>
         <div><button class="btn btn-full" id="cfg-current-btn" onclick="setCurrentGW()">⭐ Set as Shown GW</button></div>
         <div><button class="btn btn-full" id="cfg-toggle-btn" onclick="toggleChallengeStatus()" style="display:none;">Toggle →</button></div>
+        <div class="field-group span2" style="border-top:1px solid var(--border);padding-top:14px;margin-top:2px;flex-direction:row;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <div>
+            <label class="input-label" style="margin-bottom:2px;">Live Tracker (public, provisional standings)</label>
+            <div id="cfg-live-status" style="font-size:14px;font-weight:700;color:var(--muted);">—</div>
+          </div>
+          <button class="btn" id="cfg-live-toggle-btn" onclick="toggleLiveTracker()" style="display:none;">Toggle →</button>
+        </div>
       </div>
       <div class="error-msg" id="cfg-error"></div><div class="success-msg" id="cfg-success"></div>
     </div>
@@ -246,8 +253,9 @@ async function loadChallengeStatus() {
   document.getElementById('cfg-status-display').textContent = 'Loading...';
   try {
     const data = await adminFetch(`/api/challenge-status?gw=${gw}`);
-    challengeStatusData = { gw, is_open: data.is_open, is_current: data.is_current };
+    challengeStatusData = { gw, is_open: data.is_open, is_current: data.is_current, live_tracker_enabled: !!data.live_tracker_enabled };
     updateChallengeStatusUI(data.is_open, data.is_current);
+    updateLiveTrackerUI(challengeStatusData.live_tracker_enabled);
   } catch(e) { err.textContent = e.message || 'Could not load status.'; err.style.display = 'block'; }
 }
 
@@ -262,6 +270,16 @@ function updateChallengeStatusUI(is_open, is_current) {
   t.className = `btn btn-full ${is_open ? 'btn-red' : 'btn-green'}`;
   c.disabled = !!is_current;
   c.textContent = is_current ? '⭐ Currently Shown' : '⭐ Set as Shown GW';
+}
+
+function updateLiveTrackerUI(enabled) {
+  const d = document.getElementById('cfg-live-status');
+  const t = document.getElementById('cfg-live-toggle-btn');
+  d.textContent = enabled ? '🟢 ON — visible to everyone' : '⚪ OFF — hidden (picks stay secret)';
+  d.style.color = enabled ? 'var(--green)' : 'var(--muted)';
+  t.style.display = 'inline-block';
+  t.textContent = enabled ? 'Turn Off ×' : 'Turn On ✓';
+  t.className = `btn btn-sm ${enabled ? 'btn-red' : 'btn-green'}`;
 }
 
 async function toggleChallengeStatus() {
@@ -279,6 +297,23 @@ async function toggleChallengeStatus() {
     ok.textContent = `✓ GW ${challengeStatusData.gw} submissions are now ${newOpen ? 'OPEN' : 'CLOSED'}.`;
     ok.style.display = 'block';
   } catch(e) { err.textContent = e.message || 'Could not update status.'; err.style.display = 'block'; btn.disabled = false; updateChallengeStatusUI(challengeStatusData.is_open, challengeStatusData.is_current); }
+}
+
+async function toggleLiveTracker() {
+  if (!challengeStatusData) return;
+  const btn = document.getElementById('cfg-live-toggle-btn');
+  const err = document.getElementById('cfg-error');
+  const ok = document.getElementById('cfg-success');
+  err.style.display = 'none'; ok.style.display = 'none';
+  const newEnabled = !challengeStatusData.live_tracker_enabled;
+  btn.disabled = true; btn.textContent = 'Updating...';
+  try {
+    await adminFetch('/api/challenge-status', { method: 'POST', body: JSON.stringify({ gw: challengeStatusData.gw, live_tracker_enabled: newEnabled }) });
+    challengeStatusData.live_tracker_enabled = newEnabled;
+    updateLiveTrackerUI(newEnabled);
+    ok.textContent = `✓ Live Tracker for GW ${challengeStatusData.gw} is now ${newEnabled ? 'ON' : 'OFF'}.`;
+    ok.style.display = 'block';
+  } catch(e) { err.textContent = e.message || 'Could not update Live Tracker.'; err.style.display = 'block'; btn.disabled = false; updateLiveTrackerUI(challengeStatusData.live_tracker_enabled); }
 }
 
 async function setCurrentGW() {
