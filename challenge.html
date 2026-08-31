@@ -84,6 +84,9 @@
     .prize-note { font-size: 12px; color: var(--muted); margin-top: 3px; }
     .section-title { font-size: 16px; font-weight: 700; margin: 16px 0 12px; display: flex; align-items: center; gap: 8px; }
     .section-badge { font-size: 11px; padding: 2px 9px; border-radius: 100px; background: rgba(26,111,255,0.1); color: var(--accent); font-weight: 600; }
+    .live-badge { background: rgba(232,64,64,0.1); color: var(--red); }
+    .live-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--red); margin-right: 4px; animation: live-pulse 1.4s ease-in-out infinite; }
+    @keyframes live-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
     .gw-badge-select { font-size: 11px; font-weight: 600; padding: 2px 26px 2px 10px; border-radius: 100px; background-color: rgba(26,111,255,0.1); border: 1px solid transparent; color: var(--accent); width: auto; }
     .gw-badge-select:hover { border-color: var(--accent2); }
     .lb-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 8px rgba(108,92,231,0.05); }
@@ -263,6 +266,15 @@
   <div class="section-title">Latest Articles <span class="section-badge">📰 Expert Insights</span></div>
   <div id="articles-promo" class="lb-card">
     <div class="feed-loading"><div class="feed-spinner"></div>Loading articles...</div>
+  </div>
+
+  <!-- Live Tracker — provisional, computed from live FPL data, NOT the
+       official confirmed leaderboard (that only updates when admin runs
+       Score Calculator after the GW is done). -->
+  <div class="section-title" style="margin-top:28px;">Live Tracker <span class="section-badge live-badge"><span class="live-dot"></span>Provisional</span></div>
+  <p class="input-hint" style="margin-bottom:10px;">Estimated standings from real-time FPL data — bonus points and defensive contribution can still change. Not the final result.</p>
+  <div id="live-tracker">
+    <div class="feed-loading"><div class="feed-spinner"></div>Loading live standings...</div>
   </div>
 
   <!-- Leaderboard (always visible) -->
@@ -613,7 +625,10 @@ async function onViewGWChange(newGW) {
   document.getElementById('score-check-gw-num').textContent = viewGW;
   document.getElementById('score-check-result').style.display = 'none';
   document.getElementById('score-check-error').style.display = 'none';
-  await Promise.all([loadViewBracketsAndPairs(viewGW), loadLeaderboard()]);
+  // Live Tracker needs viewCaptainBrackets/viewThisOrThatPairs for the new
+  // GW before it can score anything, so that has to finish first.
+  await loadViewBracketsAndPairs(viewGW);
+  await Promise.all([loadLeaderboard(), loadLiveTracker()]);
 }
 
 // ── Submit ────────────────────────────────────────────────
@@ -750,6 +765,85 @@ async function loadLeaderboard() {
   }
 }
 
+// ── Live Tracker ──────────────────────────────────────────
+// Provisional standings computed client-side from live FPL data (current
+// bonus points, defensive contribution), using the same scoring rules as
+// the admin's Score Calculator — but nobody has to type anything in for
+// it. This is NOT the official leaderboard: bonus points can still change
+// until the match is fully confirmed, and admin's Confirm step is what
+// actually writes final scores to challenge_entries.
+async function loadLiveTracker() {
+  const el = document.getElementById('live-tracker');
+  if (!SB_KEY || !viewGW) return;
+  el.innerHTML = '<div class="feed-loading"><div class="feed-spinner"></div>Loading live standings...</div>';
+
+  try {
+    const [entries, boot, liveData] = await Promise.all([
+      sbSelect('challenge_entries', { gw: `eq.${viewGW}`, select: 'fpl_id,manager_name,game_type,prediction,created_at', limit: 5000 }),
+      fetch('/api/fpl?endpoint=bootstrap-static/').then(r => r.json()),
+      fetch(`/api/fpl?endpoint=event/${viewGW}/live/`).then(r => r.json()),
+    ]);
+
+    if (!entries?.length) {
+      el.innerHTML = '<div class="feed-empty">No entries yet for this GW.</div>';
+      return;
+    }
+
+    const nameToId = {};
+    boot.elements.forEach(p => { nameToId[p.web_name] = p.id; });
+    const liveStats = {};
+    liveData.elements.forEach(e => { liveStats[e.id] = e.stats; });
+    const ptsOf = name => liveStats[nameToId[name]]?.total_points ?? 0;
+    const defconOf = name => liveStats[nameToId[name]]?.defensive_contribution ?? 0;
+
+    let topScorerPts = 0;
+    liveData.elements.forEach(e => { if (e.stats.total_points > topScorerPts) topScorerPts = e.stats.total_points; });
+
+    const byUser = {};
+    entries.forEach(e => {
+      if (!byUser[e.fpl_id]) byUser[e.fpl_id] = { fpl_id: e.fpl_id, manager_name: e.manager_name, total: 0, earliest: e.created_at };
+      const u = byUser[e.fpl_id];
+      if (e.created_at < u.earliest) u.earliest = e.created_at;
+
+      let score = 0;
+      if (e.game_type === 'top_score') {
+        score = topScorerPts > 0 ? Math.round((ptsOf(e.prediction) / topScorerPts) * 40) : 0;
+      } else if (e.game_type.startsWith('captain_bracket_')) {
+        const slot = parseInt(e.game_type.split('_').pop()) - 1;
+        const bp = viewCaptainBrackets[slot];
+        if (bp) score = getBracket(ptsOf(bp.player_name)) === e.prediction ? 15 : 0;
+      } else if (e.game_type.startsWith('this_or_that_')) {
+        const idx = parseInt(e.game_type.split('_').pop()) - 1;
+        const pair = viewThisOrThatPairs[idx];
+        if (pair) {
+          const useDefcon = TOT_CRITERIA[idx] === 'DefCon';
+          const aVal = useDefcon ? defconOf(pair.player_a) : ptsOf(pair.player_a);
+          const bVal = useDefcon ? defconOf(pair.player_b) : ptsOf(pair.player_b);
+          if (aVal === bVal) score = 10;
+          else if (aVal > bVal && e.prediction === pair.player_a) score = 10;
+          else if (bVal > aVal && e.prediction === pair.player_b) score = 10;
+        }
+      }
+      u.total += score;
+    });
+
+    const ranked = Object.values(byUser).sort((a, b) => b.total - a.total || new Date(a.earliest) - new Date(b.earliest));
+    const top = ranked.slice(0, 20);
+    const medals = ['🥇', '🥈', '🥉'];
+
+    const rowsHTML = top.map((u, i) => {
+      const rank = i < 3
+        ? `<span class="lb-rank">${medals[i]}</span>`
+        : `<span class="lb-rank"><span class="lb-rank-num">${i + 1}</span></span>`;
+      return `<div class="lb-row">${rank}<div class="lb-name">${escHtml(u.manager_name)}</div><div class="lb-score">${u.total} <span class="lb-score-label">pts</span></div></div>`;
+    }).join('');
+
+    el.innerHTML = `<div class="lb-card">${rowsHTML}</div>`;
+  } catch(e) {
+    el.innerHTML = `<div class="feed-empty">⚠️ ${e.message}</div>`;
+  }
+}
+
 function fmtTime(iso) {
   if (!iso) return '';
   // Force UTC if the string has no explicit zone/offset, so this can't be
@@ -830,6 +924,7 @@ async function loadArticlesPromo() {
 
   if (supabaseErr) {
     document.getElementById('leaderboard').innerHTML = `<div class="feed-empty">⚠️ Database error: ${supabaseErr}</div>`;
+    document.getElementById('live-tracker').innerHTML = `<div class="feed-empty">⚠️ Database error: ${supabaseErr}</div>`;
     document.getElementById('tot-container').innerHTML = '<div class="tot-coming">⚠️ Database unavailable</div>';
   } else {
     await Promise.all([loadThisOrThat(), loadCaptainBrackets(), loadLeaderboard()]);
@@ -837,8 +932,13 @@ async function loadArticlesPromo() {
     // instead of firing a duplicate pair of queries.
     viewCaptainBrackets = captainBrackets;
     viewThisOrThatPairs = thisOrThatPairs;
+    loadLiveTracker();
   }
 })();
+
+// Keep the Live Tracker fresh (bonus points, defensive contribution tick
+// up during a live GW) without a manual reload.
+setInterval(() => { if (viewGW) loadLiveTracker(); }, 60 * 1000);
 </script>
 <button id="fb-widget-btn" onclick="toggleFeedbackWidget(true)" title="Send Feedback" aria-label="Send Feedback"><span id="fb-widget-btn-icon">💬</span><span id="fb-widget-btn-label">Give Feedback</span></button>
 <div id="fb-widget-overlay" onclick="if(event.target===this)toggleFeedbackWidget(false)">
