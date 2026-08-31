@@ -266,25 +266,21 @@ function makeJerseyEl(teamId) {
 }
 
 function fmt(n) { if (!n && n !== 0) return '—'; return n.toLocaleString(); }
-function escAttr(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 
 // Same honest methodology as the Players page: a price that's already
 // moved this GW is shown as certain (real FPL data); otherwise this is our
 // own relative estimate from net-transfer momentum vs today's biggest
 // mover — not FPL's real (unpublished) threshold.
-function priceStatus(p, maxSwing) {
+// Pure real data, same as the official FPL app — no guessed "likely to
+// rise" percentage. cost_change_event is FPL's own record of whether this
+// player's price has actually moved this GW.
+function priceStatus(p) {
   const delta = (p.cost_change_event || 0) / 10;
   if (delta !== 0) {
     const dir = delta > 0 ? 'up' : 'down';
-    return { dir, statusLabel: dir === 'up' ? 'Confirmed Rise' : 'Confirmed Fall', progressLabel: `${dir === 'up' ? '▲ +' : '▼ '}£${Math.abs(delta).toFixed(1)}m` };
+    return { dir, progressLabel: `${dir === 'up' ? '▲ +' : '▼ '}£${Math.abs(delta).toFixed(1)}m` };
   }
-  const net = (p.transfers_in_event || 0) - (p.transfers_out_event || 0);
-  if (!net || !maxSwing) return { dir: 'flat', statusLabel: 'Stable', progressLabel: '' };
-  const pct = Math.round(Math.min(100, Math.abs(net) / maxSwing * 100));
-  const dir = net > 0 ? 'up' : 'down';
-  if (pct < 15) return { dir: 'flat', statusLabel: 'Stable', progressLabel: '' };
-  const strength = pct >= 70 ? 'Very Likely to' : 'Likely to';
-  return { dir, statusLabel: `${strength} ${dir === 'up' ? 'Rise' : 'Fall'}`, progressLabel: `${dir === 'up' ? '▲ ' : '▼ '}${pct}%` };
+  return { dir: 'flat', progressLabel: '' };
 }
 
 async function fetchWithFallback(url) {
@@ -305,17 +301,11 @@ gwSelect.value = 38;
 
 let currentGW = 38, currentEntry = null, currentHistory = null, playerMap = {}, currentId = null;
 let realCurrentGW = 38;
-let maxTransferSwing = 1;
-
-function computeMaxSwing() {
-  maxTransferSwing = Math.max(1, ...Object.values(playerMap).map(p => Math.abs((p.transfers_in_event || 0) - (p.transfers_out_event || 0))));
-}
 
 async function detectCurrentGW() {
   try {
     const boot = await fetchWithFallback('https://fantasy.premierleague.com/api/bootstrap-static/');
     boot.elements.forEach(p => { playerMap[p.id] = p; });
-    computeMaxSwing();
     const cur = boot.events.find(e => e.is_current) || boot.events.find(e => e.is_next);
     return cur ? cur.id : 38;
   } catch(e) { return 38; }
@@ -340,7 +330,6 @@ async function fetchTeam() {
     if (!Object.keys(playerMap).length) {
       const boot = await fetchWithFallback('https://fantasy.premierleague.com/api/bootstrap-static/');
       boot.elements.forEach(p => { playerMap[p.id] = p; });
-      computeMaxSwing();
     }
     const [entry, hist] = await Promise.all([
       fetchWithFallback(`https://fantasy.premierleague.com/api/entry/${id}/`),
@@ -521,9 +510,9 @@ function makePlayerCard(pick, player, liveMap, isBench) {
   nameEl.textContent = smartTruncateName(player.web_name);
   infoEl.appendChild(nameEl);
 
-  const lk = priceStatus(player, maxTransferSwing);
+  const lk = priceStatus(player);
   const priceHTML = lk.dir !== 'flat'
-    ? `<span class="${lk.dir === 'up' ? 'stat-price-up' : 'stat-price-down'}" title="${escAttr(lk.statusLabel)}">${lk.progressLabel}</span>`
+    ? `<span class="${lk.dir === 'up' ? 'stat-price-up' : 'stat-price-down'}">${lk.progressLabel}</span>`
     : '';
 
   if (priceHTML) {

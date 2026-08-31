@@ -80,17 +80,10 @@
     .form-high { color: #00976B; font-weight: 600; }
     .form-mid { color: #C47F00; font-weight: 500; }
     .empty { text-align: center; padding: 60px 0; color: var(--muted); }
-    .status-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 5px 10px; border-radius: 6px; white-space: nowrap; }
-    .status-badge.rise-strong { background: #00976B; color: #fff; }
-    .status-badge.rise-weak { background: rgba(0,151,107,0.12); color: #00976B; border: 1px solid rgba(0,151,107,0.35); }
-    .status-badge.fall-strong { background: #E84040; color: #fff; }
-    .status-badge.fall-weak { background: rgba(232,64,64,0.12); color: #E84040; border: 1px solid rgba(232,64,64,0.35); }
-    .status-badge.flat { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); font-weight: 500; }
     .progress-pill { display: inline-block; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); white-space: nowrap; }
     .progress-pill.up { color: #00976B; border-color: rgba(0,151,107,0.35); }
     .progress-pill.down { color: #E84040; border-color: rgba(232,64,64,0.35); }
     .progress-pill.flat { color: var(--muted); font-weight: 500; }
-    .est-note { font-size: 12px; color: var(--muted); margin: -10px 0 18px; }
     .fixture-row { display: flex; gap: 4px; flex-wrap: wrap; max-width: 150px; }
     .fixture-badge { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
     .fixture-none { color: var(--muted); font-size: 12px; }
@@ -126,8 +119,6 @@
     <div class="page-title">Players 📋</div>
     <div class="player-count" id="player-count">Loading...</div>
   </div>
-  <p class="est-note">💡 "Status"/"Progress" before a price actually changes are our own estimate from transfer momentum — FPL doesn't publish an official prediction number, so these won't match other apps exactly.</p>
-
   <div class="filters">
     <div class="filter-group">
       <button class="filter-btn active" onclick="filterPos('ALL', this)">All</button>
@@ -168,7 +159,6 @@
         <tr>
           <th style="width:200px">Player</th>
           <th onclick="sortBy('price')" id="th-price">Price <span class="sort-arrow">↕</span></th>
-          <th>Status</th>
           <th onclick="sortBy('likely')" id="th-likely">Progress <span class="sort-arrow">↕</span></th>
           <th>Next 3 GW</th>
           <th onclick="sortBy('form')" id="th-form">Form <span class="sort-arrow">↕</span></th>
@@ -239,39 +229,15 @@ function fixturesHTML(teamId) {
   }).join('')}</div>`;
 }
 
-// FPL never publishes an official "likely to rise/fall" number — third-party
-// apps that show one (like fplstatistics/LiveFPL) calibrate it privately
-// against years of observed price changes, which we don't have. So:
-// - If a price has ALREADY changed this GW, that's real data from FPL.
-// - Otherwise "Progress" is our own RELATIVE estimate: how big this
-//   player's net transfer swing is compared to today's single biggest
-//   mover, capped at 100%. It's a rough directional signal, not FPL's
-//   real threshold — labelled as an estimate in the UI on purpose.
-function priceStatus(p, maxSwing) {
+// Pure real data, same as the official FPL app — no guessed "likely to
+// rise" percentage. cost_change_event is FPL's own record of whether this
+// player's price has actually moved this GW.
+function priceStatus(p) {
   if (p.delta_f !== 0) {
     const dir = p.delta_f > 0 ? 'up' : 'down';
-    return {
-      dir, pct: 999,
-      statusLabel: dir === 'up' ? 'Confirmed Rise' : 'Confirmed Fall',
-      badgeClass: dir === 'up' ? 'rise-strong' : 'fall-strong',
-      progressLabel: `${dir === 'up' ? '+' : '-'}£${Math.abs(p.delta_f).toFixed(1)}m`,
-    };
+    return { dir, progressLabel: `${dir === 'up' ? '▲ +' : '▼ '}£${Math.abs(p.delta_f).toFixed(1)}m` };
   }
-  const net = (p.transfers_in_event || 0) - (p.transfers_out_event || 0);
-  if (!net || !maxSwing) {
-    return { dir: 'flat', pct: 0, statusLabel: 'Stable', badgeClass: 'flat', progressLabel: '—' };
-  }
-  const pct = Math.round(Math.min(100, Math.abs(net) / maxSwing * 100));
-  const dir = net > 0 ? 'up' : 'down';
-  let statusLabel, badgeClass;
-  if (pct >= 70) { statusLabel = dir === 'up' ? 'Very Likely to Rise' : 'Very Likely to Fall'; badgeClass = dir === 'up' ? 'rise-strong' : 'fall-strong'; }
-  else if (pct >= 30) { statusLabel = dir === 'up' ? 'Likely to Rise' : 'Likely to Fall'; badgeClass = dir === 'up' ? 'rise-weak' : 'fall-weak'; }
-  else { statusLabel = 'Unlikely to Change'; badgeClass = 'flat'; }
-  return { dir, pct, statusLabel, badgeClass, progressLabel: `${dir === 'up' ? '+' : '-'}${pct}%` };
-}
-
-function statusBadgeHTML(lk) {
-  return `<span class="status-badge ${lk.badgeClass}">${lk.statusLabel}</span>`;
+  return { dir: 'flat', progressLabel: '—' };
 }
 
 function progressPillHTML(lk) {
@@ -338,7 +304,7 @@ function renderTable() {
     return true;
   });
 
-  const sortKeyMap = { eo:'eo_f', form:'form_f', price:'price_f', likely:'likely_signed' };
+  const sortKeyMap = { eo:'eo_f', form:'form_f', price:'price_f', likely:'delta_f' };
   const sortKey = sortKeyMap[currentSort] || 'eo_f';
   filtered.sort((a,b) => sortAsc ? a[sortKey]-b[sortKey] : b[sortKey]-a[sortKey]);
 
@@ -362,7 +328,6 @@ function renderTable() {
     tr.innerHTML = `
       <td><div class="player-cell">${jerseyHTML(p.team,teamShort)}<div><div class="player-name">${p.web_name} <span class="pos-badge ${POS_CLASS[p.element_type]}">${POS_MAP[p.element_type]}</span></div><div class="player-team">${team?.name||'—'}</div></div></div></td>
       <td><span class="price-val">£${p.price_f.toFixed(1)}m</span></td>
-      <td>${statusBadgeHTML(p.likely)}</td>
       <td>${progressPillHTML(p.likely)}</td>
       <td>${fixturesHTML(p.team)}</td>
       <td><span class="${formClass}">${p.form_f.toFixed(1)}</span></td>
@@ -403,11 +368,7 @@ async function loadPlayers() {
       delta_f: (p.cost_change_event||0)/10,
       teamData: teamMap[p.team],
     }));
-    const maxSwing = Math.max(1, ...allPlayers.map(p => Math.abs((p.transfers_in_event||0) - (p.transfers_out_event||0))));
-    allPlayers.forEach(p => {
-      p.likely = priceStatus(p, maxSwing);
-      p.likely_signed = p.likely.dir === 'up' ? p.likely.pct : p.likely.dir === 'down' ? -p.likely.pct : 0;
-    });
+    allPlayers.forEach(p => { p.likely = priceStatus(p); });
     document.getElementById('loading').style.display = 'none';
     document.getElementById('table-wrap').style.display = 'block';
     renderTable();
