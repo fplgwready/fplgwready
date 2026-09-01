@@ -308,6 +308,11 @@ let totSelections = {};
 let captainBrackets = [];
 let bracketSelections = {};
 const BRACKETS = ['1-4', '5-8', '9-12', '13+'];
+// "1-4" is stored/matched as-is (existing predictions already in the DB
+// use this value) — a player can score 0 or even negative, so the label
+// shown to users says "≤4" instead of implying a 1-4 floor.
+const BRACKET_LABELS = { '1-4': '≤4' };
+function bracketLabel(v) { return BRACKET_LABELS[v] || v; }
 
 // The GW the visitor is browsing on the Leaderboard / Check Your Score —
 // separate from currentGW, which stays tied to admin's actual open GW for
@@ -453,7 +458,7 @@ function renderCaptainBrackets() {
     html += `<div class="bracket-row">
       <div class="bracket-player-name">${escHtml(cb.player_name)}</div>
       <div class="bracket-options">
-        ${BRACKETS.map(b => `<button class="bracket-btn" id="bracket-${i}-${b.replace('+','plus')}" onclick="selectBracket(${i},'${b}')">${b} pts</button>`).join('')}
+        ${BRACKETS.map(b => `<button class="bracket-btn" id="bracket-${i}-${b.replace('+','plus')}" onclick="selectBracket(${i},'${b}')">${bracketLabel(b)} pts</button>`).join('')}
       </div>
     </div>`;
   });
@@ -532,10 +537,10 @@ function renderBreakdown(entries, opts = {}) {
     } else if (e.game_type.startsWith('captain_bracket_')) {
       const slot = parseInt(e.game_type.split('_').pop()) - 1;
       const bp = brackets[slot];
-      label = `👑 Captain Bracket — ${bp ? bp.player_name : `Slot ${slot + 1}`}: ${e.prediction}`; maxPts = 15;
+      label = `👑 Captain Bracket — ${bp ? bp.player_name : `Slot ${slot + 1}`}: ${bracketLabel(e.prediction)}`; maxPts = 15;
       if (gwResults && bp) {
         const actualPts = gwResults.captain_pts?.[bp.player_name];
-        if (actualPts != null) explain = `${escHtml(bp.player_name)} scored ${actualPts} pts → falls in the ${getBracket(actualPts)} bracket`;
+        if (actualPts != null) explain = `${escHtml(bp.player_name)} scored ${actualPts} pts → falls in the ${bracketLabel(getBracket(actualPts))} bracket`;
       }
     } else if (e.game_type.startsWith('this_or_that_')) {
       const idx = parseInt(e.game_type.split('_').pop()) - 1;
@@ -808,7 +813,7 @@ function picksSummary(picks) {
   const parts = [];
   if (picks.top_score) parts.push(`🥅 ${escHtml(picks.top_score)}`);
   const brackets = [picks.captain_bracket_1, picks.captain_bracket_2].filter(Boolean);
-  if (brackets.length) parts.push(`👑 ${brackets.map(escHtml).join('/')}`);
+  if (brackets.length) parts.push(`👑 ${brackets.map(b => escHtml(bracketLabel(b))).join('/')}`);
   const tot = [picks.this_or_that_1, picks.this_or_that_2, picks.this_or_that_3].filter(Boolean);
   if (tot.length) parts.push(`⚔️ ${tot.map(escHtml).join('/')}`);
   return parts.join('  ');

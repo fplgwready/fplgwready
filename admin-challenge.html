@@ -440,6 +440,9 @@ async function loadScoreData() {
 }
 
 function getBracket(pts) { if (pts >= 13) return '13+'; if (pts >= 9) return '9-12'; if (pts >= 5) return '5-8'; return '1-4'; }
+// "1-4" is stored/matched as-is (existing predictions use this value) —
+// a player can score 0 or negative, so the display label says "≤4".
+function bracketLabel(v) { return v === '1-4' ? '≤4' : v; }
 
 function renderScoreForm(data) {
   const saved = data.gw_results || null;
@@ -488,7 +491,7 @@ function previewScores() {
   const medals = ['🥇', '🥈', '🥉'];
   const previewEl = document.getElementById('score-preview-table');
   if (!ranked.length) { previewEl.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:14px;">No submissions to score.</div>'; }
-  else { previewEl.innerHTML = ranked.map((u, i) => { const rank = i < 3 ? medals[i] : `<span class="lb-rank-num">${i+1}</span>`; const g1 = u.game1 ? `G1: ${u.game1.score}pts (${escHtml(u.game1.pred)})` : 'G1: —'; const g2 = u.captain.length ? `G2: ${u.captain.map(c => c ? `${c.score}pts(${escHtml(c.pred)}→${c.correct})` : '—').join('+')}` : 'G2: —'; const g3 = u.tot.length ? `G3: ${u.tot.map(t => t ? `${t.score}pts` : '—').join('/')}` : 'G3: —'; return `<div class="lb-row"><div class="lb-rank">${rank}</div><div class="lb-name">${escHtml(u.name)}<div class="lb-name-sub">${g1} · ${g2} · ${g3}</div></div><div class="lb-score">${u.total} <span class="lb-score-label">pts</span></div></div>`; }).join(''); }
+  else { previewEl.innerHTML = ranked.map((u, i) => { const rank = i < 3 ? medals[i] : `<span class="lb-rank-num">${i+1}</span>`; const g1 = u.game1 ? `G1: ${u.game1.score}pts (${escHtml(u.game1.pred)})` : 'G1: —'; const g2 = u.captain.length ? `G2: ${u.captain.map(c => c ? `${c.score}pts(${escHtml(bracketLabel(c.pred))}→${bracketLabel(c.correct)})` : '—').join('+')}` : 'G2: —'; const g3 = u.tot.length ? `G3: ${u.tot.map(t => t ? `${t.score}pts` : '—').join('/')}` : 'G3: —'; return `<div class="lb-row"><div class="lb-rank">${rank}</div><div class="lb-name">${escHtml(u.name)}<div class="lb-name-sub">${g1} · ${g2} · ${g3}</div></div><div class="lb-score">${u.total} <span class="lb-score-label">pts</span></div></div>`; }).join(''); }
   document.getElementById('score-preview-badge').textContent = `GW ${gw}`;
   document.getElementById('score-preview-section').style.display = 'block';
   document.getElementById('score-success').style.display = 'none';
