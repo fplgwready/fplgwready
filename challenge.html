@@ -354,6 +354,28 @@ async function sbSelect(table, filters = {}) {
   return res.json();
 }
 
+// Supabase caps every response at 1000 rows (its db-max-rows setting) no
+// matter what `limit` filter we pass — a GW with >~167 participants
+// (>1000 challenge_entries rows) was silently missing everyone past that
+// on the Leaderboard, Check Your Score's rank, and the Live Tracker. Page
+// through with the Range header until a response comes back short.
+async function sbSelectAll(table, filters = {}) {
+  const url = new URL(`${SB_URL}/rest/v1/${table}`);
+  Object.entries(filters).forEach(([k, v]) => url.searchParams.set(k, v));
+  const pageSize = 1000;
+  let all = [];
+  let offset = 0;
+  while (true) {
+    const res = await fetch(url, { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, Range: `${offset}-${offset + pageSize - 1}` } });
+    if (!res.ok) throw new Error(`DB read failed: ${res.status}`);
+    const rows = await res.json();
+    all = all.concat(rows);
+    if (rows.length < pageSize) break;
+    offset += pageSize;
+  }
+  return all;
+}
+
 async function sbInsert(table, data) {
   const res = await fetch(`${SB_URL}/rest/v1/${table}`, {
     method: 'POST',
@@ -731,8 +753,8 @@ async function submitChallenge() {
 // Score so rank lookups use identical scoring/tie-break logic.
 async function computeRanking(gw) {
   const entries = await Promise.race([
-    sbSelect('challenge_entries', { gw: `eq.${gw}`, select: 'fpl_id,manager_name,score,created_at', order: 'created_at.asc', limit: 5000 }),
-    new Promise((_, rej) => setTimeout(() => rej(new Error('Leaderboard timeout')), 8000))
+    sbSelectAll('challenge_entries', { gw: `eq.${gw}`, select: 'fpl_id,manager_name,score,created_at', order: 'created_at.asc' }),
+    new Promise((_, rej) => setTimeout(() => rej(new Error('Leaderboard timeout')), 15000))
   ]);
 
   const byUser = {};
@@ -839,7 +861,7 @@ async function loadLiveTracker() {
 
   try {
     const [entries, boot, liveData] = await Promise.all([
-      sbSelect('challenge_entries', { gw: `eq.${viewGW}`, select: 'fpl_id,manager_name,game_type,prediction,created_at', limit: 5000 }),
+      sbSelectAll('challenge_entries', { gw: `eq.${viewGW}`, select: 'fpl_id,manager_name,game_type,prediction,created_at' }),
       fetch('/api/fpl?endpoint=bootstrap-static/').then(r => r.json()),
       fetch(`/api/fpl?endpoint=event/${viewGW}/live/`).then(r => r.json()),
     ]);

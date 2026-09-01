@@ -5,6 +5,27 @@ function getBracket(pts) {
   return '1-4';
 }
 
+// Supabase/PostgREST caps every response at 1000 rows (its db-max-rows
+// setting) no matter what `limit` we pass in the query string — a GW with
+// >~167 participants (>1000 challenge_entries rows, ~6 rows each) was
+// silently missing everyone past that in both the Score Calculator and,
+// critically, Confirm & Update Scores, so their score stayed 0 forever.
+// Page through with the Range header until a response comes back short.
+async function fetchAllRows(url, headers) {
+  const pageSize = 1000;
+  let all = [];
+  let offset = 0;
+  while (true) {
+    const r = await fetch(url, { headers: { ...headers, Range: `${offset}-${offset + pageSize - 1}` } });
+    if (!r.ok) throw new Error(`Fetch failed: ${r.status}`);
+    const rows = await r.json();
+    all = all.concat(rows);
+    if (rows.length < pageSize) break;
+    offset += pageSize;
+  }
+  return all;
+}
+
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   const pw = req.headers['x-admin-password'];
@@ -18,15 +39,18 @@ export default async function handler(req, res) {
     const { gw } = req.query;
     if (!gw) return res.status(400).json({ error: 'gw required' });
 
-    const [entriesRes, pairsRes, bracketsRes, resultsRes] = await Promise.all([
-      fetch(`${SB_URL}/rest/v1/challenge_entries?gw=eq.${gw}&select=*&order=created_at.asc&limit=2000`, { headers: base }),
-      fetch(`${SB_URL}/rest/v1/this_or_that?gw=eq.${gw}&order=pair_num.asc.nullslast,id.asc&limit=3`, { headers: base }),
-      fetch(`${SB_URL}/rest/v1/captain_brackets?gw=eq.${gw}&order=slot.asc&limit=2`, { headers: base }),
-      fetch(`${SB_URL}/rest/v1/challenge_gw_results?gw=eq.${gw}&select=*&limit=1`, { headers: base })
-    ]);
+    let entries, pairsRes, bracketsRes, resultsRes;
+    try {
+      [entries, pairsRes, bracketsRes, resultsRes] = await Promise.all([
+        fetchAllRows(`${SB_URL}/rest/v1/challenge_entries?gw=eq.${gw}&select=*&order=created_at.asc`, base),
+        fetch(`${SB_URL}/rest/v1/this_or_that?gw=eq.${gw}&order=pair_num.asc.nullslast,id.asc&limit=3`, { headers: base }),
+        fetch(`${SB_URL}/rest/v1/captain_brackets?gw=eq.${gw}&order=slot.asc&limit=2`, { headers: base }),
+        fetch(`${SB_URL}/rest/v1/challenge_gw_results?gw=eq.${gw}&select=*&limit=1`, { headers: base })
+      ]);
+    } catch (e) {
+      return res.status(500).json({ error: 'Could not fetch entries' });
+    }
 
-    if (!entriesRes.ok) return res.status(500).json({ error: 'Could not fetch entries' });
-    const entries = await entriesRes.json();
     const pairs = pairsRes.ok ? await pairsRes.json() : [];
     const captain_brackets = bracketsRes.ok ? await bracketsRes.json() : [];
     const resultsRows = resultsRes.ok ? await resultsRes.json() : [];
@@ -40,14 +64,17 @@ export default async function handler(req, res) {
     const { gw, top_scorer, top_scorer_pts, player_pts, captain_pts, tot_results } = req.body || {};
     if (!gw) return res.status(400).json({ error: 'gw required' });
 
-    const [entriesRes, pairsRes, bracketsRes] = await Promise.all([
-      fetch(`${SB_URL}/rest/v1/challenge_entries?gw=eq.${gw}&select=id,game_type,prediction&limit=2000`, { headers: base }),
-      fetch(`${SB_URL}/rest/v1/this_or_that?gw=eq.${gw}&order=pair_num.asc.nullslast,id.asc&limit=3`, { headers: base }),
-      fetch(`${SB_URL}/rest/v1/captain_brackets?gw=eq.${gw}&order=slot.asc&limit=2`, { headers: base })
-    ]);
+    let entries, pairsRes, bracketsRes;
+    try {
+      [entries, pairsRes, bracketsRes] = await Promise.all([
+        fetchAllRows(`${SB_URL}/rest/v1/challenge_entries?gw=eq.${gw}&select=id,game_type,prediction`, base),
+        fetch(`${SB_URL}/rest/v1/this_or_that?gw=eq.${gw}&order=pair_num.asc.nullslast,id.asc&limit=3`, { headers: base }),
+        fetch(`${SB_URL}/rest/v1/captain_brackets?gw=eq.${gw}&order=slot.asc&limit=2`, { headers: base })
+      ]);
+    } catch (e) {
+      return res.status(500).json({ error: 'Could not fetch entries' });
+    }
 
-    if (!entriesRes.ok) return res.status(500).json({ error: 'Could not fetch entries' });
-    const entries = await entriesRes.json();
     const pairs = pairsRes.ok ? await pairsRes.json() : [];
     const captainBrackets = bracketsRes.ok ? await bracketsRes.json() : [];
 
@@ -78,13 +105,22 @@ export default async function handler(req, res) {
       return { id: entry.id, score };
     });
 
-    await Promise.all(updates.map(({ id, score }) =>
-      fetch(`${SB_URL}/rest/v1/challenge_entries?id=eq.${id}`, {
-        method: 'PATCH',
-        headers: { ...base, Prefer: 'return=minimal' },
-        body: JSON.stringify({ score })
-      })
-    ));
+    // Firing 1000+ concurrent PATCH requests risks silent connection/rate-
+    // limit failures with no clear signal of who got missed — batch them
+    // and track which ones actually failed instead of assuming success.
+    const batchSize = 100;
+    let failed = 0;
+    for (let i = 0; i < updates.length; i += batchSize) {
+      const batch = updates.slice(i, i + batchSize);
+      const results = await Promise.allSettled(batch.map(({ id, score }) =>
+        fetch(`${SB_URL}/rest/v1/challenge_entries?id=eq.${id}`, {
+          method: 'PATCH',
+          headers: { ...base, Prefer: 'return=minimal' },
+          body: JSON.stringify({ score })
+        }).then(r => { if (!r.ok) throw new Error(`PATCH failed: ${r.status}`); })
+      ));
+      failed += results.filter(r => r.status === 'rejected').length;
+    }
 
     // Remember what was typed into the calculator so reloading this GW later
     // (to double-check or correct a result) doesn't start from a blank form.
@@ -102,7 +138,7 @@ export default async function handler(req, res) {
       })
     });
 
-    return res.json({ updated: updates.length });
+    return res.json({ updated: updates.length - failed, failed, total: updates.length });
   }
 
   res.status(405).json({ error: 'Method not allowed' });
