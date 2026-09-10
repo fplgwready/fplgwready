@@ -158,27 +158,52 @@ let sbUrl = '', sbAnonKey = '';
   } catch(e) { console.warn('Could not load Supabase config for image uploads'); }
 })();
 
+// Cover images were being uploaded straight from the file picker —
+// averaging ~2MB each (phone photos / uncompressed PNGs). With them
+// showing on every article-listing card across the site, that blew
+// through Supabase's Cached Egress quota (319% over) in about a month.
+// Resize + re-encode as JPEG client-side before upload; brings a typical
+// ~2MB cover down to ~80-130KB with no visible quality loss at card size.
+function compressImage(file, maxWidth = 1200, quality = 0.78) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxWidth / img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not compress image')), 'image/jpeg', quality);
+      URL.revokeObjectURL(img.src);
+    };
+    img.onerror = () => reject(new Error('Could not read image'));
+    img.src = URL.createObjectURL(file);
+  });
+}
+
 async function handleCoverUpload(input) {
   const file = input.files[0];
   if (!file) return;
   const status = document.getElementById('cover-status');
   const label = document.getElementById('cover-upload-label');
   if (!sbUrl || !sbAnonKey) { status.textContent = '⚠ Upload config unavailable'; status.style.color = 'var(--red)'; return; }
-  const ext = file.name.split('.').pop().toLowerCase();
-  const filename = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+  const filename = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.jpg`;
   label.style.pointerEvents = 'none'; label.style.opacity = '0.5';
-  status.textContent = 'Uploading...'; status.style.color = 'var(--muted)';
+  status.textContent = 'Compressing...'; status.style.color = 'var(--muted)';
   try {
+    const blob = await compressImage(file);
+    status.textContent = `Uploading (${(blob.size/1024).toFixed(0)}KB)...`;
     const res = await fetch(`${sbUrl}/storage/v1/object/article-images/${filename}`, {
       method: 'POST',
-      headers: { apikey: sbAnonKey, Authorization: `Bearer ${sbAnonKey}`, 'Content-Type': file.type },
-      body: file
+      headers: { apikey: sbAnonKey, Authorization: `Bearer ${sbAnonKey}`, 'Content-Type': 'image/jpeg' },
+      body: blob
     });
     if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.message || e.error || 'Upload failed'); }
     const publicUrl = `${sbUrl}/storage/v1/object/public/article-images/${filename}`;
     document.getElementById('art-cover').value = publicUrl;
     showCoverPreview(publicUrl);
-    status.textContent = '✓ Uploaded'; status.style.color = 'var(--green)';
+    status.textContent = `✓ Uploaded (${(blob.size/1024).toFixed(0)}KB)`; status.style.color = 'var(--green)';
   } catch(e) {
     status.textContent = '⚠ ' + e.message; status.style.color = 'var(--red)';
   } finally {
