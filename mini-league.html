@@ -239,12 +239,6 @@
   </div>
 </div>
 
-<div style="max-width:280px;margin:32px auto 0;text-align:center;padding:0 24px;">
-  <div style="font-size:10px;color:#6B63A8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Sponsored</div>
-  <a href="https://s.shopee.co.id/9fKmrPDHgz" target="_blank" rel="noopener sponsored">
-    <img src="https://ejbxrajfvqegruvgfsct.supabase.co/storage/v1/object/public/article-images/promo-jersey-rey-sportwear.jpg" alt="Jersey Olah Raga Dry-Fit - REY Sport Wear" style="width:100%;border-radius:12px;display:block;box-shadow:0 2px 12px rgba(108,92,231,0.12);"/>
-  </a>
-</div>
 <div style="text-align:center;padding:24px;font-size:11px;color:#6B63A8;border-top:1px solid rgba(108,92,231,0.1);margin-top:40px;">
   Data sourced from <a href="https://fantasy.premierleague.com" target="_blank" style="color:#1A6FFF;text-decoration:none;">FPL Official API</a>
   · Built by <strong>FPLGWReady</strong>
@@ -578,6 +572,39 @@ if (params.get('id')) { document.getElementById('fpl-id').value = params.get('id
 // Keep live GW scores/bonus points fresh without a manual reload — only
 // while a league table is actually open, and quietly (no spinner/flicker).
 setInterval(() => { if (currentLeagueId) loadLeague(currentPage, true); }, 60 * 1000);
+</script>
+<div id="promo-modal-overlay" onclick="if(event.target===this)closePromoModal()">
+  <div id="promo-modal-card">
+    <button id="promo-modal-close" onclick="closePromoModal()" aria-label="Close">✕</button>
+    <div id="promo-modal-label">Sponsored</div>
+    <a href="https://s.shopee.co.id/9fKmrPDHgz" target="_blank" rel="noopener sponsored" onclick="closePromoModal()">
+      <img src="https://ejbxrajfvqegruvgfsct.supabase.co/storage/v1/object/public/article-images/promo-jersey-rey-sportwear.jpg" alt="Jersey Olah Raga Dry-Fit - REY Sport Wear" id="promo-modal-img"/>
+    </a>
+  </div>
+</div>
+<style>
+  #promo-modal-overlay{position:fixed;inset:0;background:rgba(26,21,53,0.55);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;z-index:10000;padding:20px}
+  #promo-modal-overlay.open{display:flex}
+  #promo-modal-card{position:relative;background:var(--surface,#fff);border-radius:var(--radius,16px);padding:16px;max-width:320px;width:100%;box-shadow:0 12px 40px rgba(26,21,53,.3);font-family:'Inter',sans-serif}
+  #promo-modal-close{position:absolute;top:-14px;right:-14px;width:32px;height:32px;border-radius:50%;background:var(--text,#1A1535);color:#fff;border:none;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+  #promo-modal-label{font-size:10px;color:var(--muted,#6B63A8);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;text-align:center}
+  #promo-modal-img{width:100%;border-radius:10px;display:block}
+</style>
+<script>
+  function closePromoModal() {
+    const ov = document.getElementById('promo-modal-overlay');
+    if (ov) ov.classList.remove('open');
+  }
+  (function() {
+    try {
+      if (sessionStorage.getItem('promo_shown_v1')) return;
+      setTimeout(function() {
+        const ov = document.getElementById('promo-modal-overlay');
+        if (ov) ov.classList.add('open');
+        try { sessionStorage.setItem('promo_shown_v1', '1'); } catch (e) {}
+      }, 1200);
+    } catch (e) {}
+  })();
 </script>
 <button id="fb-widget-btn" onclick="toggleFeedbackWidget(true)" title="Send Feedback" aria-label="Send Feedback"><span id="fb-widget-btn-icon">💬</span><span id="fb-widget-btn-label">Give Feedback</span></button>
 <div id="fb-widget-overlay" onclick="if(event.target===this)toggleFeedbackWidget(false)">
