@@ -112,6 +112,33 @@
   </style>
 </head>
 <body>
+<style>
+  @media (min-width: 1500px) { #mobile-promo-bar { display: none !important; } }
+</style>
+<a href="#" target="_blank" rel="noopener sponsored" id="mobile-promo-bar" style="display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--surface,#fff);border-bottom:1px solid rgba(108,92,231,0.15);text-decoration:none;">
+  <img id="mobile-promo-img" src="" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:8px;flex-shrink:0;"/>
+  <div style="min-width:0;flex:1;">
+    <div style="font-size:9px;color:var(--muted,#6B63A8);text-transform:uppercase;letter-spacing:0.5px;">Sponsored</div>
+    <div id="mobile-promo-title" style="font-size:12px;font-weight:600;color:var(--text,#1A1535);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+  </div>
+  <div style="font-size:11px;color:#1A6FFF;flex-shrink:0;">Lihat →</div>
+</a>
+<script>
+  (function() {
+    const items = [
+      { href: 'https://s.shopee.co.id/9fKmrPDHgz', img: 'https://ejbxrajfvqegruvgfsct.supabase.co/storage/v1/object/public/article-images/promo-jersey-rey-sportwear.jpg', alt: 'Jersey Olah Raga Dry-Fit - REY Sport Wear' },
+      { href: 'https://s.shopee.co.id/2VrkBkA1eg', img: 'https://down-tx-id.img.susercontent.com/id-11134207-81ztn-mqgi5qxgs0zm4c.webp', alt: 'Jersey Sporty Full Printing O-Neck' },
+      { href: 'https://s.shopee.co.id/5VVLlO2jGe', img: 'https://down-tx-id.img.susercontent.com/sg-11134201-825ae-mq3pcaccjv2j18.webp', alt: 'Setelan Dryfit Celana Pendek - Bullbest' }
+    ];
+    const item = items[Math.floor(Math.random() * items.length)];
+    const link = document.getElementById('mobile-promo-bar');
+    const img = document.getElementById('mobile-promo-img');
+    const title = document.getElementById('mobile-promo-title');
+    if (link) link.href = item.href;
+    if (img) { img.src = item.img; img.alt = item.alt; }
+    if (title) title.textContent = item.alt;
+  })();
+</script>
 <nav>
   <a class="logo" href="/"><img src="/logo.jpeg" alt="" style="width:34px;height:34px;border-radius:8px;object-fit:cover;object-position:center 32%;flex-shrink:0;"/><span>FPL</span>GWReady</a>
   <div class="nav-links">
