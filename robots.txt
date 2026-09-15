@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /admin-polls.html
+Disallow: /admin-feedback.html
+Disallow: /admin-articles.html
+Disallow: /admin-challenge.html
+Disallow: /api/
+
+Sitemap: https://fplgwready.vercel.app/sitemap.xml
