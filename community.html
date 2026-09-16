@@ -161,7 +161,12 @@
     const link = document.getElementById('mobile-promo-bar');
     const img = document.getElementById('mobile-promo-img');
     const title = document.getElementById('mobile-promo-title');
-    if (link) link.href = item.href;
+    if (link) {
+      link.href = item.href;
+      link.addEventListener('click', function() {
+        try { if (typeof gtag === 'function') gtag('event', 'shopee_click', { placement: 'bar', product: item.alt }); } catch (e) {}
+      });
+    }
     if (img) { img.src = item.img; img.alt = item.alt; }
     if (title) title.textContent = item.alt;
   })();
@@ -274,7 +279,12 @@
     const link = document.getElementById('inline-promo-link');
     const img = document.getElementById('inline-promo-img');
     const title = document.getElementById('inline-promo-title');
-    if (link) link.href = item.href;
+    if (link) {
+      link.href = item.href;
+      link.addEventListener('click', function() {
+        try { if (typeof gtag === 'function') gtag('event', 'shopee_click', { placement: 'rail', product: item.alt }); } catch (e) {}
+      });
+    }
     if (img) { img.src = item.img; img.alt = item.alt; }
     if (title) title.textContent = item.alt;
   })();
@@ -710,7 +720,12 @@ function escPoll(s) {
       const item = PROMO_ITEMS[Math.floor(Math.random() * PROMO_ITEMS.length)];
       const link = document.getElementById('promo-modal-link');
       const img = document.getElementById('promo-modal-img');
-      if (link) link.href = item.href;
+      if (link) {
+        link.href = item.href;
+        link.addEventListener('click', function() {
+          try { if (typeof gtag === 'function') gtag('event', 'shopee_click', { placement: 'popup', product: item.alt }); } catch (e) {}
+        });
+      }
       if (img) { img.src = item.img; img.alt = item.alt; }
       setTimeout(function() {
         const ov = document.getElementById('promo-modal-overlay');
